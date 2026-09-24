@@ -1,0 +1,6 @@
+design/
+node_modules/
+package-lock.json
+src/components/ds/iconGlyphs.json
+docs/build-plan.md
+AGENTS.md
