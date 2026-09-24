@@ -1,25 +1,26 @@
-# CODING AGENTS: READ THIS FIRST
+# Calico
 
-This is a **handoff bundle** from Claude Design (claude.ai/design).
+Android app (Expo / React Native) for tracking books, library loans, movies and TV shows.
 
-A user mocked up designs in HTML/CSS/JS using an AI design tool, then exported this bundle so a coding agent can implement the designs for real.
+- Build plan (engineering source of truth): [`docs/build-plan.md`](docs/build-plan.md)
+- Visual source of truth: [`design/Calico_Prototype.html`](design/Calico_Prototype.html) — run `npm run unpack:design`
+  to get readable `design/unpacked/` sources. The original Claude Design handoff bundle is in `design/handoff/`.
+- Working rules for contributors and agents: [`CLAUDE.md`](CLAUDE.md)
 
-## What you should do — IMPORTANT
+## Getting started
 
-**Read the chat transcripts first.** There are 1 chat transcript(s) in `chats/`. The transcripts show the full back-and-forth between the user and the design assistant — they tell you **what the user actually wants** and **where they landed** after iterating. Don't skip them. The final HTML files are the output, but the chat is where the intent lives.
+```sh
+npm install
+npm run typecheck && npm run lint && npm test
+eas build -p android --profile development   # dev client (native Google sign-in needs it)
+npx expo start --dev-client
+```
 
-**Read `project/Calico Prototype.dc.html` in full.** The user had this file open when they triggered the handoff, so it's almost certainly the primary design they want built. Read it top to bottom — don't skim. Then **follow its imports**: open every file it pulls in (shared components, CSS, scripts) so you understand how the pieces fit together before you start implementing.
+In development the app opens the component gallery (`/dev/components`) until Phase 1 adds auth.
 
-**If anything is ambiguous, ask the user to confirm before you start implementing.** It's much cheaper to clarify scope up front than to build the wrong thing.
+## Status
 
-## About the design files
-
-The design medium is **HTML/CSS/JS** — these are prototypes, not production code. Your job is to **recreate them pixel-perfectly** in whatever technology makes sense for the target codebase (React, Vue, native, whatever fits). Match the visual output; don't copy the prototype's internal structure unless it happens to fit.
-
-**Don't render these files in a browser or take screenshots unless the user asks you to.** Everything you need — dimensions, colors, layout rules — is spelled out in the source. Read the HTML and CSS directly; a screenshot won't tell you anything they don't.
-
-## Bundle contents
-
-- `README.md` — this file
-- `chats/` — conversation transcripts (read these!)
-- `project/` — the `Calico App UI/UX Implementation` project files (HTML prototypes, assets, components)
+| Phase | Scope                        | State                           |
+| ----- | ---------------------------- | ------------------------------- |
+| 0     | Foundation and design system | Done — pending on-device review |
+| 1–8   | See build plan §13           | Not started                     |

@@ -1,0 +1,32 @@
+import { render, screen } from '@testing-library/react-native';
+import { StyleSheet } from 'react-native';
+
+import { ThemeProvider } from '@/theme';
+
+import { Txt } from '../Txt';
+
+const wrap = (ui: React.ReactElement) => render(<ThemeProvider forced="day">{ui}</ThemeProvider>);
+
+describe('<Txt>', () => {
+  it('uses the role family for Latin text', async () => {
+    await wrap(<Txt role="title">Library</Txt>);
+    const s = StyleSheet.flatten(screen.getByText('Library').props.style);
+    expect(s.fontFamily).toBe('PlayfairDisplay_700Bold');
+    expect(s.fontSize).toBe(30);
+  });
+
+  it('switches to Noto Sans Sinhala and raises line height for Sinhala', async () => {
+    await wrap(<Txt role="hero">මාර්ටින් වික්‍රමසිංහ</Txt>);
+    const s = StyleSheet.flatten(screen.getByText('මාර්ටින් වික්‍රමසිංහ').props.style);
+    expect(s.fontFamily).toBe('NotoSansSinhala_700Bold');
+    expect(s.lineHeight).toBeGreaterThanOrEqual(Math.round(48 * 1.5));
+  });
+
+  it('splits mixed strings into nested runs', async () => {
+    await wrap(<Txt role="body">මඩොල් දූව is due in 3 days</Txt>);
+    const run = screen.getByText('මඩොල් දූව');
+    expect(StyleSheet.flatten(run.props.style).fontFamily).toBe('NotoSansSinhala_400Regular');
+    const outer = screen.getByText('මඩොල් දූව is due in 3 days');
+    expect(StyleSheet.flatten(outer.props.style).fontFamily).toBe('Nunito_400Regular');
+  });
+});
