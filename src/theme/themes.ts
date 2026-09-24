@@ -48,6 +48,8 @@ const dayValues = {
   ctaBg: palette.ink,
   ctaFg: palette.cream,
   ctaAccent: palette.honeycomb,
+  /** Bottom of the welcome panel gradient (prototype #12211C). */
+  welcomeEnd: '#12211C',
   statusBarStyle: 'dark' as 'dark' | 'light',
 };
 
