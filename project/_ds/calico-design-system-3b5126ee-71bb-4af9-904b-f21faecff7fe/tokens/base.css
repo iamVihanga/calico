@@ -1,0 +1,18 @@
+/* Minimal resets + shared primitives. Components style themselves via tokens. */
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--surface-page);color:var(--text-primary);font-family:var(--font-ui);font-size:var(--type-body-size);line-height:var(--type-body-leading);-webkit-font-smoothing:antialiased;text-wrap:pretty}
+h1,h2,h3,h4{font-family:var(--font-display);font-weight:var(--weight-bold);line-height:var(--leading-snug);margin:0;letter-spacing:var(--tracking-tight)}
+p{margin:0}
+a{color:var(--text-accent);text-decoration-color:var(--alpha-ink-24);text-underline-offset:3px;transition:color var(--duration-fast) var(--ease-cozy)}
+a:hover{color:var(--accent-primary-press);text-decoration-color:currentColor}
+button{font-family:inherit}
+::selection{background:var(--surface-accent-soft);color:var(--text-primary)}
+
+/* The brand's paper texture: a faint warm fleck, applied to page grounds. */
+.calico-paper{background-color:var(--surface-page);background-image:radial-gradient(var(--alpha-ink-04) .5px,transparent .5px);background-size:4px 4px}
+/* Hand-drawn underline accent under a word or phrase. */
+.calico-underline{position:relative;white-space:nowrap}
+.calico-underline::after{content:"";position:absolute;left:0;right:0;bottom:-.14em;height:.14em;border-radius:var(--radius-pill);background:var(--accent-primary);opacity:.9}
+.calico-label{font-family:var(--font-ui);font-size:var(--type-label-size);font-weight:var(--type-label-weight);letter-spacing:var(--type-label-tracking);text-transform:uppercase;color:var(--text-muted)}
+.calico-hand{font-family:var(--font-hand);font-weight:var(--weight-bold)}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}

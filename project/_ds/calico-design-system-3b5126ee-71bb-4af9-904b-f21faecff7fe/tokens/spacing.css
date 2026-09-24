@@ -1,0 +1,18 @@
+:root{
+  --space-0:0; --space-1:2px; --space-2:4px; --space-3:8px; --space-4:12px;
+  --space-5:16px; --space-6:20px; --space-7:24px; --space-8:32px;
+  --space-9:40px; --space-10:48px; --space-11:64px; --space-12:80px;
+
+  /* semantic */
+  --gutter-screen:20px;        /* phone side margin */
+  --gap-stack-tight:8px;
+  --gap-stack:12px;
+  --gap-section:32px;
+  --pad-card:16px;
+  --pad-card-lg:20px;
+  --pad-control-y:14px;
+  --pad-control-x:20px;
+  --hit-min:44px;              /* never smaller */
+  --shelf-gap:14px;
+  --bottom-nav-height:72px;
+}

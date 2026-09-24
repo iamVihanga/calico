@@ -1,0 +1,100 @@
+:root{
+  /* ---- Brand base ramp: calico coat, warm paper, marmalade ---- */
+  --calico-cream:#FBF6EE;        /* page paper */
+  --calico-crumpet:#F5E2CE;      /* warm tint */
+  --calico-biscuit:#DFBC94;      /* sand */
+  --calico-honeycomb:#E5A657;    /* amber */
+  --calico-marmalade:#EC6426;    /* primary orange */
+  --calico-paprika:#B53324;      /* deep red-orange */
+  --calico-clay:#A35A45;         /* muted terracotta */
+  --calico-cocoa:#6E4738;        /* mid brown */
+  --calico-espresso:#54332E;     /* dark brown */
+  --calico-ink:#1C1714;          /* near-black, cat-nose brown-black */
+  --calico-forest:#1F3A32;       /* deep green surface */
+  --calico-fern:#2F5145;         /* forest raised */
+  --calico-sage:#949A6B;         /* olive, cat-eye green */
+  --calico-slate:#666B6E;        /* cool grey from the calico coat */
+  --calico-petal:#F2C4C7;        /* soft pink */
+  --calico-blush:#FAE3E1;        /* palest pink */
+  --calico-white:#FFFDF9;
+
+  /* ---- Alphas (warm, never neutral black) ---- */
+  --alpha-ink-04:rgba(28,23,20,.04);
+  --alpha-ink-08:rgba(28,23,20,.08);
+  --alpha-ink-12:rgba(28,23,20,.12);
+  --alpha-ink-24:rgba(28,23,20,.24);
+  --alpha-ink-56:rgba(28,23,20,.56);
+  --alpha-cream-16:rgba(251,246,238,.16);
+  --alpha-cream-72:rgba(251,246,238,.72);
+
+  /* ---- Semantic: surfaces ---- */
+  --surface-page:var(--calico-cream);
+  --surface-page-warm:var(--calico-crumpet);
+  --surface-card:var(--calico-white);
+  --surface-sunk:#F3EADD;
+  --surface-inverse:var(--calico-forest);
+  --surface-inverse-raised:var(--calico-fern);
+  --surface-ink:var(--calico-ink);
+  --surface-accent:var(--calico-marmalade);
+  --surface-accent-soft:#FBE0CE;
+  --surface-quiet:#EFE7DA;
+  --surface-scrim:var(--alpha-ink-56);
+
+  /* ---- Semantic: text ---- */
+  --text-primary:var(--calico-ink);
+  --text-secondary:var(--calico-cocoa);
+  --text-muted:#8A7565;
+  --text-inverse:var(--calico-cream);
+  --text-inverse-muted:#C3CFC6;
+  --text-accent:var(--calico-marmalade);
+  --text-on-accent:#2A1206;
+
+  /* ---- Semantic: borders ---- */
+  --border-hairline:var(--alpha-ink-08);
+  --border-soft:#E7DACA;
+  --border-strong:var(--calico-biscuit);
+  --border-ink:var(--calico-ink);
+  --border-inverse:rgba(251,246,238,.18);
+
+  /* ---- Semantic: accents ---- */
+  --accent-primary:var(--calico-marmalade);
+  --accent-primary-press:#D2541B;
+  --accent-secondary:var(--calico-honeycomb);
+  --accent-tertiary:var(--calico-forest);
+  --accent-quiet:var(--calico-sage);
+  --accent-pink:var(--calico-petal);
+
+  /* ---- Semantic: status ---- */
+  --status-success:#4F7A5C;
+  --status-success-soft:#DCE8DC;
+  --status-warning:var(--calico-honeycomb);
+  --status-warning-soft:#FBEBD3;
+  --status-danger:var(--calico-paprika);
+  --status-danger-soft:#F7DDD7;
+  --status-info:var(--calico-slate);
+  --status-info-soft:#E6E7E5;
+
+  /* ---- Shelf colours: book covers pull from this rotation ---- */
+  --cover-1:var(--calico-marmalade);
+  --cover-2:var(--calico-forest);
+  --cover-3:var(--calico-petal);
+  --cover-4:var(--calico-ink);
+  --cover-5:var(--calico-biscuit);
+  --cover-6:var(--calico-sage);
+}
+/* Night Reading — the app's dark reading mode. Scope, not a media query. */
+.calico-night{
+  --surface-page:#16120F;
+  --surface-page-warm:#1C1714;
+  --surface-card:#221C18;
+  --surface-sunk:#120F0C;
+  --surface-quiet:#2A231E;
+  --surface-accent-soft:#3A2417;
+  --text-primary:#F2E8DA;
+  --text-secondary:#C9B49F;
+  --text-muted:#9A8877;
+  --text-on-accent:#1C1714;
+  --border-soft:#342B24;
+  --border-hairline:rgba(242,232,218,.10);
+  --border-strong:#463A31;
+}
