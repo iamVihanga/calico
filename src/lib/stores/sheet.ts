@@ -6,6 +6,12 @@ import { create } from 'zustand';
  */
 export type SheetParams = {
   add: undefined;
+  ruler: { itemId: string };
+  finish: { itemId: string };
+  stop: { itemId: string };
+  overflow: { itemId: string };
+  startReading: { itemId: string; reread: boolean };
+  confirmDelete: { itemId: string };
 };
 export type SheetName = keyof SheetParams;
 

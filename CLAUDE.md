@@ -28,6 +28,8 @@ Expo-specific guidance: @AGENTS.md
 - Multi-table writes go through Postgres RPCs (atomic, replayable offline). Single-row writes may use table APIs.
 - Client generates UUIDs for new rows (`crypto.randomUUID()`), so offline creates are idempotent.
 - Dates: store `date` columns as local Colombo dates (`yyyy-MM-dd`) computed on the client; timestamps as UTC.
+- Book status changes go through `useBookStatusChange()` (Read → Finish sheet, Abandoned → Stop sheet, Reading → start date).
+- Tests that render the app (`renderRouter`) call `cleanupAppState` in `afterAll` so Jest can exit.
 - Global sheets open via `openSheet(name)` (`src/lib/stores/sheet.ts`, rendered by `SheetHost`); toasts via `toast({...})`.
 - Every mutation has a `mutationKey` and is registered in `src/lib/mutations.ts` via `setMutationDefaults`, so paused offline mutations resume after restart.
 - Pure logic (pace, next episode, pick reasons, fractional keys, ISBN validation) lives in `features/*/logic.ts` with unit tests.
@@ -38,4 +40,5 @@ Expo-specific guidance: @AGENTS.md
 ## Status
 
 - Phase 0 (foundation + design system): merged (PR #1).
-- Phase 1 (backend + auth): done, pending on-device Google sign-in check.
+- Phase 1 (backend + auth): merged (PR #2), pending on-device Google sign-in check.
+- Phase 2 (books): done, pending device review.

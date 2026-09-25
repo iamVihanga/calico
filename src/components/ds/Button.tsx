@@ -7,7 +7,7 @@ import { Icon, type IconName } from './Icon';
 import { Press } from './Press';
 import { Txt } from './Txt';
 
-export type ButtonVariant = 'primary' | 'accent' | 'secondary' | 'ghost' | 'inverse';
+export type ButtonVariant = 'primary' | 'accent' | 'secondary' | 'ghost' | 'inverse' | 'danger';
 export type ButtonSize = 'sm' | 'md' | 'lg';
 
 type Props = {
@@ -52,6 +52,14 @@ function variantColors(t: Theme, v: ButtonVariant) {
         fg: t.textSecondary,
         border: 'transparent',
         pressed: t.surfaceQuiet,
+        shadow: undefined,
+      };
+    case 'danger': // prototype "Delete account"
+      return {
+        bg: t.statusDangerSoft,
+        fg: t.statusDanger,
+        border: 'transparent',
+        pressed: t.statusDangerSoft,
         shadow: undefined,
       };
     case 'inverse':

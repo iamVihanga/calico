@@ -49,8 +49,9 @@ Native Google sign-in needs a development build (not Expo Go):
 
 ## Status
 
-| Phase | Scope                        | State                                         |
-| ----- | ---------------------------- | --------------------------------------------- |
-| 0     | Foundation and design system | Merged                                        |
-| 1     | Backend and auth             | Done — pending on-device Google sign-in check |
-| 2–8   | See build plan §13           | Not started                                   |
+| Phase | Scope                        | State                                           |
+| ----- | ---------------------------- | ----------------------------------------------- |
+| 0     | Foundation and design system | Merged                                          |
+| 1     | Backend and auth             | Merged — pending on-device Google sign-in check |
+| 2     | Books                        | Done — pending device review                    |
+| 3–8   | See build plan §13           | Not started                                     |

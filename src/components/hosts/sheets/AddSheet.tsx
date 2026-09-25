@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { type ReactNode, useState } from 'react';
 import { View } from 'react-native';
 
@@ -45,10 +46,17 @@ export function AddSheetBody({ onClose }: { onClose: () => void }) {
     </Press>
   );
 
-  const methods: { icon: IconName; label: string; hint?: string }[] = [
-    { icon: 'barcode_scanner', label: copy.add.scan, hint: copy.add.scanHint },
-    { icon: 'photo_camera', label: copy.add.cover, hint: copy.add.coverHint },
-    { icon: 'edit', label: copy.add.type },
+  const methods: { icon: IconName; label: string; hint?: string; run: () => void }[] = [
+    { icon: 'barcode_scanner', label: copy.add.scan, hint: copy.add.scanHint, run: later },
+    { icon: 'photo_camera', label: copy.add.cover, hint: copy.add.coverHint, run: later },
+    {
+      icon: 'edit',
+      label: copy.add.type,
+      run: () => {
+        onClose();
+        router.push({ pathname: '/capture/review', params: { manual: '1' } });
+      },
+    },
   ];
 
   return (
@@ -94,7 +102,8 @@ export function AddSheetBody({ onClose }: { onClose: () => void }) {
                 key={m.label}
                 accessibilityRole="button"
                 accessibilityLabel={m.label}
-                onPress={later}
+                testID={`add-${m.icon}`}
+                onPress={m.run}
                 style={{
                   flexDirection: 'row',
                   alignItems: 'center',
