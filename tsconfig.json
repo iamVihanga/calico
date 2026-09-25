@@ -5,8 +5,10 @@
     "noUncheckedIndexedAccess": true,
     "resolveJsonModule": true,
     "types": ["jest"],
+    "allowImportingTsExtensions": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@shared/*": ["./supabase/functions/_shared/*"]
     }
   },
   "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"],

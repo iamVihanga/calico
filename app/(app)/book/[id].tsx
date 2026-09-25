@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { ScrollView, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { CoverPhoto } from '@/components/calico/CoverPhoto';
 import { coverFor } from '@/components/calico/coverPalette';
 import { coverRadius } from '@/components/calico/GeneratedCover';
 import { DateStamp } from '@/components/calico/DateStamp';
@@ -160,6 +161,7 @@ export default function BookDetailScreen() {
           >
             {author}
           </Txt>
+          <CoverPhoto item={book} label={main} />
         </View>
       </View>
 

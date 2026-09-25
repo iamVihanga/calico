@@ -9,6 +9,7 @@ import { TabScreen } from '@/components/layout/TabScreen';
 import { useBooks, useLeadScript, useReadingLogs } from '@/features/books/hooks';
 import { ContinueReadingCard } from '@/features/home/components/ContinueReadingCard';
 import { HomeEmpty } from '@/features/home/components/HomeEmpty';
+import { PendingCapturesCard } from '@/features/home/components/PendingCapturesCard';
 import { useProfile, useSetTheme } from '@/features/profile/hooks';
 import { copy } from '@/i18n/en';
 import { toast } from '@/lib/stores/toast';
@@ -129,6 +130,8 @@ export default function Home() {
           </Txt>
         </Press>
       </View>
+
+      <PendingCapturesCard />
 
       {empty && <HomeEmpty />}
 

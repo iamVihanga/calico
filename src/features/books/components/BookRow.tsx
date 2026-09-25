@@ -6,6 +6,7 @@ import ReanimatedSwipeable, {
   type SwipeableMethods,
 } from 'react-native-gesture-handler/ReanimatedSwipeable';
 
+import { CoverPhoto } from '@/components/calico/CoverPhoto';
 import { coverFor } from '@/components/calico/coverPalette';
 import { coverRadius } from '@/components/calico/GeneratedCover';
 import { Icon, type IconName } from '@/components/ds/Icon';
@@ -110,7 +111,9 @@ export const BookRow = memo(function BookRow({ book, lead, onStatus, onQueue }: 
             backgroundColor: t.surfaceCard,
           }}
         >
-          <View style={[{ width: 50, height: 74, backgroundColor: p.bg, boxShadow: shadow.xs }, coverRadius]} />
+          <View style={[{ width: 50, height: 74, backgroundColor: p.bg, boxShadow: shadow.xs, overflow: 'hidden' }, coverRadius]}>
+            <CoverPhoto item={book} />
+          </View>
           <View style={{ flex: 1, minWidth: 0, justifyContent: 'center', gap: 2 }}>
             <Txt family="display" weight={700} size={16} leading={1.2} numberOfLines={1}>
               {main}

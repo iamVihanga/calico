@@ -31,6 +31,30 @@ Supabase's `auth` / `storage` schemas (`supabase/tests/local/supabase_shim.sql`)
 The seed creates one user with the prototype's sample data. In a development build the Welcome screen
 has a "Dev: sign in as the seed user" link (`dilan@calico.test` / `calico-dev`) — local only.
 
+### Edge functions
+
+`isbn-lookup` (Open Library, then Google Books) and `extract-book` (Gemini reads the cover photos) live
+in `supabase/functions/`. Pure helpers shared with the app are in `supabase/functions/_shared/` and
+imported in the app as `@shared/*`.
+
+```sh
+supabase functions serve         # local
+npm run fn:test                  # Deno unit tests for the handlers (needs deno)
+supabase secrets set GEMINI_API_KEY=… CONTACT_EMAIL=…   # production
+```
+
+| Secret                 | Used by        | Notes                                            |
+| ---------------------- | -------------- | ------------------------------------------------ |
+| `GEMINI_API_KEY`       | `extract-book` | required                                         |
+| `GEMINI_MODEL`         | `extract-book` | default `gemini-3.6-flash`                       |
+| `AI_DAILY_LIMIT`       | `extract-book` | cover reads per user per Colombo day, default 30 |
+| `GOOGLE_BOOKS_API_KEY` | `isbn-lookup`  | optional (higher quota)                          |
+| `CONTACT_EMAIL`        | `isbn-lookup`  | sent in the Open Library `User-Agent`            |
+| `TMDB_READ_TOKEN`      | Phase 5        |                                                  |
+| `CRON_SECRET`          | cron functions | Phase 4+                                         |
+
+Cover-reading quality is tracked in [`docs/ai-eval.md`](docs/ai-eval.md).
+
 ### Google sign-in
 
 Native Google sign-in needs a development build (not Expo Go):
@@ -53,5 +77,6 @@ Native Google sign-in needs a development build (not Expo Go):
 | ----- | ---------------------------- | ----------------------------------------------- |
 | 0     | Foundation and design system | Merged                                          |
 | 1     | Backend and auth             | Merged — pending on-device Google sign-in check |
-| 2     | Books                        | Done — pending device review                    |
-| 3–8   | See build plan §13           | Not started                                     |
+| 2     | Books                        | Merged — pending device review                  |
+| 3     | Capture                      | Done — pending device check and cover eval      |
+| 4–8   | See build plan §13           | Not started                                     |

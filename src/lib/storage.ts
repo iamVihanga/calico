@@ -6,6 +6,7 @@ export const storage = createMMKV({ id: 'calico' });
 export const storageKeys = {
   theme: 'theme',
   queryCache: 'query-cache',
+  pendingCaptures: 'pending-captures',
 } as const;
 
 /** Wipe everything except the theme (sign-out keeps the paper colour for the welcome screen). */

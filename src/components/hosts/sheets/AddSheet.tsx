@@ -47,8 +47,24 @@ export function AddSheetBody({ onClose }: { onClose: () => void }) {
   );
 
   const methods: { icon: IconName; label: string; hint?: string; run: () => void }[] = [
-    { icon: 'barcode_scanner', label: copy.add.scan, hint: copy.add.scanHint, run: later },
-    { icon: 'photo_camera', label: copy.add.cover, hint: copy.add.coverHint, run: later },
+    {
+      icon: 'barcode_scanner',
+      label: copy.add.scan,
+      hint: copy.add.scanHint,
+      run: () => {
+        onClose();
+        router.push({ pathname: '/capture/camera', params: { mode: 'barcode' } });
+      },
+    },
+    {
+      icon: 'photo_camera',
+      label: copy.add.cover,
+      hint: copy.add.coverHint,
+      run: () => {
+        onClose();
+        router.push({ pathname: '/capture/camera', params: { mode: 'cover' } });
+      },
+    },
     {
       icon: 'edit',
       label: copy.add.type,

@@ -46,3 +46,4 @@ calendar_today
 keyboard
 local_library
 menu_book
+schedule

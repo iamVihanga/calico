@@ -1,27 +1,38 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useMemo } from 'react';
+import { Image } from 'expo-image';
+import { useEffect, useMemo, useState } from 'react';
 import { Controller, useForm, useWatch } from 'react-hook-form';
 import { KeyboardAvoidingView, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { GeneratedCover } from '@/components/calico/GeneratedCover';
+import { type Confidence, ConfidenceField } from '@/components/calico/ConfidenceField';
+import { coverRadius, GeneratedCover } from '@/components/calico/GeneratedCover';
 import { Button } from '@/components/ds/Button';
 import { IconButton } from '@/components/ds/IconButton';
-import { Input } from '@/components/ds/Input';
 import { Press } from '@/components/ds/Press';
 import { Select } from '@/components/ds/Select';
 import { Tag } from '@/components/ds/Tag';
 import { Txt } from '@/components/ds/Txt';
 import { type NewBook, newId } from '@/features/books/api';
-import { useCreateBook, useFinishBook } from '@/features/books/hooks';
+import { useBooks, useCreateBook, useFinishBook } from '@/features/books/hooks';
 import { statusLabel } from '@/features/books/logic';
 import { DUE_CHOICES, type ReviewForm, reviewSchema, SOURCES, statusOptions } from '@/features/books/schema';
+import { removeDraft } from '@/features/capture/drafts';
+import {
+  CONFIDENCE_OF,
+  fieldOrder,
+  findDuplicate,
+  formFromExtraction,
+  formFromLookup,
+  isLowConfidence,
+} from '@/features/capture/logic';
+import { capture, type Draft } from '@/features/capture/store';
 import { useProfile } from '@/features/profile/hooks';
 import { copy } from '@/i18n/en';
 import { addLocalDays, colomboToday, fmtShort } from '@/lib/dates';
 import { toast } from '@/lib/stores/toast';
-import { layout, radius, useTheme } from '@/theme';
+import { layout, radius, shadow, useTheme } from '@/theme';
 
 function Label({ children }: { children: string }) {
   return (
@@ -32,17 +43,23 @@ function Label({ children }: { children: string }) {
 }
 
 /**
- * Review form (prototype `review`). Phase 2: manual entry (`?manual=1`, optional `?title=`).
- * Phase 3 fills it from the barcode lookup or the cover reading.
+ * Review form (prototype `review`, brief §7.5.4). Manual entry (`?manual=1`, optional `?title=`), or
+ * filled from the capture draft: `?from=cover` (AI reading, with ✦ / dotted confidence states),
+ * `?from=barcode` (ISBN lookup) or `?from=draft` (an offline capture read later).
  */
 export default function Review() {
-  const params = useLocalSearchParams<{ title?: string }>();
+  const params = useLocalSearchParams<{ title?: string; from?: 'cover' | 'barcode' | 'draft' }>();
   const { t } = useTheme();
   const insets = useSafeAreaInsets();
   const profile = useProfile().data;
   const create = useCreateBook();
   const finish = useFinishBook();
-  const itemId = useMemo(() => newId(), []);
+  // The capture draft is read once: it belongs to this form from now on.
+  const [draft] = useState<Draft | null>(() => (params.from ? { ...capture() } : null));
+  const extraction = draft?.extraction ?? null;
+  const lookup = draft?.lookup ?? null;
+  const itemId = useMemo(() => draft?.itemId ?? newId(), [draft]);
+  const books = useBooks().data ?? [];
   const today = colomboToday();
   const defaultDue = (DUE_CHOICES as readonly number[]).includes(profile?.default_loan_days ?? 0)
     ? (profile!.default_loan_days as ReviewForm['dueDays'])
@@ -63,7 +80,10 @@ export default function Review() {
       dueDays: defaultDue,
       priority: 'soon',
       price: '',
-      status: 'reading',
+      // F2: a scanned bought book defaults to To read; a book you're holding defaults to Reading.
+      status: params.from === 'barcode' ? 'to_read' : 'reading',
+      ...(lookup?.found ? formFromLookup(lookup) : {}),
+      ...(extraction ? formFromExtraction(extraction) : {}),
     },
   });
   const [source, title, titleNative, dueDays, status] = useWatch({
@@ -71,6 +91,16 @@ export default function Review() {
     name: ['source', 'title', 'titleNative', 'dueDays', 'status'],
   });
   const statuses = statusOptions(source);
+  const duplicate = findDuplicate(books, title, titleNative);
+
+  /** ✦ when the AI filled the field; dotted underline when it isn't sure. */
+  const confidenceOf = (name: string): Confidence => {
+    const key = CONFIDENCE_OF[name];
+    if (!extraction || !key) return 'manual';
+    const value = extraction[key as keyof typeof extraction];
+    if (value === null || value === undefined) return 'manual';
+    return isLowConfidence(extraction.confidence[key]) ? 'low' : 'ai';
+  };
 
   // Switching source: keep the status valid (Read isn't offered for borrowed books) and reset the lender.
   useEffect(() => {
@@ -96,6 +126,12 @@ export default function Review() {
       ownership: v.source === 'bought' ? 'owned' : v.source === 'wishlist' ? 'none' : v.source,
       wishlistPriority: v.source === 'wishlist' ? v.priority : undefined,
       wishlistPriceLkr: v.source === 'wishlist' && v.price ? Number(v.price) : undefined,
+      coverPath: draft?.frontPath ?? undefined,
+      coverUrl: !draft?.frontPath && lookup?.coverUrl ? lookup.coverUrl : undefined,
+      isbn: extraction?.isbn ?? draft?.isbn ?? undefined,
+      publisher: extraction?.publisher ?? lookup?.publisher ?? undefined,
+      publishedYear: extraction?.published_year ?? lookup?.year ?? undefined,
+      aiExtracted: !!extraction,
       loan:
         v.source === 'library' || v.source === 'friend'
           ? {
@@ -111,7 +147,13 @@ export default function Review() {
       finish.mutate({ itemId, on: today, rating: null, note: null, returnLoan: false });
     }
     const shown = v.titleNative && profile?.lead_script === 'si' ? v.titleNative : book.title;
-    router.back();
+    if (draft) {
+      removeDraft(itemId);
+      capture().start(); // fresh draft for the next capture
+      router.dismissTo('/');
+    } else {
+      router.back();
+    }
     toast({
       message: copy.review.added(shown),
       action: { label: copy.finish.open, onPress: () => router.push(`/book/${itemId}`) },
@@ -148,10 +190,12 @@ export default function Review() {
     extra?: { numeric?: boolean; placeholder?: string },
   ) => (
     <Controller
+      key={name}
       control={control}
       name={name}
       render={({ field: f, fieldState }) => (
-        <Input
+        <ConfidenceField
+          confidence={confidenceOf(name)}
           label={label}
           value={f.value}
           onChange={f.onChange}
@@ -201,25 +245,96 @@ export default function Review() {
         testID="screen-review"
       >
         <View style={{ flexDirection: 'row', gap: 16, paddingTop: 20, paddingBottom: 4 }}>
-          <GeneratedCover
-            seed={itemId}
-            title={titleNative || title || '…'}
-            width={80}
-            height={120}
-            showAuthor={false}
-          />
+          {draft?.front || lookup?.coverUrl ? (
+            <View style={[{ width: 80, height: 120, boxShadow: shadow.cover, overflow: 'hidden' }, coverRadius]}>
+              <Image
+                accessibilityLabel={copy.capture.coverPhoto}
+                source={{ uri: draft?.front ?? lookup?.coverUrl ?? undefined }}
+                contentFit="cover"
+                style={{ width: '100%', height: '100%' }}
+              />
+            </View>
+          ) : (
+            <GeneratedCover
+              seed={itemId}
+              title={titleNative || title || '…'}
+              width={80}
+              height={120}
+              showAuthor={false}
+            />
+          )}
           <View style={{ flex: 1 }}>
             <Txt family="hand" weight={400} size={19} leading={1.25} color="textMuted">
               {copy.review.hint}
             </Txt>
+            {params.from === 'cover' && !draft?.back && (
+              <Press
+                accessibilityRole="button"
+                testID="review-add-back"
+                // Replace: the back photo comes round to a fresh Review with both photos read.
+                onPress={() => router.replace({ pathname: '/capture/camera', params: { mode: 'back' } })}
+                style={{
+                  alignSelf: 'flex-start',
+                  marginTop: 12,
+                  minHeight: 44,
+                  paddingHorizontal: 14,
+                  justifyContent: 'center',
+                  borderRadius: radius.pill,
+                  borderWidth: 1,
+                  borderStyle: 'dashed',
+                  borderColor: t.borderStrong,
+                }}
+              >
+                <Txt family="ui" weight={600} size="xs" color="textSecondary">
+                  {copy.capture.addBack}
+                </Txt>
+              </Press>
+            )}
           </View>
         </View>
 
+        {duplicate && (
+          <View
+            testID="review-duplicate"
+            style={{
+              marginTop: 14,
+              padding: 14,
+              paddingHorizontal: 16,
+              backgroundColor: t.statusWarningSoft,
+              borderRadius: radius.md,
+            }}
+          >
+            <Txt family="ui" size="xs" tint={t.inkOnWarm}>
+              {copy.capture.duplicate(
+                duplicate.titleNative && profile?.lead_script === 'si' ? duplicate.titleNative : duplicate.title,
+                statusLabel(duplicate.status),
+                duplicate.finishedAt?.slice(0, 4) ?? '',
+              )}
+            </Txt>
+            <Press
+              accessibilityRole="link"
+              onPress={() => router.push(`/book/${duplicate.id}`)}
+              style={{ minHeight: 40, justifyContent: 'center', alignSelf: 'flex-start' }}
+            >
+              <Txt family="ui" weight={700} size="xs" color="textAccent">
+                {copy.capture.openExisting}
+              </Txt>
+            </Press>
+          </View>
+        )}
+
         <View style={{ gap: 18, paddingTop: 18 }}>
-          {field('titleNative', copy.review.titleSi)}
-          {field('title', copy.review.titleEn)}
-          {field('authorNative', copy.review.authorSi)}
-          {field('author', copy.review.authorEn)}
+          {fieldOrder(extraction?.script_on_cover).map((k) =>
+            field(
+              k,
+              {
+                titleNative: copy.review.titleSi,
+                title: copy.review.titleEn,
+                authorNative: copy.review.authorSi,
+                author: copy.review.authorEn,
+              }[k],
+            ),
+          )}
           <Controller
             control={control}
             name="language"

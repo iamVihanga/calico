@@ -295,8 +295,8 @@ function bookFromNew(n: api.NewBook): Book {
     finishedAt: null,
     createdAt: now,
     updatedAt: now,
-    coverPath: null,
-    coverUrl: null,
+    coverPath: n.coverPath ?? null,
+    coverUrl: n.coverUrl ?? null,
     wishlistPriority: n.wishlistPriority ?? null,
     abandonReason: null,
     loan: n.loan
