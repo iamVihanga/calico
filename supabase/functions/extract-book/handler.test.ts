@@ -87,7 +87,7 @@ Deno.test('the 30th read still works', async () => {
   assertEquals((await res.json()).remaining, 0);
 });
 
-Deno.test('rejects paths outside the user\'s item folder', async () => {
+Deno.test("rejects paths outside the user's item folder", async () => {
   const { d } = deps();
   const res = await handle(req([`someone-else/${ITEM}/front.jpg`]), d);
   assertEquals(res.status, 403);

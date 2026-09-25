@@ -7,6 +7,12 @@ import {
   StopSheetBody,
 } from '@/features/books/sheets/BookSheets';
 import { RulerSheetBody } from '@/features/books/sheets/RulerSheet';
+import {
+  LoanFormSheetBody,
+  LoanQuickSheetBody,
+  NotifSheetBody,
+  RenewSheetBody,
+} from '@/features/loans/sheets/LoanSheets';
 import { copy } from '@/i18n/en';
 import { type SheetName, useSheetStore } from '@/lib/stores/sheet';
 
@@ -59,6 +65,18 @@ export function SheetHost() {
         {sheet?.name === 'confirmDelete' && (
           <ConfirmDeleteSheetBody key={id} itemId={id} onClose={closer('confirmDelete')} />
         )}
+      </Sheet>
+      <Sheet open={sheet?.name === 'renew'} onClose={closer('renew')} testID="sheet-renew">
+        {sheet?.name === 'renew' && <RenewSheetBody key={id} itemId={id} onClose={closer('renew')} />}
+      </Sheet>
+      <Sheet open={sheet?.name === 'loanQuick'} onClose={closer('loanQuick')} testID="sheet-loan-quick">
+        {sheet?.name === 'loanQuick' && <LoanQuickSheetBody key={id} itemId={id} onClose={closer('loanQuick')} />}
+      </Sheet>
+      <Sheet open={sheet?.name === 'loanForm'} onClose={closer('loanForm')} testID="sheet-loan-form">
+        {sheet?.name === 'loanForm' && <LoanFormSheetBody key={id} itemId={id} onClose={closer('loanForm')} />}
+      </Sheet>
+      <Sheet open={sheet?.name === 'notif'} onClose={closer('notif')} testID="sheet-notif">
+        {sheet?.name === 'notif' && <NotifSheetBody onClose={closer('notif')} />}
       </Sheet>
     </>
   );

@@ -22,6 +22,39 @@ describe('toast store', () => {
     jest.advanceTimersByTime(3000);
     expect(useToastStore.getState().toast?.message).toBe('two');
   });
+
+  it('shows queued follow-ups after the current toast', () => {
+    const s = useToastStore.getState();
+    s.hide();
+    toast({ message: 'Returned to Colombo Public Library' });
+    s.enqueue({ message: 'Move to To read so you remember it?' });
+    expect(useToastStore.getState().toast?.message).toBe('Returned to Colombo Public Library');
+    jest.advanceTimersByTime(TOAST_MS);
+    expect(useToastStore.getState().toast?.message).toBe('Move to To read so you remember it?');
+    jest.advanceTimersByTime(TOAST_MS);
+    expect(useToastStore.getState().toast).toBeNull();
+  });
+
+  it('an action can drop the queued follow-ups (Undo)', () => {
+    const s = useToastStore.getState();
+    const undo = jest.fn(() => useToastStore.getState().clearQueue());
+    toast({ message: 'Returned', action: { label: 'Undo', onPress: undo } });
+    s.enqueue({ message: 'Move to To read?' });
+    s.pressAction();
+    expect(undo).toHaveBeenCalled();
+    expect(useToastStore.getState().toast).toBeNull();
+  });
+
+  it('pressing an action moves on to the next toast unless the action showed one', () => {
+    const s = useToastStore.getState();
+    toast({ message: 'one', action: { label: 'Dismiss', onPress: () => undefined } });
+    s.enqueue({ message: 'two' });
+    s.pressAction();
+    expect(useToastStore.getState().toast?.message).toBe('two');
+    s.show({ message: 'three', action: { label: 'Go', onPress: () => toast({ message: 'four' }) } });
+    s.pressAction();
+    expect(useToastStore.getState().toast?.message).toBe('four');
+  });
 });
 
 describe('sheet store', () => {

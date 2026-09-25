@@ -32,6 +32,7 @@
   "more_horiz": 58835,
   "more_vert": 58836,
   "movie": 58372,
+  "notifications": 59381,
   "photo_camera": 58386,
   "playlist_add": 57403,
   "playlist_play": 57439,
@@ -44,5 +45,6 @@
   "shelves": 63598,
   "star": 61594,
   "travel_explore": 58075,
-  "view_list": 59631
+  "view_list": 59631,
+  "volunteer_activism": 60016
 }

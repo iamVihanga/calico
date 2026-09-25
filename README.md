@@ -53,6 +53,14 @@ supabase secrets set GEMINI_API_KEY=… CONTACT_EMAIL=…   # production
 | `TMDB_READ_TOKEN`      | Phase 5        |                                                  |
 | `CRON_SECRET`          | cron functions | Phase 4+                                         |
 
+### Reminders
+
+Library due-date reminders are local notifications (`expo-notifications`), scheduled 3 days and 1 day
+before each due date at the profile's reminder time (Colombo). They are resynced from the loans on every
+launch, on foreground (hourly) and after every loan change. In a development build, Settings → "Notifications
+(dev)" previews them, sends a test reminder in 10 seconds (its Renew / Open / Returned buttons deep-link to
+the book) and lists what is scheduled.
+
 Cover-reading quality is tracked in [`docs/ai-eval.md`](docs/ai-eval.md).
 
 ### Google sign-in
@@ -78,5 +86,6 @@ Native Google sign-in needs a development build (not Expo Go):
 | 0     | Foundation and design system | Merged                                          |
 | 1     | Backend and auth             | Merged — pending on-device Google sign-in check |
 | 2     | Books                        | Merged — pending device review                  |
-| 3     | Capture                      | Done — pending device check and cover eval      |
-| 4–8   | See build plan §13           | Not started                                     |
+| 3     | Capture                      | Merged — pending device check and cover eval    |
+| 4     | Loans and reminders          | Done — pending device check (F4, reminders)     |
+| 5–8   | See build plan §13           | Not started                                     |

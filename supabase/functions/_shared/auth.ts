@@ -7,7 +7,9 @@ const env = (k: string) => Deno.env.get(k);
 const anonKey = () => env('SUPABASE_ANON_KEY') ?? env('SUPABASE_PUBLISHABLE_KEY') ?? '';
 const serviceKey = () => env('SUPABASE_SERVICE_ROLE_KEY') ?? env('SUPABASE_SECRET_KEY') ?? '';
 
-export async function requireUser(req: Request): Promise<{ uid: string; userClient: SupabaseClient; admin: SupabaseClient }> {
+export async function requireUser(
+  req: Request,
+): Promise<{ uid: string; userClient: SupabaseClient; admin: SupabaseClient }> {
   const url = env('SUPABASE_URL')!;
   const userClient = createClient(url, anonKey(), {
     global: { headers: { Authorization: req.headers.get('Authorization') ?? '' } },

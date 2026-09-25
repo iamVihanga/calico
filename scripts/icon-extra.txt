@@ -47,3 +47,5 @@ keyboard
 local_library
 menu_book
 schedule
+volunteer_activism
+notifications

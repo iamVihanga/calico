@@ -215,6 +215,16 @@ export function OverflowSheetBody({ itemId, onClose }: Props) {
         void queue(itemId);
       },
     },
+    ...(book.loan
+      ? []
+      : [
+          {
+            icon: 'local_library' as const,
+            label: copy.overflow.addLoan,
+            testID: 'overflow-loan',
+            run: () => openSheet('loanForm', { itemId }),
+          },
+        ]),
     { icon: 'photo_camera', label: copy.overflow.cover, run: later },
     {
       icon: 'share',

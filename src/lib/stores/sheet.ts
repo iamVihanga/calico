@@ -12,6 +12,10 @@ export type SheetParams = {
   overflow: { itemId: string };
   startReading: { itemId: string; reread: boolean };
   confirmDelete: { itemId: string };
+  renew: { itemId: string };
+  loanQuick: { itemId: string };
+  loanForm: { itemId: string };
+  notif: undefined;
 };
 export type SheetName = keyof SheetParams;
 

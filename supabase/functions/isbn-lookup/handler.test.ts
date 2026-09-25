@@ -18,7 +18,8 @@ function deps(route: Route): Deps & { calls: string[] } {
   };
 }
 
-const req = (isbn: string) => new Request('http://localhost/isbn-lookup', { method: 'POST', body: JSON.stringify({ isbn }) });
+const req = (isbn: string) =>
+  new Request('http://localhost/isbn-lookup', { method: 'POST', body: JSON.stringify({ isbn }) });
 
 Deno.test('Open Library hit with author and cover', async () => {
   const d = deps((url) => {
@@ -50,7 +51,9 @@ Deno.test('falls back to Google Books and converts ISBN-10', async () => {
   const d = deps((url) => {
     if (url.includes('googleapis.com'))
       return Response.json({
-        items: [{ volumeInfo: { title: 'Chinaman', authors: ['Shehan Karunatilaka'], pageCount: 416, language: 'en' } }],
+        items: [
+          { volumeInfo: { title: 'Chinaman', authors: ['Shehan Karunatilaka'], pageCount: 416, language: 'en' } },
+        ],
       });
   });
   const res = await handle(req('0-00-000000-0'), d);
@@ -58,17 +61,26 @@ Deno.test('falls back to Google Books and converts ISBN-10', async () => {
   assertEquals(body.isbn, '9780000000002');
   assertEquals(body.source, 'googlebooks');
   assertEquals(body.author, 'Shehan Karunatilaka');
-  assertEquals(d.calls.some((c) => c.includes('q=isbn:9780000000002')), true);
+  assertEquals(
+    d.calls.some((c) => c.includes('q=isbn:9780000000002')),
+    true,
+  );
 });
 
 Deno.test('no match anywhere → found: false', async () => {
-  const res = await handle(req('9780000000002'), deps(() => undefined));
+  const res = await handle(
+    req('9780000000002'),
+    deps(() => undefined),
+  );
   const body = await res.json();
   assertEquals(body.found, false);
   assertEquals(body.isbn, '9780000000002');
 });
 
 Deno.test('invalid ISBN → 400', async () => {
-  const res = await handle(req('9780000000003'), deps(() => undefined));
+  const res = await handle(
+    req('9780000000003'),
+    deps(() => undefined),
+  );
   assertEquals(res.status, 400);
 });

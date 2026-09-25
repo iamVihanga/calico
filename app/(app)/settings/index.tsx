@@ -121,7 +121,12 @@ export default function Settings() {
           () => setTheme(NEXT_THEME[preference]),
           'setting-night',
         ),
-        ...(__DEV__ ? [row(copy.settings.components, undefined, () => router.push('/dev/components'))] : []),
+        ...(__DEV__
+          ? [
+              row(copy.settings.components, undefined, () => router.push('/dev/components')),
+              row(copy.dev.notifications, undefined, () => router.push('/dev/notifications')),
+            ]
+          : []),
       ])}
 
       <View style={{ paddingHorizontal: 20, paddingTop: 6 }}>

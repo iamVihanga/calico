@@ -12,7 +12,7 @@ const ABOVE_EDGE = 28;
 
 export function ToastHost() {
   const toast = useToastStore((s) => s.toast);
-  const hide = useToastStore((s) => s.hide);
+  const pressAction = useToastStore((s) => s.pressAction);
   const segments = useSegments() as string[];
   const insets = useSafeAreaInsets();
   if (!toast) return null;
@@ -36,10 +36,7 @@ export function ToastHost() {
         action={
           toast.action && {
             label: toast.action.label,
-            onPress: () => {
-              hide();
-              toast.action?.onPress();
-            },
+            onPress: pressAction,
           }
         }
       />

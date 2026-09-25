@@ -1,17 +1,24 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { ScrollView, TextInput, View } from 'react-native';
+import Animated, {
+  Easing,
+  type ExitAnimationsValues,
+  FadeOut,
+  type LayoutAnimation,
+  useReducedMotion,
+  withTiming,
+} from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { CoverPhoto } from '@/components/calico/CoverPhoto';
 import { coverFor } from '@/components/calico/coverPalette';
 import { coverRadius } from '@/components/calico/GeneratedCover';
-import { DateStamp } from '@/components/calico/DateStamp';
+import { LoanSlip } from '@/components/calico/LoanSlip';
 import { PaceSparkline } from '@/components/calico/PaceSparkline';
 import { ScriptToggle } from '@/components/calico/ScriptToggle';
 import { StatusRail } from '@/components/calico/StatusRail';
 import { EmptyState } from '@/components/ds/EmptyState';
-import { Icon } from '@/components/ds/Icon';
 import { IconButton } from '@/components/ds/IconButton';
 import { Press } from '@/components/ds/Press';
 import { Txt } from '@/components/ds/Txt';
@@ -28,11 +35,12 @@ import {
 } from '@/features/books/logic';
 import type { BookDetail, ReadingSession } from '@/features/books/types';
 import { useBookStatusChange } from '@/features/books/useBookStatusChange';
+import { useReturn } from '@/features/loans/hooks';
 import { copy } from '@/i18n/en';
-import { colomboToday, daysBetween, fmtLong, fmtShort } from '@/lib/dates';
-import { openSheet, type SheetName } from '@/lib/stores/sheet';
+import { colomboToday, fmtLong, fmtShort } from '@/lib/dates';
+import { openSheet } from '@/lib/stores/sheet';
 import { toast } from '@/lib/stores/toast';
-import { alpha, fontFamily, layout, palette, radius, shadow, size, tracking, useTheme } from '@/theme';
+import { alpha, fontFamily, layout, motion, palette, radius, shadow, size, tracking, useTheme } from '@/theme';
 
 function SectionTitle({ children, aside }: { children: string; aside?: string }) {
   return (
@@ -49,6 +57,9 @@ function SectionTitle({ children, aside }: { children: string; aside?: string })
   );
 }
 
+const ARRIVAL_SHEETS: string[] = ['ruler', 'finish', 'stop', 'renew', 'loanQuick'];
+type ArrivalSheet = 'ruler' | 'finish' | 'stop' | 'renew' | 'loanQuick';
+
 function historyLine(s: ReadingSession, n: number): string {
   if (s.outcome === 'read' && s.finishedAt) return copy.books.historyFinished(n, fmtLong(s.finishedAt));
   if (s.outcome === 'abandoned' && s.finishedAt) return copy.books.historyAbandoned(n, fmtLong(s.finishedAt));
@@ -56,9 +67,9 @@ function historyLine(s: ReadingSession, n: number): string {
   return copy.books.historyStarted(n, fmtShort(s.startedAt));
 }
 
-/** Book detail (prototype `bookDetail`, plan §10). `?sheet=ruler|finish|stop` opens a sheet on arrival. */
+/** Book detail (prototype `bookDetail`, plan §10). `?sheet=…` opens a sheet on arrival. */
 export default function BookDetailScreen() {
-  const { id, sheet } = useLocalSearchParams<{ id: string; sheet?: SheetName }>();
+  const { id, sheet } = useLocalSearchParams<{ id: string; sheet?: string }>();
   const { t } = useTheme();
   const insets = useSafeAreaInsets();
   const lead = useLeadScript();
@@ -67,8 +78,9 @@ export default function BookDetailScreen() {
   const changeStatus = useBookStatusChange();
   const book = query.data;
 
+  // Deep links (notifications): ?sheet=renew|loanQuick|ruler|finish|stop opens that sheet on arrival.
   useEffect(() => {
-    if (sheet === 'ruler' || sheet === 'finish' || sheet === 'stop') openSheet(sheet, { itemId: id });
+    if (sheet && ARRIVAL_SHEETS.includes(sheet)) openSheet(sheet as ArrivalSheet, { itemId: id });
   }, [sheet, id]);
 
   if (!book) {
@@ -215,7 +227,7 @@ export default function BookDetailScreen() {
       </View>
 
       {book.status === 'reading' && <ReadingPanel book={book} logs={logs} />}
-      {book.loan && <LoanCard book={book} />}
+      {book.loan && <LoanSection key={book.loan.id} book={book} />}
 
       <View style={{ paddingTop: 26, paddingHorizontal: layout.gutterScreen }}>
         <SectionTitle>{copy.books.collections}</SectionTitle>
@@ -374,89 +386,36 @@ function ReadingPanel({ book, logs }: { book: BookDetail; logs: { page: number; 
   );
 }
 
-/** Read-only date card. Renew / Returned and the stamp animations arrive with Phase 4 (LoanSlip). */
-function LoanCard({ book }: { book: BookDetail }) {
-  const { t } = useTheme();
+/** "On loan · the date card" with the LoanSlip; the slip tucks away when returned (plan §11.4). */
+function LoanSection({ book }: { book: BookDetail }) {
+  const lead = useLeadScript();
+  const reduced = useReducedMotion();
+  const doReturn = useReturn();
   const loan = book.loan!;
-  const today = colomboToday();
-  const overdue = !!loan.dueOn && daysBetween(today, loan.dueOn) < 0;
   return (
-    <View style={{ paddingTop: 26, paddingHorizontal: layout.gutterScreen }}>
+    <Animated.View
+      exiting={reduced ? FadeOut.duration(motion.duration.fast) : slipTuck}
+      style={{ paddingTop: 26, paddingHorizontal: layout.gutterScreen }}
+    >
       <SectionTitle aside={copy.books.dateCard}>{copy.books.onLoan}</SectionTitle>
-      <View
-        style={{ backgroundColor: t.surfaceCard, borderRadius: radius.lg, boxShadow: shadow.sm, overflow: 'hidden' }}
-      >
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 10,
-            padding: 14,
-            paddingHorizontal: 16,
-            backgroundColor: t.surfacePageWarm,
-          }}
-        >
-          <Icon name="local_library" size={19} color="textAccent" />
-          <Txt
-            family="ui"
-            weight={700}
-            size="2xs"
-            tint={t.inkOnWarm}
-            style={{ letterSpacing: tracking.wide * size['2xs'], textTransform: 'uppercase' }}
-          >
-            {loan.party}
-          </Txt>
-        </View>
-        <View style={{ flexDirection: 'row', padding: 16 }}>
-          <View style={{ flex: 1 }}>
-            <Txt role="label" size={10} color="textMuted" style={{ marginBottom: 10 }}>
-              {copy.loan.borrowed}
-            </Txt>
-            <DateStamp date={loan.borrowedOn} variant="borrowed" rotate={-2} />
-          </View>
-          <View style={{ width: 1, backgroundColor: t.borderSoft, marginHorizontal: 16 }} />
-          <View style={{ flex: 1 }}>
-            <Txt role="label" size={10} color="textMuted" style={{ marginBottom: 10 }}>
-              {copy.loan.due}
-            </Txt>
-            <View style={{ gap: 8 }}>
-              {loan.dueStamps.map((d, i) => (
-                <DateStamp key={d} date={d} variant={i < loan.dueStamps.length - 1 ? 'old' : 'current'} />
-              ))}
-            </View>
-          </View>
-        </View>
-        <View
-          style={{ flexDirection: 'row', justifyContent: 'space-between', paddingHorizontal: 16, paddingBottom: 14 }}
-        >
-          <Txt family="ui" weight={600} size="2xs" color="textSecondary">
-            {loan.dueOn ? copy.loan.dueLine(daysBetween(today, loan.dueOn)) : ''}
-          </Txt>
-          <Txt family="ui" weight={600} size="2xs" color="textMuted">
-            {loan.renewalCount ? copy.loan.renewed(loan.renewalCount) : copy.loan.notRenewed}
-          </Txt>
-        </View>
-        {overdue && (
-          <View
-            pointerEvents="none"
-            style={{
-              position: 'absolute',
-              right: -24,
-              top: 60,
-              paddingVertical: 8,
-              paddingHorizontal: 30,
-              backgroundColor: t.statusDanger,
-              transform: [{ rotate: '-14deg' }],
-            }}
-          >
-            <Txt role="label" size={15} tint={palette.cream}>
-              {copy.loan.overdue}
-            </Txt>
-          </View>
-        )}
-      </View>
-    </View>
+      <LoanSlip
+        loan={loan}
+        today={colomboToday()}
+        onRenew={() => openSheet('renew', { itemId: book.id })}
+        onReturned={() => doReturn(book, lead)}
+      />
+    </Animated.View>
   );
+}
+
+/** Returned: the slip slides down and fades out (duration.base, easing.inOut). */
+function slipTuck(_: ExitAnimationsValues): LayoutAnimation {
+  'worklet';
+  const cfg = { duration: motion.duration.base, easing: Easing.bezier(...motion.easing.inOut) };
+  return {
+    initialValues: { opacity: 1, transform: [{ translateY: 0 }] },
+    animations: { opacity: withTiming(0, cfg), transform: [{ translateY: withTiming(40, cfg) }] },
+  };
 }
 
 function Notes({ book }: { book: BookDetail }) {

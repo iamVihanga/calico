@@ -52,6 +52,64 @@ export const en = {
           : days === 1
             ? 'Due tomorrow'
             : `Due in ${days} days`,
+    lentTo: (name: string) => `Lent to ${name}`,
+    lent: 'Lent',
+    note: { overdue: 'bring it back!', soon: 'nearly time', later: 'plenty of time' },
+    renew: 'Renew',
+    returned: 'Returned',
+    renewTitle: (title: string) => `Renew ${title}`,
+    newDue: 'New due date',
+    renewChoice: (days: number, date: string) => `+${days} days\n${date}`,
+    renewChoiceA11y: (days: number, date: string) => `${days} more days, due ${date}`,
+    renewedUntil: (date: string) => `Renewed until ${date}`,
+    returnedTo: (party: string) => `Returned to ${party}`,
+    gotBack: (name: string) => `Back from ${name}`,
+    moveToRead: 'Move to To read so you remember it?',
+    moveToReadAction: 'Move',
+    dueSoon: 'Due soon',
+    dueSoonHand: 'from the library',
+    quickDue: (dueLine: string, party: string) => `${dueLine} · ${party}`,
+    slipA11y: (title: string, party: string, dueLine: string) => `${title}, ${party}, ${dueLine}`,
+    slipHint: 'Opens the book. Long-press for Renew and Returned.',
+    add: 'Add a loan',
+  },
+  loanForm: {
+    title: 'Add a loan',
+    kind: { library: 'From a library', friend: 'From a friend', lent: 'Lent out' },
+    libraryName: 'Library',
+    friendName: "Friend's name",
+    lentName: 'Lent to',
+    borrowed: 'Borrowed',
+    lentOn: 'Lent on',
+    due: 'Due',
+    dueOptional: 'Due back (optional)',
+    noDue: 'No date',
+    save: 'Save loan',
+    needParty: 'Add a name.',
+    saved: (party: string) => `Loan saved · ${party}`,
+  },
+  reminders: {
+    channel: 'Library reminders',
+    title3d: (title: string) => `${title} is due in 3 days`,
+    title1d: (title: string) => `${title} is due tomorrow`,
+    body3d: (library: string, day: string) => `Due at ${library} on ${day}.`,
+    body1d: (renewals: number) =>
+      renewals === 0
+        ? 'Not renewed yet.'
+        : renewals === 1
+          ? 'Renewed once so far.'
+          : renewals === 2
+            ? 'Renewed twice so far.'
+            : `Renewed ${renewals} times so far.`,
+    renew: 'Renew',
+    open: 'Open',
+    returned: 'Returned',
+    askTitle: 'Reminders for library books',
+    askBody: 'Calico can remind you 3 days and 1 day before a book is due.',
+    allow: 'Allow reminders',
+    notNow: 'Not now',
+    denied: 'Reminders are off. You can turn them on in Android settings.',
+    on: 'Reminders on',
   },
   episode: {
     a11y: (season: number, episode: number, name: string | undefined, state: string) =>
@@ -225,6 +283,7 @@ export const en = {
     cover: 'Change cover photo',
     share: 'Share',
     delete: 'Delete',
+    addLoan: 'Add a loan',
     addedUpNext: 'Added to up next',
     alreadyUpNext: 'Already in up next',
     deleted: (title: string) => `Deleted ${title}`,
@@ -288,7 +347,13 @@ export const en = {
     usePhoto: 'Use photo',
     cropHandle: (which: string) => `Crop ${which}`,
     readingHand: 'hold on…',
-    readingSteps: ['Reading the cover', 'Finding the author', 'Writing the English title', 'Checking the page count', 'Almost there'],
+    readingSteps: [
+      'Reading the cover',
+      'Finding the author',
+      'Writing the English title',
+      'Checking the page count',
+      'Almost there',
+    ],
     readingBody: 'Reading the cover. This usually takes a few seconds.',
     slow: 'Taking longer than usual. You can fill it in yourself.',
     fillMyself: 'Fill in myself',
@@ -298,7 +363,8 @@ export const en = {
     addBack: '+ Add back cover',
     aiBadge: 'Filled by AI',
     check: 'Check this one — the cover was hard to read.',
-    duplicate: (title: string, status: string, year: string) => `You already have ${title} (${status}${year ? `, ${year}` : ''}). Add another copy, or open the one you have?`,
+    duplicate: (title: string, status: string, year: string) =>
+      `You already have ${title} (${status}${year ? `, ${year}` : ''}). Add another copy, or open the one you have?`,
     openExisting: 'Open it',
     pendingOne: '1 cover waiting to be read',
     pendingMany: (n: number) => `${n} covers waiting to be read`,
@@ -315,6 +381,18 @@ export const en = {
   },
   dev: {
     phase: (n: number) => `Arrives in phase ${n}.`,
+    notifications: 'Notifications (dev)',
+    notificationsTitle: 'Reminder notifications',
+    preview: 'Notification preview',
+    previewWhen: { now: 'CALICO · NOW', tomorrow: 'CALICO · TOMORROW' },
+    testReminder: 'Send a test reminder in 10 seconds',
+    testScheduled: 'Test reminder scheduled for 10 seconds from now.',
+    testNoLoan: 'Add a library loan first — the test uses your first one.',
+    resync: 'Resync reminders now',
+    resynced: (n: number) => `${n} reminder${n === 1 ? '' : 's'} scheduled`,
+    scheduled: 'Scheduled on this phone',
+    none: 'Nothing scheduled.',
+    permission: (status: string) => `Permission: ${status}`,
   },
 } as const;
 
