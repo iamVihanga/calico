@@ -4,6 +4,8 @@ jest.mock('react-native-worklets', () => require('react-native-worklets/src/mock
 // `jest.mock('react-native-reanimated')` that re-requires this same module.
 const reanimatedMock = require('react-native-reanimated/mock');
 reanimatedMock.useReducedMotion = () => false;
+// Not in the mock; layout animations are no-ops in tests anyway.
+reanimatedMock.LayoutAnimationConfig ??= ({ children }: { children: unknown }) => children;
 jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));
 
 // MMKV needs the Nitro native module; tests get an in-memory store.
@@ -44,3 +46,23 @@ jest.mock('@react-native-async-storage/async-storage', () =>
 jest.mock('@react-native-community/netinfo', () => require('@react-native-community/netinfo/jest/netinfo-mock.js'));
 
 jest.mock('@gorhom/bottom-sheet', () => require('@gorhom/bottom-sheet/mock'));
+
+// Local notifications: a quiet fake (no permission yet, nothing scheduled). Tests override per file.
+jest.mock('expo-notifications', () => ({
+  AndroidImportance: { HIGH: 6 },
+  SchedulableTriggerInputTypes: { DATE: 'date', TIME_INTERVAL: 'timeInterval' },
+  DEFAULT_ACTION_IDENTIFIER: 'expo.modules.notifications.actions.DEFAULT',
+  setNotificationHandler: jest.fn(),
+  setNotificationChannelAsync: jest.fn(async () => null),
+  setNotificationCategoryAsync: jest.fn(async () => null),
+  getPermissionsAsync: jest.fn(async () => ({ granted: false, status: 'undetermined', canAskAgain: true })),
+  requestPermissionsAsync: jest.fn(async () => ({ granted: true, status: 'granted', canAskAgain: true })),
+  getAllScheduledNotificationsAsync: jest.fn(async () => []),
+  scheduleNotificationAsync: jest.fn(async () => 'id'),
+  cancelScheduledNotificationAsync: jest.fn(async () => undefined),
+  cancelAllScheduledNotificationsAsync: jest.fn(async () => undefined),
+  dismissNotificationAsync: jest.fn(async () => undefined),
+  getLastNotificationResponse: jest.fn(() => null),
+  clearLastNotificationResponse: jest.fn(),
+  addNotificationResponseReceivedListener: jest.fn(() => ({ remove: jest.fn() })),
+}));

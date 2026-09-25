@@ -7,13 +7,23 @@ import { OfflineBanner } from '@/components/calico/OfflineBanner';
 import { SheetHost } from '@/components/hosts/SheetHost';
 import { ToastHost } from '@/components/hosts/ToastHost';
 import { processDrafts } from '@/features/capture/drafts';
+import { startReminderSync } from '@/features/loans/reminders';
+import { useReminderResponses } from '@/features/loans/responses';
 import { useProfileThemeSync } from '@/features/profile/hooks';
+import { setupNotifications } from '@/lib/notifications';
 import { useTheme } from '@/theme';
 
 /** Signed-in shell: screens plus the global sheet, toast and offline hosts. */
 export default function AppLayout() {
   const { t } = useTheme();
   useProfileThemeSync();
+  useReminderResponses();
+
+  // Reminders are resynced on every sign-in / launch (so they survive a reinstall) and hourly on foreground.
+  useEffect(() => {
+    void setupNotifications().catch(() => undefined);
+    return startReminderSync();
+  }, []);
 
   // Offline captures are read as soon as the phone is back online (and on start).
   useEffect(() => {

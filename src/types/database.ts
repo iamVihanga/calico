@@ -699,6 +699,10 @@ export type Database = {
         Args: { p_loan: string; p_new_due: string };
         Returns: undefined;
       };
+      reopen_loan: {
+        Args: { p_loan: string; p_ownership?: string };
+        Returns: undefined;
+      };
       return_loan: {
         Args: { p_loan: string; p_on: string };
         Returns: undefined;

@@ -25,11 +25,13 @@ type Props = {
   variant?: StampVariant;
   /** Override the seeded rotation (degrees). */
   rotate?: number;
+  /** `old` stamps strike their text; turn off when the caller draws its own (animated) strike line. */
+  strikeText?: boolean;
   style?: StyleProp<ViewStyle>;
 };
 
 /** Ink-style date stamp from the library slip. `old` stamps are struck through (renewed past them). */
-export function DateStamp({ date, variant = 'current', rotate, style }: Props) {
+export function DateStamp({ date, variant = 'current', rotate, strikeText = true, style }: Props) {
   const { t } = useTheme();
   const c = {
     borrowed: { ring: t.borderStrong, bg: t.surfacePage, fg: t.textSecondary },
@@ -58,7 +60,7 @@ export function DateStamp({ date, variant = 'current', rotate, style }: Props) {
         size="xs"
         leading={1.2}
         tint={c.fg}
-        style={{ letterSpacing: 1, textDecorationLine: variant === 'old' ? 'line-through' : 'none' }}
+        style={{ letterSpacing: 1, textDecorationLine: variant === 'old' && strikeText ? 'line-through' : 'none' }}
       >
         {stampLabel(date)}
       </Txt>

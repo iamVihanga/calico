@@ -8,6 +8,7 @@ import { initials } from '@/components/ds/Avatar';
 import { TabScreen } from '@/components/layout/TabScreen';
 import { useBooks, useLeadScript, useReadingLogs } from '@/features/books/hooks';
 import { ContinueReadingCard } from '@/features/home/components/ContinueReadingCard';
+import { DueSoonRow } from '@/features/home/components/DueSoonRow';
 import { HomeEmpty } from '@/features/home/components/HomeEmpty';
 import { PendingCapturesCard } from '@/features/home/components/PendingCapturesCard';
 import { useProfile, useSetTheme } from '@/features/profile/hooks';
@@ -22,8 +23,8 @@ function greeting(hour: number) {
 }
 
 /**
- * Home (prototype `home`). Phase 2: greeting, search pill, night toggle, Continue reading, empty state.
- * Due soon (4), Continue watching (5), Up next + Pick for me (6) and the stats line (7) follow.
+ * Home (prototype `home`): greeting, search pill, night toggle, Due soon (overdue first), Continue
+ * reading, empty state. Continue watching (5), Up next + Pick for me (6) and the stats line (7) follow.
  */
 export default function Home() {
   const { t, name } = useTheme();
@@ -134,6 +135,8 @@ export default function Home() {
       <PendingCapturesCard />
 
       {empty && <HomeEmpty />}
+
+      <DueSoonRow books={books.data ?? []} lead={lead} />
 
       {reading.length > 0 && (
         <View>

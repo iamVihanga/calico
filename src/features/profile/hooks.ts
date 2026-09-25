@@ -1,6 +1,7 @@
 import { useIsMutating, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useEffect } from 'react';
 
+import { requestReminderSync } from '@/features/loans/reminders';
 import { copy } from '@/i18n/en';
 import { mk } from '@/lib/mutations';
 import { qk } from '@/lib/queryKeys';
@@ -28,9 +29,15 @@ export function useUpdateProfile() {
       if (ctx?.prev) qc.setQueryData(qk.profile, ctx.prev);
       toast({ message: copy.errors.saveFailed });
     },
-    onSettled: () => qc.invalidateQueries({ queryKey: qk.profile }),
+    onSettled: (_d, _e, patch) => {
+      if (REMINDER_FIELDS.some((k) => k in patch)) requestReminderSync();
+      return qc.invalidateQueries({ queryKey: qk.profile });
+    },
   });
 }
+
+/** Profile fields that change what or when reminders fire (plan §9.5). */
+const REMINDER_FIELDS = ['reminder_time', 'remind_3d', 'remind_1d', 'lead_script'] as const;
 
 /** Change night reading: instant locally, saved to the profile (queued when offline). */
 export function useSetTheme() {

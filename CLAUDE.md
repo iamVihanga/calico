@@ -34,6 +34,11 @@ Expo-specific guidance: @AGENTS.md
   Pure code shared with the app lives in `supabase/functions/_shared/` and is imported as `@shared/*.ts`.
 - The capture flow keeps one draft in `useCaptureStore` (`src/features/capture/store.ts`); covers upload to
   `covers/{uid}/{itemId}/front|back.jpg`. Offline captures go to `useDrafts` and are read by `processDrafts()`.
+- Loans: mutations in `src/features/loans/hooks.ts` (optimistic, call `requestReminderSync()`); Undo after
+  Returned is the `reopen_loan` RPC. Reminders are diffed against `getAllScheduledNotificationsAsync()` by
+  identifier `loan:{loanId}:3d|1d` + a content signature (`features/loans/logic.ts`); never request
+  notification permission outside the `notif` sheet.
+- Follow-up toasts use `useToastStore.getState().enqueue()`; an action that should cancel them calls `clearQueue()`.
 - Global sheets open via `openSheet(name)` (`src/lib/stores/sheet.ts`, rendered by `SheetHost`); toasts via `toast({...})`.
 - Every mutation has a `mutationKey` and is registered in `src/lib/mutations.ts` via `setMutationDefaults`, so paused offline mutations resume after restart.
 - Pure logic (pace, next episode, pick reasons, fractional keys, ISBN validation) lives in `features/*/logic.ts` with unit tests.
@@ -46,4 +51,5 @@ Expo-specific guidance: @AGENTS.md
 - Phase 0 (foundation + design system): merged (PR #1).
 - Phase 1 (backend + auth): merged (PR #2), pending on-device Google sign-in check.
 - Phase 2 (books): merged (PR #3), pending device review.
-- Phase 3 (capture): done, pending on-device F1/F2 check and the 20-cover eval (`docs/ai-eval.md`).
+- Phase 3 (capture): merged (PR #4), pending on-device F1/F2 check and the 20-cover eval (`docs/ai-eval.md`).
+- Phase 4 (loans + reminders): done, pending on-device F4 and reminder checks.

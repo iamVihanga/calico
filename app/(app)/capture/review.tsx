@@ -28,7 +28,8 @@ import {
   isLowConfidence,
 } from '@/features/capture/logic';
 import { capture, type Draft } from '@/features/capture/store';
-import { useProfile } from '@/features/profile/hooks';
+import { maybeAskForReminders } from '@/features/loans/sheets/LoanSheets';
+import { useProfile, useUpdateProfile } from '@/features/profile/hooks';
 import { copy } from '@/i18n/en';
 import { addLocalDays, colomboToday, fmtShort } from '@/lib/dates';
 import { toast } from '@/lib/stores/toast';
@@ -52,6 +53,7 @@ export default function Review() {
   const { t } = useTheme();
   const insets = useSafeAreaInsets();
   const profile = useProfile().data;
+  const updateProfile = useUpdateProfile();
   const create = useCreateBook();
   const finish = useFinishBook();
   // The capture draft is read once: it belongs to this form from now on.
@@ -143,6 +145,11 @@ export default function Review() {
           : undefined,
     };
     create.mutate(book);
+    if (book.loan && v.source === 'library') {
+      // The library name is remembered for next time; the first library loan offers reminders.
+      if (!profile?.default_library) updateProfile.mutate({ default_library: book.loan.party });
+      void maybeAskForReminders();
+    }
     if (finalStatus === 'read') {
       finish.mutate({ itemId, on: today, rating: null, note: null, returnLoan: false });
     }

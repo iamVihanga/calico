@@ -1,6 +1,7 @@
 import { type QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
+import { requestReminderSync } from '@/features/loans/reminders';
 import { useProfile } from '@/features/profile/hooks';
 import { appendKey, byPosition } from '@/features/upnext/logic';
 import { copy } from '@/i18n/en';
@@ -52,9 +53,9 @@ export const useUpNextPositions = () => useQuery({ queryKey: qk.upNext, queryFn:
 
 // Cache helpers -----------------------------------------------------------------------------------
 
-type Snapshot = { books?: Book[]; item?: BookDetail | null; logs?: PageLog[]; queue?: Queue };
+export type Snapshot = { books?: Book[]; item?: BookDetail | null; logs?: PageLog[]; queue?: Queue };
 
-async function snapshot(qc: QueryClient, id: string): Promise<Snapshot> {
+export async function snapshot(qc: QueryClient, id: string): Promise<Snapshot> {
   await Promise.all([
     qc.cancelQueries({ queryKey: BOOKS }),
     qc.cancelQueries({ queryKey: qk.item(id) }),
@@ -68,14 +69,14 @@ async function snapshot(qc: QueryClient, id: string): Promise<Snapshot> {
   };
 }
 
-function patchBook(qc: QueryClient, id: string, patch: (b: Book) => Partial<Book>) {
+export function patchBook(qc: QueryClient, id: string, patch: (b: Book) => Partial<Book>) {
   qc.setQueryData<Book[]>(BOOKS, (list) =>
     list?.map((b) => (b.id === id ? { ...b, ...patch(b), updatedAt: new Date().toISOString() } : b)),
   );
   qc.setQueryData<BookDetail | null>(qk.item(id), (b) => (b ? { ...b, ...patch(b) } : b));
 }
 
-function restore(qc: QueryClient, id: string, s?: Snapshot) {
+export function restore(qc: QueryClient, id: string, s?: Snapshot) {
   if (!s) return;
   qc.setQueryData(BOOKS, s.books);
   qc.setQueryData(qk.item(id), s.item);
@@ -83,16 +84,17 @@ function restore(qc: QueryClient, id: string, s?: Snapshot) {
   qc.setQueryData(qk.upNext, s.queue);
 }
 
-function settle(qc: QueryClient, id: string) {
+export function settle(qc: QueryClient, id: string) {
   void qc.invalidateQueries({ queryKey: BOOKS });
   void qc.invalidateQueries({ queryKey: qk.item(id) });
   void qc.invalidateQueries({ queryKey: qk.pageLogs(id) });
   void qc.invalidateQueries({ queryKey: ['pageLogs', 'many'] });
   void qc.invalidateQueries({ queryKey: qk.upNext });
   void qc.invalidateQueries({ queryKey: qk.homeStats });
+  requestReminderSync(); // a new, finished-and-returned or deleted book can change the reminders
 }
 
-const failed = () => toast({ message: copy.errors.saveFailed });
+export const failed = () => toast({ message: copy.errors.saveFailed });
 const DONE_STATUSES: BookStatus[] = ['read', 'abandoned'];
 
 /** Finished/stopped items leave Up next (DB trigger). Mirror it locally and offer Undo (plan §11.1). */

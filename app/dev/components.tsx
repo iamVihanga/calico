@@ -16,6 +16,8 @@ import {
   MediaShapeIcon,
   TicketStub,
 } from '@/components/calico';
+import { LoanSlip } from '@/components/calico/LoanSlip';
+import type { Loan } from '@/features/books/types';
 import {
   Avatar,
   Badge,
@@ -59,6 +61,37 @@ const SAMPLE = {
   shining: { id: 'shining', en: 'The Shining', author: 'Stephen King' },
   hathpana: { id: 'hathpana', en: 'Hath Pana', si: 'හත් පණ' },
 };
+
+/** Due soon, renewed + overdue, and lent out (brief §13 LoanSlip states), seen from 23 Sep 2026. */
+const GALLERY_LOANS: Loan[] = [
+  {
+    id: 'madol',
+    direction: 'borrowed',
+    party: 'Colombo Public Library',
+    borrowedOn: '2026-09-09',
+    dueOn: '2026-09-26',
+    dueStamps: ['2026-09-26'],
+    renewalCount: 0,
+  },
+  {
+    id: 'hathpana',
+    direction: 'borrowed',
+    party: 'Colombo Public Library',
+    borrowedOn: '2026-08-24',
+    dueOn: '2026-09-21',
+    dueStamps: ['2026-09-07', '2026-09-21'],
+    renewalCount: 1,
+  },
+  {
+    id: 'lent',
+    direction: 'lent',
+    party: 'Nimal',
+    borrowedOn: '2026-09-15',
+    dueOn: null,
+    dueStamps: [],
+    renewalCount: 0,
+  },
+];
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   const { t } = useTheme();
@@ -509,6 +542,12 @@ function Gallery({ name, setName }: { name: ThemeName; setName: (n: ThemeName) =
             <DateStamp date="2026-09-21" variant="current" />
             <DateStamp date="2026-09-26" />
           </Row>
+        </Section>
+
+        <Section title="LoanSlip">
+          {GALLERY_LOANS.map((l) => (
+            <LoanSlip key={l.id} loan={l} today="2026-09-23" onRenew={() => undefined} onReturned={() => undefined} />
+          ))}
         </Section>
 
         <Section title="TicketStub">

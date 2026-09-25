@@ -22,7 +22,10 @@ const yearOf = (s: string | undefined) => {
 };
 
 async function openLibrary(isbn: string, deps: Deps, headers: HeadersInit): Promise<IsbnLookup | null> {
-  const res = await deps.fetch(`https://openlibrary.org/isbn/${isbn}.json`, { headers, signal: AbortSignal.timeout(8000) });
+  const res = await deps.fetch(`https://openlibrary.org/isbn/${isbn}.json`, {
+    headers,
+    signal: AbortSignal.timeout(8000),
+  });
   if (!res.ok) return null;
   const book = await res.json();
   if (!book?.title) return null;

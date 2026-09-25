@@ -3,8 +3,17 @@ import { z } from 'zod';
 
 import { toIsbn13 } from './isbn.ts';
 
-const nullableString = z.string().nullable().optional().transform((v) => v ?? null);
-const nullableInt = z.number().int().nullable().optional().transform((v) => v ?? null);
+const nullableString = z
+  .string()
+  .nullable()
+  .optional()
+  .transform((v) => v ?? null);
+const nullableInt = z
+  .number()
+  .int()
+  .nullable()
+  .optional()
+  .transform((v) => v ?? null);
 
 export const CONFIDENCE_FIELDS = [
   'title_native',
@@ -33,7 +42,9 @@ export const Extraction = z.object({
   publisher: nullableString,
   published_year: nullableInt,
   total_pages: nullableInt,
-  confidence: z.object(Object.fromEntries(CONFIDENCE_FIELDS.map((f) => [f, z.number().min(0).max(1).optional()]))).partial(),
+  confidence: z
+    .object(Object.fromEntries(CONFIDENCE_FIELDS.map((f) => [f, z.number().min(0).max(1).optional()])))
+    .partial(),
 });
 export type Extraction = z.infer<typeof Extraction>;
 
