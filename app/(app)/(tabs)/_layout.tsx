@@ -1,10 +1,10 @@
+import { router } from 'expo-router';
 import { Tabs } from 'expo-router/js-tabs';
 import type { ComponentProps } from 'react';
 
 import { TabBar, type TabItem } from '@/components/ds/TabBar';
 import { copy } from '@/i18n/en';
 import { openSheet } from '@/lib/stores/sheet';
-import { toast } from '@/lib/stores/toast';
 
 type TabId = 'index' | 'library' | 'up-next' | 'collections';
 type TabBarProps = Parameters<NonNullable<ComponentProps<typeof Tabs>['tabBar']>>[0];
@@ -30,10 +30,8 @@ function AppTabBar({ state, navigation }: TabBarProps) {
         if (current?.name !== id && !event.defaultPrevented) navigation.navigate(route.name);
       }}
       onAdd={() => openSheet('add')}
-      onAddLongPress={() => {
-        // Long-press opens the camera once capture exists (Phase 3).
-        toast({ message: copy.errors.notYet });
-      }}
+      // Power-user shortcut: long-press goes straight to the book camera.
+      onAddLongPress={() => router.push({ pathname: '/capture/camera', params: { mode: 'cover' } })}
     />
   );
 }

@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { View } from 'react-native';
 
+import { CoverPhoto } from '@/components/calico/CoverPhoto';
 import { coverFor } from '@/components/calico/coverPalette';
 import { coverRadius } from '@/components/calico/GeneratedCover';
 import { Press } from '@/components/ds/Press';
@@ -62,6 +63,7 @@ export function ContinueReadingCard({ book, logs, lead }: { book: Book; logs: Pa
         <Txt family="display" weight={700} size={14} leading={1.18} tint={p.ink} numberOfLines={6}>
           {main}
         </Txt>
+        <CoverPhoto item={book} />
       </Press>
       <View style={{ flex: 1, minWidth: 0 }}>
         <Press accessibilityRole="button" onPress={open} scaleTo={1}>

@@ -30,6 +30,10 @@ Expo-specific guidance: @AGENTS.md
 - Dates: store `date` columns as local Colombo dates (`yyyy-MM-dd`) computed on the client; timestamps as UTC.
 - Book status changes go through `useBookStatusChange()` (Read → Finish sheet, Abandoned → Stop sheet, Reading → start date).
 - Tests that render the app (`renderRouter`) call `cleanupAppState` in `afterAll` so Jest can exit.
+- Edge functions: `handler.ts` (dependency-injected, Deno-tested via `npm run fn:test`) + `index.ts` (`Deno.serve`).
+  Pure code shared with the app lives in `supabase/functions/_shared/` and is imported as `@shared/*.ts`.
+- The capture flow keeps one draft in `useCaptureStore` (`src/features/capture/store.ts`); covers upload to
+  `covers/{uid}/{itemId}/front|back.jpg`. Offline captures go to `useDrafts` and are read by `processDrafts()`.
 - Global sheets open via `openSheet(name)` (`src/lib/stores/sheet.ts`, rendered by `SheetHost`); toasts via `toast({...})`.
 - Every mutation has a `mutationKey` and is registered in `src/lib/mutations.ts` via `setMutationDefaults`, so paused offline mutations resume after restart.
 - Pure logic (pace, next episode, pick reasons, fractional keys, ISBN validation) lives in `features/*/logic.ts` with unit tests.
@@ -41,4 +45,5 @@ Expo-specific guidance: @AGENTS.md
 
 - Phase 0 (foundation + design system): merged (PR #1).
 - Phase 1 (backend + auth): merged (PR #2), pending on-device Google sign-in check.
-- Phase 2 (books): done, pending device review.
+- Phase 2 (books): merged (PR #3), pending device review.
+- Phase 3 (capture): done, pending on-device F1/F2 check and the 20-cover eval (`docs/ai-eval.md`).

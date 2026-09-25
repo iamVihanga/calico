@@ -132,6 +132,14 @@ export type NewBook = {
   wishlistPriceLkr?: number;
   loan?: { id: string; party: string; borrowedOn: LocalDate; dueOn?: LocalDate };
   startedAt?: LocalDate;
+  /** Storage path of the user's cover photo (covers/{uid}/{itemId}/front.jpg). */
+  coverPath?: string;
+  /** External cover (Open Library / Google Books) when there's no photo. */
+  coverUrl?: string;
+  isbn?: string;
+  publisher?: string;
+  publishedYear?: number;
+  aiExtracted?: boolean;
 };
 
 export async function createBook(b: NewBook): Promise<void> {
@@ -151,6 +159,12 @@ export async function createBook(b: NewBook): Promise<void> {
       wishlist_priority: b.wishlistPriority ?? null,
       wishlist_price_lkr: b.wishlistPriceLkr ?? null,
       started_at: b.startedAt ?? null,
+      cover_path: b.coverPath ?? null,
+      cover_url: b.coverUrl ?? null,
+      isbn: b.isbn ?? '',
+      publisher: b.publisher ?? '',
+      published_year: b.publishedYear ?? null,
+      ai_extracted: b.aiExtracted ?? false,
       ...(b.loan
         ? {
             loan: {

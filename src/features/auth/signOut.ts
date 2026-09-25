@@ -1,6 +1,7 @@
 import { Directory, Paths } from 'expo-file-system';
 import * as Notifications from 'expo-notifications';
 
+import { useDrafts } from '@/features/capture/drafts';
 import { persister, queryClient } from '@/lib/queryClient';
 import { clearStorageKeepingTheme } from '@/lib/storage';
 import { supabase } from '@/lib/supabase';
@@ -14,6 +15,7 @@ export async function signOut(): Promise<void> {
   queryClient.clear();
   await persister.removeClient();
   clearStorageKeepingTheme();
+  useDrafts.getState().set([]);
   try {
     const drafts = new Directory(Paths.document, 'drafts');
     if (drafts.exists) drafts.delete();

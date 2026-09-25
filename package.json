@@ -85,17 +85,21 @@
     "db:reset": "supabase db reset",
     "db:test": "supabase test db",
     "db:test:local": "scripts/db-local.sh",
-    "db:types": "supabase gen types typescript --local --schema public > src/types/database.ts"
+    "db:types": "supabase gen types typescript --local --schema public > src/types/database.ts",
+    "fn:test": "cd supabase/functions && deno test"
   },
   "private": true,
   "jest": {
     "preset": "jest-expo",
+    "testTimeout": 20000,
     "moduleNameMapper": {
-      "^@/(.*)$": "<rootDir>/src/$1"
+      "^@/(.*)$": "<rootDir>/src/$1",
+      "^@shared/(.*)$": "<rootDir>/supabase/functions/_shared/$1"
     },
     "testPathIgnorePatterns": [
       "/node_modules/",
-      "/design/"
+      "/design/",
+      "/supabase/functions/.*\\.test\\.ts$"
     ],
     "transformIgnorePatterns": [
       "node_modules/(?!((jest-)?react-native|@react-native(-community)?|expo(nent)?|@expo(nent)?/.*|@expo-google-fonts/.*|react-navigation|@react-navigation/.*|standard-navigation|fractional-indexing|@gorhom/.*|react-native-svg|react-native-reanimated|react-native-worklets))"

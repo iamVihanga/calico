@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { memo } from 'react';
 import { View } from 'react-native';
 
+import { CoverPhoto } from '@/components/calico/CoverPhoto';
 import { coverFor } from '@/components/calico/coverPalette';
 import { coverRadius } from '@/components/calico/GeneratedCover';
 import { Press } from '@/components/ds/Press';
@@ -47,6 +48,7 @@ export const BookTile = memo(function BookTile({ book, lead, today }: Props) {
         <Txt family="display" weight={700} size="2xs" leading={1.2} tint={p.ink} numberOfLines={6}>
           {main}
         </Txt>
+        <CoverPhoto item={book} />
         <View style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 5, backgroundColor: alpha.black18 }} />
       </View>
       <Txt family="ui" weight={600} size="2xs" numberOfLines={1} style={{ marginTop: 7 }}>
