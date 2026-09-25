@@ -36,3 +36,13 @@ check_circle
 radio_button_unchecked
 settings
 star
+playlist_add
+delete
+more_horiz
+share
+edit
+close
+calendar_today
+keyboard
+local_library
+menu_book

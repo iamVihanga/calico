@@ -18,5 +18,4 @@ export const qk = {
   stats: (year: number) => ['stats', year] as const,
   homeStats: ['homeStats'] as const,
   signedUrl: (path: string) => ['signedUrl', path] as const,
-  shelfSummary: ['shelfSummary'] as const,
 };

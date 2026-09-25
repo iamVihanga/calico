@@ -28,6 +28,8 @@ export const alpha = {
   ink56: 'rgba(28,23,20,0.56)',
   cream16: 'rgba(251,246,238,0.16)',
   cream72: 'rgba(251,246,238,0.72)',
+  black18: 'rgba(0,0,0,0.18)',
+  black22: 'rgba(0,0,0,0.22)',
   black28: 'rgba(0,0,0,0.28)',
 } as const;
 

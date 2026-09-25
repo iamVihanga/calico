@@ -1,17 +1,16 @@
-import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
-import { View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 
-import { Card } from '@/components/ds/Card';
 import { Icon } from '@/components/ds/Icon';
 import { Press } from '@/components/ds/Press';
 import { Txt } from '@/components/ds/Txt';
 import { initials } from '@/components/ds/Avatar';
 import { TabScreen } from '@/components/layout/TabScreen';
-import { fetchShelfSummary } from '@/features/home/api';
+import { useBooks, useLeadScript, useReadingLogs } from '@/features/books/hooks';
+import { ContinueReadingCard } from '@/features/home/components/ContinueReadingCard';
+import { HomeEmpty } from '@/features/home/components/HomeEmpty';
 import { useProfile, useSetTheme } from '@/features/profile/hooks';
 import { copy } from '@/i18n/en';
-import { qk } from '@/lib/queryKeys';
 import { toast } from '@/lib/stores/toast';
 import { layout, radius, shadow, useTheme } from '@/theme';
 
@@ -21,12 +20,19 @@ function greeting(hour: number) {
   return copy.home.greetingEvening;
 }
 
-/** Home (prototype `home`). Phase 1: header, night toggle, search pill; the shelf arrives in Phase 2. */
+/**
+ * Home (prototype `home`). Phase 2: greeting, search pill, night toggle, Continue reading, empty state.
+ * Due soon (4), Continue watching (5), Up next + Pick for me (6) and the stats line (7) follow.
+ */
 export default function Home() {
   const { t, name } = useTheme();
   const profile = useProfile();
   const setTheme = useSetTheme();
-  const summary = useQuery({ queryKey: qk.shelfSummary, queryFn: fetchShelfSummary });
+  const lead = useLeadScript();
+  const books = useBooks();
+  const reading = (books.data ?? []).filter((b) => b.status === 'reading');
+  const logs = useReadingLogs(reading.map((b) => b.id)).data ?? {};
+  const empty = books.isSuccess && books.data.length === 0;
   const displayName = profile.data?.display_name ?? '';
   const night = name === 'night';
 
@@ -124,25 +130,28 @@ export default function Home() {
         </Press>
       </View>
 
-      {__DEV__ && (
-        <View style={{ paddingHorizontal: layout.gutterScreen }}>
-          <Card tone="quiet" shadow="none">
-            <Txt role="label" color="textMuted">
-              {copy.dev.shelfCheck}
-            </Txt>
-            <Txt role="body" color="textSecondary" testID="shelf-summary">
-              {summary.data
-                ? copy.dev.shelfLine(
-                    summary.data.books,
-                    summary.data.movies,
-                    summary.data.shows,
-                    summary.data.openLoans,
-                  )
-                : summary.isError
-                  ? summary.error.message
-                  : '…'}
-            </Txt>
-          </Card>
+      {empty && <HomeEmpty />}
+
+      {reading.length > 0 && (
+        <View>
+          <Txt
+            family="display"
+            weight={700}
+            size={22}
+            accessibilityRole="header"
+            style={{ paddingHorizontal: layout.gutterScreen, paddingBottom: 12, letterSpacing: -0.02 * 22 }}
+          >
+            {copy.homeShelf.continueReading}
+          </Txt>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ gap: 16, paddingHorizontal: layout.gutterScreen, paddingBottom: 26 }}
+          >
+            {reading.map((b) => (
+              <ContinueReadingCard key={b.id} book={b} logs={logs[b.id] ?? []} lead={lead} />
+            ))}
+          </ScrollView>
         </View>
       )}
     </TabScreen>
