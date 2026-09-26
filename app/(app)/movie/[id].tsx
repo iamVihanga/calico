@@ -8,8 +8,8 @@ import { Poster } from '@/components/calico/Poster';
 import { StatusRail } from '@/components/calico/StatusRail';
 import { TicketStack, type TicketStackHandle } from '@/components/calico/TicketStack';
 import { Button } from '@/components/ds/Button';
-import { EmptyState } from '@/components/ds/EmptyState';
 import { IconButton } from '@/components/ds/IconButton';
+import { DetailLoadState } from '@/components/ds/LoadState';
 import { Txt } from '@/components/ds/Txt';
 import { useMovie, useSetMediaStatus } from '@/features/media/hooks';
 import { fmtRuntime, MOVIE_STOPS } from '@/features/media/logic';
@@ -36,7 +36,7 @@ export default function MovieDetail() {
         <View style={{ paddingHorizontal: 16 }}>
           <IconButton icon="arrow_back" label={copy.books.back} tone="card" onPress={() => router.back()} />
         </View>
-        {q.isFetched && <EmptyState body={copy.books.notFound} />}
+        <DetailLoadState q={q} />
       </View>
     );
   }

@@ -3,6 +3,8 @@ import { View } from 'react-native';
 
 import { CollectionMosaic, MediaCountDot } from '@/components/calico/CollectionMosaic';
 import { Press } from '@/components/ds/Press';
+import { QueryError } from '@/components/ds/QueryError';
+import { SkeletonGrid } from '@/components/ds/Skeleton';
 import { ScreenHeader } from '@/components/ds/ScreenHeader';
 import { Txt } from '@/components/ds/Txt';
 import { TabScreen } from '@/components/layout/TabScreen';
@@ -45,6 +47,8 @@ export default function Collections() {
           </Press>
         }
       />
+      {collections.isError && !collections.data && <QueryError onRetry={() => void collections.refetch()} />}
+      {collections.isPending && <SkeletonGrid columns={2} rows={2} ratio={1} />}
       {collections.isSuccess && list.length === 0 && (
         <View
           style={{

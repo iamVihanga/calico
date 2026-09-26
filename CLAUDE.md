@@ -52,6 +52,10 @@ Expo-specific guidance: @AGENTS.md
   screen: changing it later remounts the screen.
 - Drag to collect: `useCollectDrag(item)` on covers, `useDragStore` for the lifted card and chip rects
   (`TargetChip` registers via `measureInWindow`), `DragLayer` in the app layout; tray chips are also tappable.
+- Loading/error: lists show `SkeletonGrid`/`SkeletonRows`, detail screens use `DetailLoadState` (skeleton →
+  retry on error → "not on your shelf" only when truly missing); a failed query with no cache shows `QueryError`.
+- `Press` gives anything under 48dp a 48dp touch target automatically (`minTargetSlop`); `Txt` caps font
+  scaling at 200%.
 - Global sheets open via `openSheet(name)` (`src/lib/stores/sheet.ts`, rendered by `SheetHost`); toasts via `toast({...})`.
 - Every mutation has a `mutationKey` and is registered in `src/lib/mutations.ts` via `setMutationDefaults`, so paused offline mutations resume after restart.
 - Pure logic (pace, next episode, pick reasons, fractional keys, ISBN validation) lives in `features/*/logic.ts` with unit tests.
@@ -67,4 +71,5 @@ Expo-specific guidance: @AGENTS.md
 - Phase 3 (capture): merged (PR #4), pending on-device F1/F2 check and the 20-cover eval (`docs/ai-eval.md`).
 - Phase 4 (loans + reminders): merged (PR #5), pending on-device F4 and reminder checks.
 - Phase 5 (movies + shows): merged (PR #6), pending on-device F5/F6 and the cron run in a staging project.
-- Phase 6 (up next, pick, collections, search): done, pending on-device F7/F8, drag-to-collect and shake.
+- Phase 6 (up next, pick, collections, search): merged (PR #7), pending on-device F7/F8, drag-to-collect and shake.
+- Phase 7 (stats, settings, polish): done, pending device passes (TalkBack, 200% font, low-end scrolling).

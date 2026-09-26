@@ -1,4 +1,4 @@
-import Animated, { FadeInUp, FadeOutUp } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInUp, FadeOut, FadeOutUp, useReducedMotion } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon } from '@/components/ds/Icon';
@@ -9,14 +9,15 @@ import { motion, radius, useTheme } from '@/theme';
 
 /** Slim pill under the status bar while offline (prototype: cloud_off + "Offline — changes sync…"). */
 export function OfflineBanner() {
+  const reduced = useReducedMotion();
   const online = useOnline();
   const { t } = useTheme();
   const insets = useSafeAreaInsets();
   if (online) return null;
   return (
     <Animated.View
-      entering={FadeInUp.duration(motion.duration.fast)}
-      exiting={FadeOutUp.duration(motion.duration.fast)}
+      entering={(reduced ? FadeIn : FadeInUp).duration(motion.duration.fast)}
+      exiting={(reduced ? FadeOut : FadeOutUp).duration(motion.duration.fast)}
       pointerEvents="none"
       accessibilityRole="alert"
       accessibilityLiveRegion="polite"

@@ -7,6 +7,7 @@ import DraggableFlatList, { ScaleDecorator } from 'react-native-draggable-flatli
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ScreenHeader } from '@/components/ds/ScreenHeader';
+import { SkeletonRows } from '@/components/ds/Skeleton';
 import { Tag } from '@/components/ds/Tag';
 import { Txt } from '@/components/ds/Txt';
 import { TAB_SCREEN_BOTTOM } from '@/components/layout/TabScreen';
@@ -79,6 +80,7 @@ export default function UpNext() {
           {copy.upNext.filteredHint}
         </Txt>
       )}
+      {isPending && <SkeletonRows n={5} />}
       {!isPending && shown.length === 0 && (
         <View
           style={{

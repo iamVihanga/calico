@@ -31,6 +31,7 @@ export function RatingStars({ value, onChange }: { value: number; onChange: (v: 
         return (
           <Press
             key={n}
+            accessibilityRole="button"
             accessibilityLabel={copy.finish.star(n)}
             scaleTo={0.9}
             onPress={(e) => onChange(e.nativeEvent.locationX < STAR / 2 ? n - 0.5 : n)}

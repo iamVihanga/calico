@@ -58,3 +58,7 @@ arrow_upward
 auto_awesome
 history
 travel_explore
+remove
+data_object
+table
+open_in_new

@@ -2,7 +2,13 @@ import { useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { View } from 'react-native';
-import Animated, { useAnimatedStyle, useSharedValue, withSequence, withTiming } from 'react-native-reanimated';
+import Animated, {
+  useAnimatedStyle,
+  useReducedMotion,
+  useSharedValue,
+  withSequence,
+  withTiming,
+} from 'react-native-reanimated';
 
 import { Button } from '@/components/ds/Button';
 import { Checkbox } from '@/components/ds/Checkbox';
@@ -41,6 +47,7 @@ function TargetChip({ c, inIt, onPress }: { c: Collection; inIt: boolean; onPres
   const landed = useDragStore((s) => (s.landed?.id === c.id ? s.landed.at : 0));
   const setTarget = useDragStore((s) => s.setTarget);
   const pulse = useSharedValue(1);
+  const reduced = useReducedMotion();
 
   const measure = () =>
     ref.current?.measureInWindow((x, y, width, height) => width && setTarget(c.id, { x, y, width, height }));
@@ -54,12 +61,12 @@ function TargetChip({ c, inIt, onPress }: { c: Collection; inIt: boolean; onPres
     // eslint-disable-next-line react-hooks/exhaustive-deps -- once per chip
   }, []);
   useEffect(() => {
-    if (landed)
+    if (landed && !reduced)
       pulse.value = withSequence(
         withTiming(1.12, { duration: motion.duration.fast }),
         withTiming(1, { duration: motion.duration.fast }),
       );
-  }, [landed, pulse]);
+  }, [landed, pulse, reduced]);
   const style = useAnimatedStyle(() => ({ transform: [{ scale: pulse.value }] }));
   const on = inIt || over;
 
