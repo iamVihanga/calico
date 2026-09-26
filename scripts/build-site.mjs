@@ -1,14 +1,14 @@
 // Builds the public pages (privacy policy, account deletion, terms) linked from the Play listing and
-// Settings → About. Usage: CONTACT_EMAIL=you@example.com node scripts/build-site.mjs → site/dist/
+// Settings → About. Usage: npm run site:build → site/dist/ (CONTACT_EMAIL overrides the public address).
 // Deploy site/dist to any static host (e.g. Vercel with output directory `site/dist`).
 import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync, copyFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 const root = new URL('../site/', import.meta.url).pathname;
 const out = join(root, 'dist');
-const email = process.env.CONTACT_EMAIL;
+const email = process.env.CONTACT_EMAIL || 'vihangarashansilva@gmail.com';
 if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-  console.error('Set CONTACT_EMAIL to the address shown on the privacy and deletion pages.');
+  console.error('CONTACT_EMAIL must be an email address (shown on the privacy and deletion pages).');
   process.exit(1);
 }
 const updated = process.env.POLICY_UPDATED ?? '26 September 2026';

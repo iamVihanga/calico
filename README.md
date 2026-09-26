@@ -78,7 +78,7 @@ Native Google sign-in needs a development build (not Expo Go):
    - an OAuth **Web** client. Its client ID and secret go into Supabase → Authentication → Providers →
      Google (and `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID` / `_SECRET` for the local stack); its client ID
      also goes into `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID`.
-   - an OAuth **Android** client for your package name (`ANDROID_PACKAGE`, see `docs/release.md`) with the SHA-1 fingerprints from
+   - an OAuth **Android** client for package `com.codeville.calico` with the SHA-1 fingerprints from
      `eas credentials` (development, preview and production keystores; after the first Play upload also
      Play App Signing's SHA-1).
 2. In Supabase → Google provider, enable "Skip nonce checks" (the Android SDK sends no nonce;
@@ -95,8 +95,8 @@ checklist.
   `src/lib/sentryScrub.ts` strips emails, query strings and console logs before anything is sent.
   Source maps upload during EAS builds when `SENTRY_ORG`, `SENTRY_PROJECT` and `SENTRY_AUTH_TOKEN` are set.
 - Public pages (privacy policy, account deletion, terms): `site/`, built with
-  `CONTACT_EMAIL=… npm run site:build` into `site/dist/` for any static host.
-- `app.config.ts` reads the Android package from `ANDROID_PACKAGE`; production builds refuse the placeholder.
+  `npm run site:build` into `site/dist/` for any static host.
+- Android package: `com.codeville.calico` (permanent after the first Play upload).
 
 ## Status
 

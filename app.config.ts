@@ -1,14 +1,7 @@
 import type { ExpoConfig } from 'expo/config';
 
-/**
- * The Play package name can never change after the first upload, so it comes from the environment
- * (EAS environment variable `ANDROID_PACKAGE`) and a production build refuses the placeholder.
- */
-const PLACEHOLDER_PACKAGE = 'com.yourname.calico';
-const androidPackage = process.env.ANDROID_PACKAGE || PLACEHOLDER_PACKAGE;
-if (process.env.EAS_BUILD_PROFILE === 'production' && androidPackage === PLACEHOLDER_PACKAGE) {
-  throw new Error('Set ANDROID_PACKAGE (EAS environment variable) before a production build. See docs/release.md.');
-}
+/** The Play package name can never change after the first upload; Google sign-in is tied to it too. */
+const ANDROID_PACKAGE = 'com.codeville.calico';
 
 const config: ExpoConfig = {
   name: 'Calico',
@@ -19,7 +12,7 @@ const config: ExpoConfig = {
   userInterfaceStyle: 'automatic',
   icon: './assets/images/icon.png',
   android: {
-    package: androidPackage,
+    package: ANDROID_PACKAGE,
     adaptiveIcon: { foregroundImage: './assets/images/adaptive-icon.png', backgroundColor: '#FBF6EE' },
     permissions: ['CAMERA', 'POST_NOTIFICATIONS', 'VIBRATE'],
     blockedPermissions: ['android.permission.RECORD_AUDIO'],

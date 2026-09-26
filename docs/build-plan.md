@@ -1403,7 +1403,7 @@ const config: ExpoConfig = {
   userInterfaceStyle: 'automatic',
   icon: './assets/images/icon.png',
   android: {
-    package: 'com.yourname.calico',            // decide before the first Play upload; cannot change later
+    package: 'com.codeville.calico',           // decided; cannot change after the first Play upload
     edgeToEdgeEnabled: true,
     adaptiveIcon: { foregroundImage: './assets/images/adaptive-icon.png', backgroundColor: '#FBF6EE' },
     permissions: ['CAMERA', 'POST_NOTIFICATIONS', 'VIBRATE'],
@@ -1518,7 +1518,7 @@ Stop at the end of every phase for review. "Done when" items are the acceptance 
 
 | Decision | Default in this plan |
 |---|---|
-| Android package name | `com.yourname.calico` placeholder |
+| Android package name | `com.codeville.calico` (decided) |
 | Daily AI cover reads per user | 30 |
 | Gemini model | `gemini-3.6-flash`, re-evaluated after the Phase 3 cover test |
 | Night reading default | Off (day), with System available |
