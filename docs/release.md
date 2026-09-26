@@ -4,18 +4,14 @@ The code side of the release is in the repo. The steps below happen in Play Cons
 Supabase and Google Cloud, and need the account owner. Work top to bottom; each step says where it
 happens and what "done" looks like. Section 15 of the build plan is the checklist this follows.
 
-## 1. Decide the package name (once, forever)
+## 1. Package name and contact
 
-The Android package name cannot change after the first Play upload. Pick it (reverse domain you
-control, for example `lk.yourname.calico`), then set it for every EAS build profile:
-
-```sh
-npx eas-cli@latest env:create --name ANDROID_PACKAGE --value <package> --environment production --environment preview --environment development --visibility plaintext
-```
-
-`app.config.ts` refuses to build the `production` profile while the placeholder
-`com.yourname.calico` is still in place. After changing it, make a new development build: Google
-sign-in is tied to the package name.
+- Android package: **`com.codeville.calico`** (`app.config.ts`). It can never change after the first
+  Play upload. Earlier development builds used the placeholder `com.yourname.calico`: make a new
+  development build, and create the Google OAuth Android clients for the new package (step 2).
+- Public contact / support email: **vihangarashansilva@gmail.com**. It's on the public pages, the Play
+  listing's contact details and the OAuth consent screen, and it's the Supabase `CONTACT_EMAIL` secret
+  (Open Library `User-Agent`).
 
 ## 2. Services
 
@@ -55,14 +51,14 @@ sign-in is tied to the package name.
 
 ## 3. Public pages (privacy policy, account deletion, terms)
 
-The pages are in `site/`. Build them with the contact address that should appear publicly:
+The pages are in `site/`, with the contact address from step 1 filled in at build time:
 
 ```sh
-CONTACT_EMAIL=<support address> npm run site:build     # → site/dist/
+npm run site:build     # → site/dist/  (CONTACT_EMAIL=… overrides the address)
 ```
 
-Host `site/dist` anywhere static. On Vercel: new project from this repo, **Root Directory** `site`, add
-`CONTACT_EMAIL` as an environment variable; `site/vercel.json` already sets the build command and output.
+Host `site/dist` anywhere static. On Vercel: new project from this repo, **Root Directory** `site`;
+`site/vercel.json` already sets the build command and output.
 You get:
 
 | Page           | URL                             | Used in                                                       |
@@ -209,7 +205,7 @@ Calico's behalf, which Play doesn't count as sharing.
   Your year. Take them from a preview build with the seed data, not with real personal data.
 
 **Category**: Books & Reference. **Tags**: reading tracker, library, TV tracker.
-**Contact details**: the support email (same as `CONTACT_EMAIL`) and the website `https://<host>/`.
+**Contact details**: vihangarashansilva@gmail.com and the website `https://<host>/`.
 
 ## 8. Launch checklist (plan §15)
 
