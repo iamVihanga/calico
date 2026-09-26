@@ -1,5 +1,5 @@
 import { useSegments } from 'expo-router';
-import Animated, { FadeInDown, FadeOut } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeInDown, FadeOut, useReducedMotion } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Toast } from '@/components/ds/Toast';
@@ -11,6 +11,7 @@ const ABOVE_TABS = 98;
 const ABOVE_EDGE = 28;
 
 export function ToastHost() {
+  const reduced = useReducedMotion();
   const toast = useToastStore((s) => s.toast);
   const pressAction = useToastStore((s) => s.pressAction);
   const segments = useSegments() as string[];
@@ -20,7 +21,7 @@ export function ToastHost() {
   return (
     <Animated.View
       key={toast.id}
-      entering={FadeInDown.duration(motion.duration.fast)}
+      entering={(reduced ? FadeIn : FadeInDown).duration(motion.duration.fast)}
       exiting={FadeOut.duration(motion.duration.fast)}
       style={{
         position: 'absolute',

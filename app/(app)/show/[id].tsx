@@ -7,9 +7,9 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { coverFor } from '@/components/calico/coverPalette';
 import { StatusRail } from '@/components/calico/StatusRail';
-import { EmptyState } from '@/components/ds/EmptyState';
 import { Icon } from '@/components/ds/Icon';
 import { IconButton } from '@/components/ds/IconButton';
+import { DetailLoadState } from '@/components/ds/LoadState';
 import { Press } from '@/components/ds/Press';
 import { Switch } from '@/components/ds/Switch';
 import { Txt } from '@/components/ds/Txt';
@@ -39,7 +39,7 @@ export default function ShowDetail() {
         <View style={{ paddingHorizontal: 16 }}>
           <IconButton icon="arrow_back" label={copy.books.back} tone="card" onPress={() => router.back()} />
         </View>
-        {q.isFetched && <EmptyState body={copy.books.notFound} />}
+        <DetailLoadState q={q} />
       </View>
     );
   }

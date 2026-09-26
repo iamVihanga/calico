@@ -44,6 +44,9 @@ function textOf(children: ReactNode): string | null {
  * The only text primitive. Handles Sinhala: switches to Noto Sans Sinhala for Sinhala runs,
  * keeps the Latin family for Latin runs, and raises line height to at least 1.5× the font size.
  */
+/** Android's largest font size is 200%; layouts are checked up to there (plan §11.15). */
+const MAX_FONT_SCALE = 2;
+
 export function Txt({
   role = 'body',
   color = 'textPrimary',
@@ -104,7 +107,7 @@ export function Txt({
   }
 
   return (
-    <Text allowFontScaling={allowFontScaling} style={merged} {...rest}>
+    <Text allowFontScaling={allowFontScaling} maxFontSizeMultiplier={MAX_FONT_SCALE} style={merged} {...rest}>
       {content}
     </Text>
   );

@@ -30,3 +30,14 @@ describe('<Txt>', () => {
     expect(StyleSheet.flatten(outer.props.style).fontFamily).toBe('Nunito_400Regular');
   });
 });
+
+describe('touch targets', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { minTargetSlop } = require('../Press') as typeof import('../Press');
+  it('grows anything under 48dp to 48dp', () => {
+    expect(minTargetSlop({ minHeight: 44 })).toEqual({ top: 2, bottom: 2, left: 0, right: 0 });
+    expect(minTargetSlop([{ width: 36, height: 36 }])).toEqual({ top: 6, bottom: 6, left: 6, right: 6 });
+    expect(minTargetSlop({ minHeight: 52 })).toBeUndefined();
+    expect(minTargetSlop({ flex: 1 })).toBeUndefined();
+  });
+});

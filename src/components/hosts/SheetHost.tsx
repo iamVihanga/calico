@@ -6,6 +6,7 @@ import {
   StartReadingSheetBody,
   StopSheetBody,
 } from '@/features/books/sheets/BookSheets';
+import { ExportSheetBody, SettingSheetBody } from '@/features/account/SettingSheets';
 import { RulerSheetBody } from '@/features/books/sheets/RulerSheet';
 import {
   AddToCollectionSheetBody,
@@ -124,6 +125,14 @@ export function SheetHost() {
         {sheet?.name === 'collectionMenu' && (
           <CollectionMenuSheetBody collectionId={sheet.params.collectionId} onClose={closer('collectionMenu')} />
         )}
+      </Sheet>
+      <Sheet open={sheet?.name === 'setting'} onClose={closer('setting')} testID="sheet-setting">
+        {sheet?.name === 'setting' && (
+          <SettingSheetBody key={sheet.params.field} p={sheet.params} onClose={closer('setting')} />
+        )}
+      </Sheet>
+      <Sheet open={sheet?.name === 'export'} onClose={closer('export')} testID="sheet-export">
+        {sheet?.name === 'export' && <ExportSheetBody onClose={closer('export')} />}
       </Sheet>
       <Sheet open={sheet?.name === 'notif'} onClose={closer('notif')} testID="sheet-notif">
         {sheet?.name === 'notif' && <NotifSheetBody onClose={closer('notif')} />}

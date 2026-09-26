@@ -87,13 +87,14 @@ Native Google sign-in needs a development build (not Expo Go):
 
 ## Status
 
-| Phase | Scope                              | State                                           |
-| ----- | ---------------------------------- | ----------------------------------------------- |
-| 0     | Foundation and design system       | Merged                                          |
-| 1     | Backend and auth                   | Merged — pending on-device Google sign-in check |
-| 2     | Books                              | Merged — pending device review                  |
-| 3     | Capture                            | Merged — pending device check and cover eval    |
-| 4     | Loans and reminders                | Merged — pending device check (F4, reminders)   |
-| 5     | Movies and shows                   | Merged — pending device check (F5, F6, cron)    |
-| 6     | Up next, pick, collections, search | Done — pending device check (F7, F8, shake)     |
-| 7–8   | See build plan §13                 | Not started                                     |
+| Phase | Scope                              | State                                                           |
+| ----- | ---------------------------------- | --------------------------------------------------------------- |
+| 0     | Foundation and design system       | Merged                                                          |
+| 1     | Backend and auth                   | Merged — pending on-device Google sign-in check                 |
+| 2     | Books                              | Merged — pending device review                                  |
+| 3     | Capture                            | Merged — pending device check and cover eval                    |
+| 4     | Loans and reminders                | Merged — pending device check (F4, reminders)                   |
+| 5     | Movies and shows                   | Merged — pending device check (F5, F6, cron)                    |
+| 6     | Up next, pick, collections, search | Merged — pending device check (F7, F8, shake)                   |
+| 7     | Stats, settings, polish            | Done — pending device passes (TalkBack, 200% font, low-end fps) |
+| 8     | See build plan §13                 | Not started                                                     |

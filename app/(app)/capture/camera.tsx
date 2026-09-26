@@ -7,7 +7,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useRef, useState } from 'react';
 import { ActivityIndicator, Linking, View } from 'react-native';
-import Animated, { SlideInDown } from 'react-native-reanimated';
+import Animated, { FadeIn, SlideInDown, useReducedMotion } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Button } from '@/components/ds/Button';
@@ -28,6 +28,7 @@ export default function Camera() {
   const params = useLocalSearchParams<{ mode?: CameraMode; keep?: string }>();
   const { t } = useTheme();
   const insets = useSafeAreaInsets();
+  const reduced = useReducedMotion();
   const [permission, requestPermission] = useCameraPermissions();
   const cam = useRef<CameraView>(null);
   const scanned = useRef(false);
@@ -172,7 +173,7 @@ export default function Camera() {
 
       {(looking || found) && (
         <Animated.View
-          entering={SlideInDown.duration(motion.duration.base)}
+          entering={(reduced ? FadeIn : SlideInDown).duration(motion.duration.base)}
           style={{
             marginHorizontal: 16,
             marginBottom: 14,

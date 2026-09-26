@@ -19,11 +19,16 @@ import { copy } from '@/i18n/en';
 import { qk } from '@/lib/queryKeys';
 import { storage, storageKeys } from '@/lib/storage';
 import { useDebounced } from '@/lib/useDebounced';
+import { useOnline } from '@/lib/useOnline';
 import { layout, radius, shadow, size, tracking, useTheme } from '@/theme';
 
 type Filter = 'all' | LibKind | 'loan';
 const RECENT_MAX = 8;
 const KINDS: LibKind[] = ['book', 'movie', 'show'];
+
+/** NFC, case-insensitive substring match on title, other-script title and author (the `sub` line). */
+const localMatch = (i: LibItem, q: string) =>
+  `${i.title} ${i.sub}`.normalize('NFC').toLowerCase().includes(q.toLowerCase());
 
 const readRecent = (): string[] => {
   try {
@@ -49,6 +54,7 @@ export default function Search() {
   const [recent, setRecent] = useState(readRecent);
   const q = useDebounced(text.trim().normalize('NFC'), 250);
   const lib = useLibraryItems();
+  const online = useOnline();
   const hits = useQuery({
     queryKey: qk.search(q),
     queryFn: () => searchLibrary(q),
@@ -59,18 +65,20 @@ export default function Search() {
   const matches = useMemo(() => {
     const pass = (i: LibItem) => (filter === 'all' ? true : filter === 'loan' ? !!i.loan : i.kind === filter);
     if (!q) return filter === 'all' ? [] : lib.items.filter(pass);
+    // Offline (or the server search failed): match titles and authors on the phone instead.
+    if (!online || (hits.isError && !hits.data)) return lib.items.filter((i) => pass(i) && localMatch(i, q));
     return (hits.data ?? []).flatMap((h) => {
       const i = lib.byId.get(h.itemId);
       return i && pass(i) ? [i] : [];
     });
-  }, [q, filter, hits.data, lib.items, lib.byId]);
+  }, [q, filter, hits.data, hits.isError, online, lib.items, lib.byId]);
 
   const open = (i: LibItem) => {
     if (q) remember(q);
     router.push(itemHref(i) as never);
   };
   const idle = !q && filter === 'all';
-  const none = !!q && hits.isFetched && !hits.isFetching && matches.length === 0;
+  const none = !!q && (!online || (hits.isFetched && !hits.isFetching)) && matches.length === 0;
 
   const action = (icon: IconName, label: string, run: () => void, testID: string) => (
     <Press

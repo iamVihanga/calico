@@ -3,6 +3,8 @@ import { ScrollView, View } from 'react-native';
 
 import { Icon } from '@/components/ds/Icon';
 import { Press } from '@/components/ds/Press';
+import { QueryError } from '@/components/ds/QueryError';
+import { SkeletonRows } from '@/components/ds/Skeleton';
 import { Txt } from '@/components/ds/Txt';
 import { initials } from '@/components/ds/Avatar';
 import { TabScreen } from '@/components/layout/TabScreen';
@@ -13,6 +15,7 @@ import { useMovies, useShows } from '@/features/media/hooks';
 import { DueSoonRow } from '@/features/home/components/DueSoonRow';
 import { HomeEmpty } from '@/features/home/components/HomeEmpty';
 import { PendingCapturesCard } from '@/features/home/components/PendingCapturesCard';
+import { StatsLine } from '@/features/home/components/StatsLine';
 import { UpNextPreview } from '@/features/home/components/UpNextPreview';
 import { useProfile, useSetTheme } from '@/features/profile/hooks';
 import { copy } from '@/i18n/en';
@@ -26,7 +29,7 @@ function greeting(hour: number) {
 
 /**
  * Home (prototype `home`): greeting, search pill, night toggle, Due soon (overdue first), Continue
- * reading, Continue watching, Up next + Pick for me, empty state. The stats line arrives in phase 7.
+ * reading, Continue watching, Up next + Pick for me, the stats line (→ Your year), empty state.
  */
 export default function Home() {
   const { t, name } = useTheme();
@@ -143,6 +146,9 @@ export default function Home() {
 
       <PendingCapturesCard />
 
+      {books.isError && !books.data && <QueryError onRetry={() => void books.refetch()} />}
+      {books.isPending && <SkeletonRows n={2} height={150} />}
+
       {empty && <HomeEmpty />}
 
       <DueSoonRow books={books.data ?? []} lead={lead} />
@@ -172,6 +178,7 @@ export default function Home() {
 
       <ContinueWatching />
       <UpNextPreview />
+      {!empty && <StatsLine />}
     </TabScreen>
   );
 }

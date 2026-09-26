@@ -18,8 +18,8 @@ import { LoanSlip } from '@/components/calico/LoanSlip';
 import { PaceSparkline } from '@/components/calico/PaceSparkline';
 import { ScriptToggle } from '@/components/calico/ScriptToggle';
 import { StatusRail } from '@/components/calico/StatusRail';
-import { EmptyState } from '@/components/ds/EmptyState';
 import { IconButton } from '@/components/ds/IconButton';
+import { DetailLoadState } from '@/components/ds/LoadState';
 import { Press } from '@/components/ds/Press';
 import { Txt } from '@/components/ds/Txt';
 import { useBook, useLeadScript, usePageLogs, useUpdateNote } from '@/features/books/hooks';
@@ -88,7 +88,7 @@ export default function BookDetailScreen() {
         <View style={{ paddingHorizontal: 16 }}>
           <IconButton icon="arrow_back" label={copy.books.back} tone="card" onPress={() => router.back()} />
         </View>
-        {query.isFetched && <EmptyState body={copy.books.notFound} />}
+        <DetailLoadState q={query} />
       </View>
     );
   }

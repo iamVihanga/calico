@@ -1,3 +1,4 @@
+import { onlineManager } from '@tanstack/react-query';
 import { act, fireEvent, renderRouter, screen, waitFor } from 'expo-router/testing-library';
 import { router } from 'expo-router';
 import { fireGestureHandler, getByGestureTestId } from 'react-native-gesture-handler/jest-utils';
@@ -287,6 +288,12 @@ describe('global search', () => {
     await fireEvent.changeText(await screen.findByTestId('search-query'), 'madol');
     expect(await screen.findByTestId('search-hit-madol')).toBeTruthy();
     expect(screen.getByTestId('search-group-book')).toBeTruthy();
+
+    // Offline: the same query is matched on the phone.
+    await act(async () => onlineManager.setOnline(false));
+    await fireEvent.changeText(screen.getByTestId('search-query'), 'doov');
+    expect(await screen.findByTestId('search-hit-madol')).toBeTruthy();
+    await act(async () => onlineManager.setOnline(true));
 
     await fireEvent.changeText(screen.getByTestId('search-query'), 'kaputu');
     expect(await screen.findByText(copy.globalSearch.nothing('kaputu'))).toBeTruthy();

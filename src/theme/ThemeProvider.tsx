@@ -1,5 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { NavigationBar } from 'expo-navigation-bar';
+import * as SystemUI from 'expo-system-ui';
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { StyleSheet, useColorScheme } from 'react-native';
 import Animated, {
@@ -60,6 +61,11 @@ export function ThemeProvider({ children, forced }: Props) {
     },
     [forced],
   );
+
+  // The root view behind every screen (keyboard, transitions) follows night reading too.
+  useEffect(() => {
+    if (!forced) void SystemUI.setBackgroundColorAsync(t.surfacePage).catch(() => undefined);
+  }, [forced, t.surfacePage]);
 
   const value = useMemo<ThemeContextValue>(
     () => ({ t, name, preference, setPreference, tokens, type }),

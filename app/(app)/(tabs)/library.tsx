@@ -6,6 +6,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { ScriptToggle } from '@/components/calico/ScriptToggle';
 import { Button } from '@/components/ds/Button';
+import { QueryError } from '@/components/ds/QueryError';
+import { SkeletonGrid, SkeletonRows } from '@/components/ds/Skeleton';
 import { IconButton } from '@/components/ds/IconButton';
 import { Press } from '@/components/ds/Press';
 import { ScreenHeader } from '@/components/ds/ScreenHeader';
@@ -205,35 +207,47 @@ export default function Library() {
     </View>
   );
 
-  const empty = pending ? null : shownCount === 0 ? (
-    <View
-      style={{
-        margin: layout.gutterScreen,
-        paddingVertical: 52,
-        paddingHorizontal: 28,
-        backgroundColor: t.surfacePageWarm,
-        borderRadius: radius.xl,
-      }}
-    >
-      <Txt family="hand" weight={400} size="xl" color="textAccent" align="center">
-        {isBooks
-          ? copy.library.empty[filter as keyof typeof copy.library.empty]
-          : copy.library.emptyMedia[filter as keyof typeof copy.library.emptyMedia]}
-      </Txt>
-      {!isBooks && filter === 'all' && (
-        <Button
-          variant="secondary"
-          style={{ alignSelf: 'center', marginTop: 18 }}
-          testID="library-search-tmdb"
-          onPress={() => router.push({ pathname: '/tmdb', params: { type: segment === 'movies' ? 'movie' : 'show' } })}
-        >
-          {segment === 'movies' ? copy.library.addMovie : copy.library.addShow}
-        </Button>
-      )}
-    </View>
-  ) : isBooks && view === 'shelf' ? (
-    <ShelfView books={shown} lead={lead} />
-  ) : null;
+  const listQuery = isBooks ? books : segment === 'movies' ? movies : shows;
+  const empty =
+    listQuery.isError && !listQuery.data ? (
+      <QueryError onRetry={() => void listQuery.refetch()} />
+    ) : pending ? (
+      layout_ === 'grid' ? (
+        <SkeletonGrid />
+      ) : (
+        <SkeletonRows />
+      )
+    ) : shownCount === 0 ? (
+      <View
+        style={{
+          margin: layout.gutterScreen,
+          paddingVertical: 52,
+          paddingHorizontal: 28,
+          backgroundColor: t.surfacePageWarm,
+          borderRadius: radius.xl,
+        }}
+      >
+        <Txt family="hand" weight={400} size="xl" color="textAccent" align="center">
+          {isBooks
+            ? copy.library.empty[filter as keyof typeof copy.library.empty]
+            : copy.library.emptyMedia[filter as keyof typeof copy.library.emptyMedia]}
+        </Txt>
+        {!isBooks && filter === 'all' && (
+          <Button
+            variant="secondary"
+            style={{ alignSelf: 'center', marginTop: 18 }}
+            testID="library-search-tmdb"
+            onPress={() =>
+              router.push({ pathname: '/tmdb', params: { type: segment === 'movies' ? 'movie' : 'show' } })
+            }
+          >
+            {segment === 'movies' ? copy.library.addMovie : copy.library.addShow}
+          </Button>
+        )}
+      </View>
+    ) : isBooks && view === 'shelf' ? (
+      <ShelfView books={shown} lead={lead} />
+    ) : null;
 
   return (
     <View style={{ flex: 1, backgroundColor: t.surfacePage }}>
