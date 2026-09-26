@@ -1,5 +1,6 @@
 import { Sheet } from '@/components/ds/Sheet';
 import {
+  ChangeCoverSheetBody,
   ConfirmDeleteSheetBody,
   FinishSheetBody,
   OverflowSheetBody,
@@ -73,6 +74,9 @@ export function SheetHost() {
       </Sheet>
       <Sheet open={sheet?.name === 'overflow'} onClose={closer('overflow')} testID="sheet-overflow">
         {sheet?.name === 'overflow' && <OverflowSheetBody key={id} itemId={id} onClose={closer('overflow')} />}
+      </Sheet>
+      <Sheet open={sheet?.name === 'changeCover'} onClose={closer('changeCover')} testID="sheet-change-cover">
+        {sheet?.name === 'changeCover' && <ChangeCoverSheetBody key={id} itemId={id} onClose={closer('changeCover')} />}
       </Sheet>
       <Sheet open={sheet?.name === 'confirmDelete'} onClose={closer('confirmDelete')} testID="sheet-delete">
         {sheet?.name === 'confirmDelete' && (

@@ -10,6 +10,7 @@ export type SheetParams = {
   finish: { itemId: string };
   stop: { itemId: string };
   overflow: { itemId: string };
+  changeCover: { itemId: string };
   startReading: { itemId: string; reread: boolean };
   confirmDelete: { itemId: string };
   renew: { itemId: string };

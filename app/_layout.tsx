@@ -1,7 +1,7 @@
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { useFonts } from 'expo-font';
-import { Stack } from 'expo-router';
+import { Stack, useNavigationContainerRef } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
@@ -9,14 +9,18 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { AuthProvider, useAuth } from '@/features/auth/AuthProvider';
 import { persistOptions, queryClient } from '@/lib/queryClient';
+import { initSentry, navigationIntegration, setSentryUser, wrapRoot } from '@/lib/sentry';
 import { ThemeProvider, useTheme } from '@/theme';
 import { appFonts } from '@/theme/fonts';
 
+initSentry();
 SplashScreen.preventAutoHideAsync();
 
 function RootStack({ ready }: { ready: boolean }) {
   const { t } = useTheme();
-  const { status } = useAuth();
+  const { status, session } = useAuth();
+  const userId = session?.user.id ?? null;
+  useEffect(() => setSentryUser(userId), [userId]);
   const done = ready && status !== 'loading';
 
   // Hide the splash only when fonts are loaded, the cache is restored and the session is known.
@@ -38,7 +42,11 @@ function RootStack({ ready }: { ready: boolean }) {
   );
 }
 
-export default function RootLayout() {
+function RootLayout() {
+  const navRef = useNavigationContainerRef();
+  useEffect(() => {
+    if (navRef) navigationIntegration.registerNavigationContainer(navRef);
+  }, [navRef]);
   const [fontsLoaded, fontError] = useFonts(appFonts);
   const [restored, setRestored] = useState(false);
 
@@ -67,3 +75,5 @@ export default function RootLayout() {
     </GestureHandlerRootView>
   );
 }
+
+export default wrapRoot(RootLayout);

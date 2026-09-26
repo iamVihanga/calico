@@ -78,23 +78,36 @@ Native Google sign-in needs a development build (not Expo Go):
    - an OAuth **Web** client. Its client ID and secret go into Supabase → Authentication → Providers →
      Google (and `SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID` / `_SECRET` for the local stack); its client ID
      also goes into `EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID`.
-   - an OAuth **Android** client for package `com.yourname.calico` with the SHA-1 fingerprints from
+   - an OAuth **Android** client for your package name (`ANDROID_PACKAGE`, see `docs/release.md`) with the SHA-1 fingerprints from
      `eas credentials` (development, preview and production keystores; after the first Play upload also
      Play App Signing's SHA-1).
 2. In Supabase → Google provider, enable "Skip nonce checks" (the Android SDK sends no nonce;
    `skip_nonce_check = true` in `supabase/config.toml` does the same locally).
 3. A failed sign-in shows the prototype's "Google sign-in didn't finish. Try again." row.
 
+### Release
+
+[`docs/release.md`](docs/release.md) is the runbook: package name, EAS environment variables, Sentry,
+the public pages, Play Console answers (Data safety, content rating), store listing text and the launch
+checklist.
+
+- Crash reporting: `@sentry/react-native`, on only in release builds with `EXPO_PUBLIC_SENTRY_DSN` set.
+  `src/lib/sentryScrub.ts` strips emails, query strings and console logs before anything is sent.
+  Source maps upload during EAS builds when `SENTRY_ORG`, `SENTRY_PROJECT` and `SENTRY_AUTH_TOKEN` are set.
+- Public pages (privacy policy, account deletion, terms): `site/`, built with
+  `CONTACT_EMAIL=… npm run site:build` into `site/dist/` for any static host.
+- `app.config.ts` reads the Android package from `ANDROID_PACKAGE`; production builds refuse the placeholder.
+
 ## Status
 
-| Phase | Scope                              | State                                                           |
-| ----- | ---------------------------------- | --------------------------------------------------------------- |
-| 0     | Foundation and design system       | Merged                                                          |
-| 1     | Backend and auth                   | Merged — pending on-device Google sign-in check                 |
-| 2     | Books                              | Merged — pending device review                                  |
-| 3     | Capture                            | Merged — pending device check and cover eval                    |
-| 4     | Loans and reminders                | Merged — pending device check (F4, reminders)                   |
-| 5     | Movies and shows                   | Merged — pending device check (F5, F6, cron)                    |
-| 6     | Up next, pick, collections, search | Merged — pending device check (F7, F8, shake)                   |
-| 7     | Stats, settings, polish            | Done — pending device passes (TalkBack, 200% font, low-end fps) |
-| 8     | See build plan §13                 | Not started                                                     |
+| Phase | Scope                              | State                                                                  |
+| ----- | ---------------------------------- | ---------------------------------------------------------------------- |
+| 0     | Foundation and design system       | Merged                                                                 |
+| 1     | Backend and auth                   | Merged — pending on-device Google sign-in check                        |
+| 2     | Books                              | Merged — pending device review                                         |
+| 3     | Capture                            | Merged — pending device check and cover eval                           |
+| 4     | Loans and reminders                | Merged — pending device check (F4, reminders)                          |
+| 5     | Movies and shows                   | Merged — pending device check (F5, F6, cron)                           |
+| 6     | Up next, pick, collections, search | Merged — pending device check (F7, F8, shake)                          |
+| 7     | Stats, settings, polish            | Merged — pending device passes (TalkBack, 200% font, low-end fps)      |
+| 8     | Release                            | Code done — Play Console, hosting and store steps in `docs/release.md` |

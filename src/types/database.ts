@@ -766,6 +766,10 @@ export type Database = {
         Args: { p_item: string; p_reason: string; p_to_read: boolean };
         Returns: undefined;
       };
+      update_book: {
+        Args: { p_item: string; p: Json };
+        Returns: undefined;
+      };
       year_stats: { Args: { p_year: number }; Returns: Json };
     };
     Enums: {

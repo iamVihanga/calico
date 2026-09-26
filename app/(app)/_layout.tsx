@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { View } from 'react-native';
 
 import { OfflineBanner } from '@/components/calico/OfflineBanner';
+import { CrashScreen } from '@/components/ds/CrashScreen';
 import { SheetHost } from '@/components/hosts/SheetHost';
 import { ToastHost } from '@/components/hosts/ToastHost';
 import { processDrafts } from '@/features/capture/drafts';
@@ -13,6 +14,9 @@ import { useReminderResponses } from '@/features/loans/responses';
 import { useProfileThemeSync } from '@/features/profile/hooks';
 import { setupNotifications } from '@/lib/notifications';
 import { useTheme } from '@/theme';
+
+/** A render error in any signed-in screen lands here (and in Sentry) instead of closing the app. */
+export const ErrorBoundary = CrashScreen;
 
 /** Signed-in shell: screens plus the global sheet, toast and offline hosts. */
 export default function AppLayout() {

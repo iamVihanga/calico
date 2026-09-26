@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Calico Privacy Policy</title>
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700&family=Playfair+Display:wght@700&display=swap"
+    />
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <main>
+      {{NAV}}
+      <h1>Privacy policy</h1>
+      <p class="updated">Last updated {{UPDATED}}</p>
+
+      <p>
+        Calico is an Android app for keeping track of your books, library loans, movies and TV shows. This page explains
+        what the app stores, who else sees any of it, and how to delete it. Calico has no ads, does not sell data, and
+        does not use analytics or tracking SDKs.
+      </p>
+
+      <h2>What Calico stores</h2>
+      <div class="card">
+        <table>
+          <tr>
+            <th>Data</th>
+            <th>Why</th>
+          </tr>
+          <tr>
+            <td>
+              Your Google account name, email address and profile picture link, received when you sign in with Google
+            </td>
+            <td>To create your account and show who is signed in</td>
+          </tr>
+          <tr>
+            <td>
+              Your library: books, movies and shows you add, their status, pages read, ratings, notes, collections and
+              your Up next list
+            </td>
+            <td>This is the app</td>
+          </tr>
+          <tr>
+            <td>Loans: the library or friend's name you enter, and borrowed, due and returned dates</td>
+            <td>To show what's due and remind you</td>
+          </tr>
+          <tr>
+            <td>Book cover photos you take or choose</td>
+            <td>To show your cover and to read the title and author for you</td>
+          </tr>
+          <tr>
+            <td>Settings such as your reading goal, reminder time and theme</td>
+            <td>To remember your choices</td>
+          </tr>
+        </table>
+      </div>
+      <p>
+        This data is stored with Supabase, our database and file host, in a private account that only you can read. It
+        is encrypted in transit (HTTPS) and at rest. A copy is also kept on your phone so the app works offline.
+      </p>
+
+      <h2>Services that receive some of it</h2>
+      <ul>
+        <li>
+          <strong>Google Gemini API.</strong> When you photograph a cover, the photo is sent from our server to Google's
+          Gemini API, which returns the title, author and other details it can read. Only the photos are sent, not your
+          name or email. Google handles this data under the
+          <a href="https://ai.google.dev/gemini-api/terms">Gemini API terms</a>.
+        </li>
+        <li>
+          <strong>Open Library and Google Books.</strong> When you scan a barcode, our server looks up the ISBN. Only
+          the ISBN is sent.
+        </li>
+        <li>
+          <strong>TMDB (The Movie Database).</strong> When you search for a movie or show, our server sends the search
+          text to TMDB and saves the details it returns. Posters and stills are loaded by your phone directly from
+          <code>image.tmdb.org</code>, so TMDB can see your IP address, as any website would.
+        </li>
+        <li>
+          <strong>Sentry.</strong> If the app crashes or hits an error, a crash report is sent to Sentry: the error and
+          where in the code it happened, your phone model, Android and app version, the screen you were on, and a random
+          account ID. Crash reports never include your email, book or show titles, search text, notes or photos; the app
+          removes them before anything is sent.
+        </li>
+        <li><strong>Google Sign-In.</strong> Google confirms who you are when you sign in.</li>
+      </ul>
+      <p>These providers act on our behalf. We don't share your data with anyone else, and we don't sell it.</p>
+
+      <h2>What stays on your phone</h2>
+      <p>
+        Loan reminders are scheduled on your phone as local notifications; no notification service receives your data.
+        Camera and notification permissions are asked only when you use those features, and the app works without them.
+      </p>
+
+      <h2>Your choices</h2>
+      <ul>
+        <li>
+          <strong>Export:</strong> Settings → Export gives you everything as JSON, or your books as a spreadsheet (CSV).
+        </li>
+        <li>
+          <strong>Delete:</strong> Settings → Delete account permanently deletes your account, library and photos at
+          once. See <a href="delete-account.html">Delete your account</a>, including how to ask by email.
+        </li>
+        <li>You can edit or delete any book, movie, show, note or photo in the app at any time.</li>
+      </ul>
+
+      <h2>How long we keep it</h2>
+      <p>
+        Until you delete it or delete your account. After an account is deleted, its data can remain in our host's
+        encrypted backups until those expire (at most 30 days), and is then gone.
+      </p>
+
+      <h2>Children</h2>
+      <p>Calico is not directed at children under 13 and we don't knowingly collect their data.</p>
+
+      <h2>Changes and contact</h2>
+      <p>
+        If this policy changes, we'll update this page and the date at the top. Questions or requests:
+        <a href="mailto:{{CONTACT_EMAIL}}">{{CONTACT_EMAIL}}</a>.
+      </p>
+    </main>
+  </body>
+</html>
