@@ -39,6 +39,12 @@ Expo-specific guidance: @AGENTS.md
   identifier `loan:{loanId}:3d|1d` + a content signature (`features/loans/logic.ts`); never request
   notification permission outside the `notif` sheet.
 - Follow-up toasts use `useToastStore.getState().enqueue()`; an action that should cancel them calls `clearQueue()`.
+- Movies and shows: `src/features/media` (lists from `items` + `movies`/`shows`; `show_progress()` for Home and
+  Library; per-show `tmdb_episodes` + `episode_watches` for detail). `nextEpisode`/`progressOf` mirror SQL
+  `show_progress` for optimistic updates. Media writes share `MEDIA_SCOPE`, so they run in order (add before
+  collection or episode marks). TMDB is only reached through the `tmdb` edge function; DTO types live in
+  `@shared/tmdb.ts`; images load straight from `image.tmdb.org`.
+- Router tests: never call `findBy*` inside `act()` (it waits forever); find first, then act.
 - Global sheets open via `openSheet(name)` (`src/lib/stores/sheet.ts`, rendered by `SheetHost`); toasts via `toast({...})`.
 - Every mutation has a `mutationKey` and is registered in `src/lib/mutations.ts` via `setMutationDefaults`, so paused offline mutations resume after restart.
 - Pure logic (pace, next episode, pick reasons, fractional keys, ISBN validation) lives in `features/*/logic.ts` with unit tests.
@@ -52,4 +58,5 @@ Expo-specific guidance: @AGENTS.md
 - Phase 1 (backend + auth): merged (PR #2), pending on-device Google sign-in check.
 - Phase 2 (books): merged (PR #3), pending device review.
 - Phase 3 (capture): merged (PR #4), pending on-device F1/F2 check and the 20-cover eval (`docs/ai-eval.md`).
-- Phase 4 (loans + reminders): done, pending on-device F4 and reminder checks.
+- Phase 4 (loans + reminders): merged (PR #5), pending on-device F4 and reminder checks.
+- Phase 5 (movies + shows): done, pending on-device F5/F6 and the cron run in a staging project.

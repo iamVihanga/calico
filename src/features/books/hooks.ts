@@ -95,10 +95,11 @@ export function settle(qc: QueryClient, id: string) {
 }
 
 export const failed = () => toast({ message: copy.errors.saveFailed });
-const DONE_STATUSES: BookStatus[] = ['read', 'abandoned'];
+/** Statuses that take any item off Up next (DB trigger `items_status_side_effects`). */
+const DONE_STATUSES: string[] = ['read', 'abandoned', 'watched', 'dropped'];
 
 /** Finished/stopped items leave Up next (DB trigger). Mirror it locally and offer Undo (plan §11.1). */
-function leaveQueue(qc: QueryClient, id: string, status: BookStatus, requeue: (v: api.QueueVars) => void) {
+export function leaveQueue(qc: QueryClient, id: string, status: string, requeue: (v: api.QueueVars) => void) {
   if (!DONE_STATUSES.includes(status)) return;
   const queue = qc.getQueryData<Queue>(qk.upNext);
   const entry = queue?.find((q) => q.itemId === id);

@@ -1,3 +1,4 @@
+import { router } from 'expo-router';
 import { View } from 'react-native';
 
 import { Kiri } from '@/components/calico/Kiri';
@@ -6,7 +7,6 @@ import { Press } from '@/components/ds/Press';
 import { Txt } from '@/components/ds/Txt';
 import { copy } from '@/i18n/en';
 import { openSheet } from '@/lib/stores/sheet';
-import { toast } from '@/lib/stores/toast';
 import { layout, radius, useTheme } from '@/theme';
 
 /** New user: Kiri curled on an empty shelf, one line, one button (prototype homeEmpty). */
@@ -43,7 +43,7 @@ export function HomeEmpty() {
       </Button>
       <Press
         accessibilityRole="link"
-        onPress={() => toast({ message: copy.errors.notYet })}
+        onPress={() => router.push('/tmdb')}
         style={{ minHeight: 44, justifyContent: 'center' }}
       >
         <Txt family="ui" weight={600} size={14} color="textSecondary" style={{ textDecorationLine: 'underline' }}>

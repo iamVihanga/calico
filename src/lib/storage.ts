@@ -8,6 +8,7 @@ export const storageKeys = {
   queryCache: 'query-cache',
   pendingCaptures: 'pending-captures',
   remindersAsked: 'reminders-asked',
+  recentTmdb: 'recent-tmdb-searches',
 } as const;
 
 /** Wipe everything except the theme (sign-out keeps the paper colour for the welcome screen). */
