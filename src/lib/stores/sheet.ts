@@ -27,6 +27,10 @@ export type SheetParams = {
   franchise: { itemId: string; tmdbId: number; collectionId: number };
   watchAgain: { itemId: string };
   mediaOverflow: { itemId: string };
+  tray: { itemId: string; title: string };
+  addToCollection: { itemId: string; title: string };
+  newCollection: { itemId?: string };
+  collectionMenu: { collectionId: string };
 };
 export type SheetName = keyof SheetParams;
 

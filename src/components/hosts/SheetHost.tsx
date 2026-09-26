@@ -8,6 +8,12 @@ import {
 } from '@/features/books/sheets/BookSheets';
 import { RulerSheetBody } from '@/features/books/sheets/RulerSheet';
 import {
+  AddToCollectionSheetBody,
+  CollectionMenuSheetBody,
+  NewCollectionSheetBody,
+  TraySheetBody,
+} from '@/features/collections/CollectionSheets';
+import {
   LoanFormSheetBody,
   LoanQuickSheetBody,
   NotifSheetBody,
@@ -95,6 +101,28 @@ export function SheetHost() {
       <Sheet open={sheet?.name === 'mediaOverflow'} onClose={closer('mediaOverflow')} testID="sheet-media-overflow">
         {sheet?.name === 'mediaOverflow' && (
           <MediaOverflowSheetBody key={id} itemId={id} onClose={closer('mediaOverflow')} />
+        )}
+      </Sheet>
+      <Sheet open={sheet?.name === 'tray'} onClose={closer('tray')} testID="sheet-tray">
+        {sheet?.name === 'tray' && <TraySheetBody p={sheet.params} onClose={closer('tray')} />}
+      </Sheet>
+      <Sheet
+        open={sheet?.name === 'addToCollection'}
+        onClose={closer('addToCollection')}
+        testID="sheet-add-to-collection"
+      >
+        {sheet?.name === 'addToCollection' && (
+          <AddToCollectionSheetBody itemId={sheet.params.itemId} title={sheet.params.title} />
+        )}
+      </Sheet>
+      <Sheet open={sheet?.name === 'newCollection'} onClose={closer('newCollection')} testID="sheet-new-collection">
+        {sheet?.name === 'newCollection' && (
+          <NewCollectionSheetBody p={sheet.params} onClose={closer('newCollection')} />
+        )}
+      </Sheet>
+      <Sheet open={sheet?.name === 'collectionMenu'} onClose={closer('collectionMenu')} testID="sheet-collection-menu">
+        {sheet?.name === 'collectionMenu' && (
+          <CollectionMenuSheetBody collectionId={sheet.params.collectionId} onClose={closer('collectionMenu')} />
         )}
       </Sheet>
       <Sheet open={sheet?.name === 'notif'} onClose={closer('notif')} testID="sheet-notif">

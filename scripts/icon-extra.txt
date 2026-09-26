@@ -53,3 +53,8 @@ expand_more
 expand_less
 check_circle
 radio_button_unchecked
+drag_indicator
+arrow_upward
+auto_awesome
+history
+travel_explore

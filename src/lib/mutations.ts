@@ -1,8 +1,10 @@
 import type { QueryClient } from '@tanstack/react-query';
 
 import * as books from '@/features/books/api';
+import * as collections from '@/features/collections/api';
 import * as loans from '@/features/loans/api';
 import * as media from '@/features/media/api';
+import * as upnext from '@/features/upnext/api';
 import { type ProfilePatch, updateProfile } from '@/features/profile/api';
 
 /**
@@ -30,6 +32,12 @@ export const mk = {
   mediaMarkSeason: ['media', 'markSeason'] as const,
   mediaStatus: ['media', 'status'] as const,
   collectionCreate: ['collections', 'create'] as const,
+  upNextMove: ['upNext', 'move'] as const,
+  upNextRemove: ['upNext', 'remove'] as const,
+  upNextAddMany: ['upNext', 'addMany'] as const,
+  collectionAdd: ['collections', 'add'] as const,
+  collectionRemove: ['collections', 'remove'] as const,
+  collectionDelete: ['collections', 'delete'] as const,
 };
 
 /** Movie/show writes run one at a time, so a collection or episode mark never beats the add it depends on. */
@@ -67,6 +75,21 @@ export function registerMutations(qc: QueryClient) {
   qc.setMutationDefaults(mk.mediaStatus, {
     scope: MEDIA_SCOPE,
     mutationFn: (v: media.MediaStatusVars) => media.setItemStatus(v),
+  });
+  qc.setMutationDefaults(mk.upNextMove, { mutationFn: (v: upnext.MoveVars) => upnext.moveInQueue(v) });
+  qc.setMutationDefaults(mk.upNextRemove, { mutationFn: (v: { itemId: string }) => upnext.removeFromQueue(v) });
+  qc.setMutationDefaults(mk.upNextAddMany, { mutationFn: (v: upnext.AddManyVars) => upnext.addManyToQueue(v) });
+  qc.setMutationDefaults(mk.collectionAdd, {
+    scope: MEDIA_SCOPE,
+    mutationFn: (v: collections.AddItemsVars) => collections.addToCollection(v),
+  });
+  qc.setMutationDefaults(mk.collectionRemove, {
+    scope: MEDIA_SCOPE,
+    mutationFn: (v: collections.RemoveItemVars) => collections.removeFromCollection(v),
+  });
+  qc.setMutationDefaults(mk.collectionDelete, {
+    scope: MEDIA_SCOPE,
+    mutationFn: (v: { id: string }) => collections.deleteCollection(v),
   });
   qc.setMutationDefaults(mk.collectionCreate, {
     scope: MEDIA_SCOPE,

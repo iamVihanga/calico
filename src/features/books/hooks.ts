@@ -15,7 +15,7 @@ import { leadTitle, statusLabel } from './logic';
 import type { Book, BookDetail, BookStatus, LeadScript, PageLog } from './types';
 
 const BOOKS = qk.items('book', 'all');
-type Queue = { itemId: string; position: string }[];
+type Queue = api.QueueEntry[];
 
 export function useLeadScript(): LeadScript {
   const { data } = useProfile();

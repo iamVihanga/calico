@@ -45,6 +45,13 @@ Expo-specific guidance: @AGENTS.md
   collection or episode marks). TMDB is only reached through the `tmdb` edge function; DTO types live in
   `@shared/tmdb.ts`; images load straight from `image.tmdb.org`.
 - Router tests: never call `findBy*` inside `act()` (it waits forever); find first, then act.
+- Anything that lists "whatever it is" (Up next, collections, search, Pick) uses `useLibraryItems()`
+  (`src/features/library/items.ts`) and `ItemCover`. Queue moves compute from the query cache at call time
+  (`keyForMove` on the current order), never from a render-time index.
+- Screen `presentation` (modals) is declared in the parent layout's `<Stack.Screen>`, not from inside the
+  screen: changing it later remounts the screen.
+- Drag to collect: `useCollectDrag(item)` on covers, `useDragStore` for the lifted card and chip rects
+  (`TargetChip` registers via `measureInWindow`), `DragLayer` in the app layout; tray chips are also tappable.
 - Global sheets open via `openSheet(name)` (`src/lib/stores/sheet.ts`, rendered by `SheetHost`); toasts via `toast({...})`.
 - Every mutation has a `mutationKey` and is registered in `src/lib/mutations.ts` via `setMutationDefaults`, so paused offline mutations resume after restart.
 - Pure logic (pace, next episode, pick reasons, fractional keys, ISBN validation) lives in `features/*/logic.ts` with unit tests.
@@ -59,4 +66,5 @@ Expo-specific guidance: @AGENTS.md
 - Phase 2 (books): merged (PR #3), pending device review.
 - Phase 3 (capture): merged (PR #4), pending on-device F1/F2 check and the 20-cover eval (`docs/ai-eval.md`).
 - Phase 4 (loans + reminders): merged (PR #5), pending on-device F4 and reminder checks.
-- Phase 5 (movies + shows): done, pending on-device F5/F6 and the cron run in a staging project.
+- Phase 5 (movies + shows): merged (PR #6), pending on-device F5/F6 and the cron run in a staging project.
+- Phase 6 (up next, pick, collections, search): done, pending on-device F7/F8, drag-to-collect and shake.

@@ -297,7 +297,14 @@ export async function setItemStatus(v: MediaStatusVars): Promise<void> {
   if (error) throw error;
 }
 
-export type CollectionVars = { id: string; name: string; position: string; items: string[]; positions: string[] };
+export type CollectionVars = {
+  id: string;
+  name: string;
+  description?: string | null;
+  position: string;
+  items: string[];
+  positions: string[];
+};
 export async function createCollection(v: CollectionVars): Promise<void> {
   const { error } = await supabase.rpc('create_collection', {
     p_id: v.id,
@@ -305,6 +312,7 @@ export async function createCollection(v: CollectionVars): Promise<void> {
     p_position: v.position,
     p_items: v.items,
     p_positions: v.positions,
+    ...(v.description ? { p_description: v.description } : {}),
   });
   if (error) throw error;
 }

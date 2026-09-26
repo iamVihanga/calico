@@ -28,7 +28,6 @@ import { countBy, MOVIE_STATUSES, SHOW_STATUSES, sortMedia } from '@/features/me
 import type { Media, MediaStatus } from '@/features/media/types';
 import { copy } from '@/i18n/en';
 import { colomboToday } from '@/lib/dates';
-import { toast } from '@/lib/stores/toast';
 import { layout, radius, useTheme } from '@/theme';
 
 type Segment = 'books' | 'movies' | 'shows';
@@ -110,12 +109,7 @@ export default function Library() {
         title={copy.headers.library}
         trailing={
           <>
-            <IconButton
-              icon="search"
-              label={copy.home.search}
-              tone="card"
-              onPress={() => toast({ message: copy.errors.notYet })}
-            />
+            <IconButton icon="search" label={copy.home.search} tone="card" onPress={() => router.push('/search')} />
             <ScriptToggle />
           </>
         }
