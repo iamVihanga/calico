@@ -256,6 +256,32 @@ export function useUpdateNote() {
   });
 }
 
+export function useUpdateBook() {
+  const qc = useQueryClient();
+  return useMutation<void, Error, api.UpdateBookVars, Snapshot>({
+    mutationKey: mk.bookUpdate,
+    onMutate: async ({ itemId, edit }) => {
+      const s = await snapshot(qc, itemId);
+      patchBook(qc, itemId, () => ({
+        ...(edit.title ? { title: edit.title } : {}),
+        ...(edit.titleNative !== undefined ? { titleNative: edit.titleNative || null } : {}),
+        ...(edit.author !== undefined ? { author: edit.author || null } : {}),
+        ...(edit.authorNative !== undefined ? { authorNative: edit.authorNative || null } : {}),
+        ...(edit.language ? { language: edit.language } : {}),
+        ...(edit.totalPages !== undefined ? { totalPages: edit.totalPages } : {}),
+        ...(edit.format ? { format: edit.format } : {}),
+        ...(edit.coverPath !== undefined ? { coverPath: edit.coverPath, coverUrl: null } : {}),
+      }));
+      return s;
+    },
+    onError: (_e, v, ctx) => {
+      restore(qc, v.itemId, ctx);
+      failed();
+    },
+    onSettled: (_d, _e, v) => settle(qc, v.itemId),
+  });
+}
+
 export function useDeleteItem() {
   const qc = useQueryClient();
   return useMutation<void, Error, { itemId: string }, Snapshot>({

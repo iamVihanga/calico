@@ -62,3 +62,4 @@ remove
 data_object
 table
 open_in_new
+photo_library

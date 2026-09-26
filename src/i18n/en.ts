@@ -231,9 +231,11 @@ export const en = {
   },
   errors: {
     saveFailed: "Couldn't save that. Try again.",
-    notYet: 'Not built yet — coming in a later phase.',
     loadFailed: "Couldn't load this. Check your connection.",
     retry: 'Try again',
+    crashed: 'Something went wrong on this page.',
+    crashedHint: "It's been reported. Your shelf is safe.",
+    home: 'Go home',
   },
   add: {
     hand: 'something new for the shelf',
@@ -552,6 +554,18 @@ export const en = {
     deleted: (title: string) => `Deleted ${title}`,
     confirmDelete: (title: string) => `Delete ${title}?`,
     confirmDeleteBody: 'This removes the book, its loans, reading history and notes.',
+  },
+  edit: {
+    title: 'Edit details',
+    saved: (title: string) => `Saved ${title}`,
+    pagesBelow: (page: number) => `You're on page ${page}, so it has at least that many.`,
+    coverTitle: 'Change cover photo',
+    takePhoto: 'Take a photo',
+    choosePhoto: 'Choose from gallery',
+    coverSaving: 'Saving the cover…',
+    coverSaved: 'New cover saved',
+    coverFailed: "Couldn't upload the photo. Check your connection and try again.",
+    cameraDenied: 'Calico needs the camera for this. You can allow it in Android settings.',
   },
   review: {
     title: 'Check the details',

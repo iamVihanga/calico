@@ -37,3 +37,21 @@ export function statusOptions(source: ReviewForm['source']): ReviewForm['status'
   if (source === 'wishlist') return [];
   return source === 'bought' ? ['to_read', 'reading', 'read'] : ['to_read', 'reading'];
 }
+
+/** Edit details: the identity fields only (status, source and loans have their own flows). */
+export const editSchema = z
+  .object({
+    titleNative: z.string().trim().max(300),
+    title: z.string().trim().max(300),
+    authorNative: z.string().trim().max(300),
+    author: z.string().trim().max(300),
+    language: z.string().min(1),
+    pages: z
+      .string()
+      .trim()
+      .regex(/^\d{0,5}$/, copy.review.badPages),
+    format: z.enum(['physical', 'ebook', 'audiobook']),
+  })
+  .refine((v) => v.title.length > 0 || v.titleNative.length > 0, { path: ['title'], message: copy.review.needTitle });
+
+export type EditForm = z.infer<typeof editSchema>;

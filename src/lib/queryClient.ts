@@ -9,7 +9,7 @@ import { registerMutations } from './mutations';
 import { storage, storageKeys } from './storage';
 
 /** Bump with every migration so a cache from an older schema is discarded. */
-export const LATEST_MIGRATION = '20260926000001';
+export const LATEST_MIGRATION = '20260927000001';
 export const cacheBuster = `${Constants.expoConfig?.version ?? '0'}-${LATEST_MIGRATION}`;
 
 const DAY = 24 * 60 * 60 * 1000;

@@ -86,7 +86,8 @@
     "db:test": "supabase test db",
     "db:test:local": "scripts/db-local.sh",
     "db:types": "supabase gen types typescript --local --schema public > src/types/database.ts",
-    "fn:test": "cd supabase/functions && deno test"
+    "fn:test": "cd supabase/functions && deno test",
+    "site:build": "node scripts/build-site.mjs"
   },
   "private": true,
   "jest": {

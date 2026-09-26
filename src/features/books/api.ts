@@ -234,6 +234,32 @@ export async function updateNote({ itemId, note }: NoteVars): Promise<void> {
   if (error) throw error;
 }
 
+/** Edit details / new cover photo. Only the fields present change (plan: `update_book`). */
+export type BookEdit = {
+  title?: string;
+  titleNative?: string;
+  author?: string;
+  authorNative?: string;
+  language?: string;
+  totalPages?: number | null;
+  format?: BookFormat;
+  coverPath?: string;
+};
+export type UpdateBookVars = { itemId: string; edit: BookEdit };
+export async function updateBook({ itemId, edit }: UpdateBookVars): Promise<void> {
+  const p: Record<string, string | number | null> = {};
+  if (edit.title !== undefined) p.title = edit.title;
+  if (edit.titleNative !== undefined) p.title_native = edit.titleNative;
+  if (edit.author !== undefined) p.author = edit.author;
+  if (edit.authorNative !== undefined) p.author_native = edit.authorNative;
+  if (edit.language !== undefined) p.language = edit.language;
+  if (edit.totalPages !== undefined) p.total_pages = edit.totalPages;
+  if (edit.format !== undefined) p.format = edit.format;
+  if (edit.coverPath !== undefined) p.cover_path = edit.coverPath;
+  const { error } = await supabase.rpc('update_book', { p_item: itemId, p });
+  if (error) throw error;
+}
+
 export async function deleteItem({ itemId }: { itemId: string }): Promise<void> {
   const { error } = await supabase.from('items').delete().eq('id', itemId);
   if (error) throw error;

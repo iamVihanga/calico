@@ -45,3 +45,4 @@ design/unpacked/
 
 # env
 .env
+site/dist/

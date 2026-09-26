@@ -76,3 +76,12 @@ jest.mock('expo-crypto', () => ({
 jest.mock('expo-sensors', () => ({
   Accelerometer: { setUpdateInterval: jest.fn(), addListener: jest.fn(() => ({ remove: jest.fn() })) },
 }));
+
+// Crash reporting is off in tests (no DSN, __DEV__); only the calls the app makes are stubbed.
+jest.mock('@sentry/react-native', () => ({
+  init: jest.fn(),
+  wrap: (c: unknown) => c,
+  setUser: jest.fn(),
+  captureException: jest.fn(),
+  reactNavigationIntegration: () => ({ name: 'ReactNavigation', registerNavigationContainer: jest.fn() }),
+}));

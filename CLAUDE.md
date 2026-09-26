@@ -39,6 +39,12 @@ Expo-specific guidance: @AGENTS.md
   identifier `loan:{loanId}:3d|1d` + a content signature (`features/loans/logic.ts`); never request
   notification permission outside the `notif` sheet.
 - Follow-up toasts use `useToastStore.getState().enqueue()`; an action that should cancel them calls `clearQueue()`.
+- Book edits go through the `update_book` RPC (only the keys sent change). A new cover photo is uploaded as
+  `covers/{uid}/{itemId}/front-{timestamp}.jpg` (covers are cached by path), then the old file is removed.
+- Crash reporting: `src/lib/sentry.ts` (release builds with a DSN only). Anything new sent to Sentry must pass
+  `sentryScrub.ts`; screen render errors land in `CrashScreen` (the `(app)` layout's `ErrorBoundary`).
+- Release steps and Play answers live in `docs/release.md`; public pages in `site/`. If what leaves the phone
+  changes, update `site/privacy.html` and the Data safety table together.
 - Movies and shows: `src/features/media` (lists from `items` + `movies`/`shows`; `show_progress()` for Home and
   Library; per-show `tmdb_episodes` + `episode_watches` for detail). `nextEpisode`/`progressOf` mirror SQL
   `show_progress` for optimistic updates. Media writes share `MEDIA_SCOPE`, so they run in order (add before
@@ -72,4 +78,5 @@ Expo-specific guidance: @AGENTS.md
 - Phase 4 (loans + reminders): merged (PR #5), pending on-device F4 and reminder checks.
 - Phase 5 (movies + shows): merged (PR #6), pending on-device F5/F6 and the cron run in a staging project.
 - Phase 6 (up next, pick, collections, search): merged (PR #7), pending on-device F7/F8, drag-to-collect and shake.
-- Phase 7 (stats, settings, polish): done, pending device passes (TalkBack, 200% font, low-end scrolling).
+- Phase 7 (stats, settings, polish): merged (PR #8), pending device passes (TalkBack, 200% font, low-end scrolling).
+- Phase 8 (release): code done (Sentry, book edit/change cover, public pages, `docs/release.md`); Play Console steps pending.

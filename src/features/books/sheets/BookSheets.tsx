@@ -26,7 +26,9 @@ import {
   useQueueBook,
   useSetBookStatus,
   useStopBook,
+  useUpdateBook,
 } from '../hooks';
+import { CameraDenied, pickCover, removeOldCover, uploadReplacementCover } from '../cover';
 import { leadAuthor, leadTitle } from '../logic';
 
 type Props = { itemId: string; onClose: () => void };
@@ -195,17 +197,20 @@ export function StartReadingSheetBody({ itemId, reread, onClose }: Props & { rer
 }
 
 export function OverflowSheetBody({ itemId, onClose }: Props) {
-  const { t } = useTheme();
   const lead = useLeadScript();
   const book = useBook(itemId).data;
   const queue = useQueueBook();
   if (!book) return null;
-  const later = () => {
-    onClose();
-    toast({ message: copy.errors.notYet });
-  };
-  const items: { icon: IconName; label: string; run: () => void; testID?: string }[] = [
-    { icon: 'edit', label: copy.overflow.edit, run: later },
+  const items: MenuItem[] = [
+    {
+      icon: 'edit',
+      label: copy.overflow.edit,
+      testID: 'overflow-edit',
+      run: () => {
+        onClose();
+        router.push(`/book/edit/${itemId}`);
+      },
+    },
     {
       icon: 'playlist_add',
       label: copy.overflow.upNext,
@@ -225,7 +230,12 @@ export function OverflowSheetBody({ itemId, onClose }: Props) {
             run: () => openSheet('loanForm', { itemId }),
           },
         ]),
-    { icon: 'photo_camera', label: copy.overflow.cover, run: later },
+    {
+      icon: 'photo_camera',
+      label: copy.overflow.cover,
+      testID: 'overflow-cover',
+      run: () => openSheet('changeCover', { itemId }),
+    },
     {
       icon: 'share',
       label: copy.overflow.share,
@@ -244,6 +254,13 @@ export function OverflowSheetBody({ itemId, onClose }: Props) {
       run: () => openSheet('confirmDelete', { itemId }),
     },
   ];
+  return <MenuRows items={items} />;
+}
+
+type MenuItem = { icon: IconName; label: string; run: () => void; testID?: string; disabled?: boolean };
+
+function MenuRows({ items }: { items: MenuItem[] }) {
+  const { t } = useTheme();
   return (
     <View style={{ marginHorizontal: -layout.gutterScreen }}>
       {items.map((o) => (
@@ -252,9 +269,17 @@ export function OverflowSheetBody({ itemId, onClose }: Props) {
           accessibilityRole="button"
           testID={o.testID}
           onPress={o.run}
+          disabled={o.disabled}
           scaleTo={1}
           pressedStyle={{ backgroundColor: t.surfaceQuiet }}
-          style={{ flexDirection: 'row', alignItems: 'center', gap: 14, minHeight: 56, paddingHorizontal: 20 }}
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 14,
+            minHeight: 56,
+            paddingHorizontal: 20,
+            opacity: o.disabled ? 0.5 : 1,
+          }}
         >
           <Icon name={o.icon} size={20} color="textAccent" />
           <Txt family="ui" size="sm">
@@ -262,6 +287,62 @@ export function OverflowSheetBody({ itemId, onClose }: Props) {
           </Txt>
         </Press>
       ))}
+    </View>
+  );
+}
+
+/** Change cover photo: camera or gallery → upload → point the book at the new photo. */
+export function ChangeCoverSheetBody({ itemId, onClose }: Props) {
+  const book = useBook(itemId).data;
+  const update = useUpdateBook();
+  const [busy, setBusy] = useState(false);
+  if (!book) return null;
+  const go = async (source: 'camera' | 'gallery') => {
+    let uri: string | null;
+    try {
+      uri = await pickCover(source);
+    } catch (e) {
+      toast({ message: e instanceof CameraDenied ? copy.edit.cameraDenied : copy.edit.coverFailed });
+      return;
+    }
+    if (!uri) return;
+    setBusy(true);
+    try {
+      const old = book.coverPath;
+      const path = await uploadReplacementCover(itemId, uri);
+      await update.mutateAsync({ itemId, edit: { coverPath: path } });
+      void removeOldCover(old).catch(() => undefined);
+      onClose();
+      toast({ message: copy.edit.coverSaved });
+    } catch {
+      toast({ message: copy.edit.coverFailed });
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <View style={{ gap: 8 }}>
+      <Txt family="display" weight={700} size={22} accessibilityRole="header">
+        {busy ? copy.edit.coverSaving : copy.edit.coverTitle}
+      </Txt>
+      <MenuRows
+        items={[
+          {
+            icon: 'photo_camera',
+            label: copy.edit.takePhoto,
+            testID: 'cover-camera',
+            disabled: busy,
+            run: () => void go('camera'),
+          },
+          {
+            icon: 'photo_library',
+            label: copy.edit.choosePhoto,
+            testID: 'cover-gallery',
+            disabled: busy,
+            run: () => void go('gallery'),
+          },
+        ]}
+      />
     </View>
   );
 }

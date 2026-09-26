@@ -19,6 +19,7 @@ export const mk = {
   bookLogPage: ['books', 'logPage'] as const,
   bookFinish: ['books', 'finish'] as const,
   bookStop: ['books', 'stop'] as const,
+  bookUpdate: ['books', 'update'] as const,
   itemNote: ['items', 'note'] as const,
   itemDelete: ['items', 'delete'] as const,
   upNextAdd: ['upNext', 'add'] as const,
@@ -52,6 +53,7 @@ export function registerMutations(qc: QueryClient) {
   qc.setMutationDefaults(mk.bookLogPage, { mutationFn: (v: books.LogPageVars) => books.logPage(v) });
   qc.setMutationDefaults(mk.bookFinish, { mutationFn: (v: books.FinishVars) => books.finishBook(v) });
   qc.setMutationDefaults(mk.bookStop, { mutationFn: (v: books.StopVars) => books.stopBook(v) });
+  qc.setMutationDefaults(mk.bookUpdate, { mutationFn: (v: books.UpdateBookVars) => books.updateBook(v) });
   qc.setMutationDefaults(mk.itemNote, { mutationFn: (v: books.NoteVars) => books.updateNote(v) });
   qc.setMutationDefaults(mk.itemDelete, { mutationFn: (v: { itemId: string }) => books.deleteItem(v) });
   qc.setMutationDefaults(mk.upNextAdd, { mutationFn: (v: books.QueueVars) => books.addToUpNext(v) });
