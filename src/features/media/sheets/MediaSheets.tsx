@@ -18,7 +18,7 @@ import { useQueueBook } from '@/features/books/hooks';
 import { byPosition } from '@/features/upnext/logic';
 import { copy } from '@/i18n/en';
 import { colomboToday, fmtShort } from '@/lib/dates';
-import type { SheetParams } from '@/lib/stores/sheet';
+import { openSheet, type SheetParams } from '@/lib/stores/sheet';
 import { toast } from '@/lib/stores/toast';
 import { layout, useTheme } from '@/theme';
 
@@ -320,6 +320,11 @@ export function MediaOverflowSheetBody({ itemId, onClose }: { itemId: string; on
         onClose();
         void queue(itemId);
       },
+    },
+    {
+      icon: 'category',
+      label: copy.overflow.addCollection,
+      run: () => openSheet('addToCollection', { itemId, title: item.title }),
     },
     {
       icon: 'share',

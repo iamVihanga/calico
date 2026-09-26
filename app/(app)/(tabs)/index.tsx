@@ -13,9 +13,9 @@ import { useMovies, useShows } from '@/features/media/hooks';
 import { DueSoonRow } from '@/features/home/components/DueSoonRow';
 import { HomeEmpty } from '@/features/home/components/HomeEmpty';
 import { PendingCapturesCard } from '@/features/home/components/PendingCapturesCard';
+import { UpNextPreview } from '@/features/home/components/UpNextPreview';
 import { useProfile, useSetTheme } from '@/features/profile/hooks';
 import { copy } from '@/i18n/en';
-import { toast } from '@/lib/stores/toast';
 import { layout, radius, shadow, useTheme } from '@/theme';
 
 function greeting(hour: number) {
@@ -26,7 +26,7 @@ function greeting(hour: number) {
 
 /**
  * Home (prototype `home`): greeting, search pill, night toggle, Due soon (overdue first), Continue
- * reading, Continue watching, empty state. Up next + Pick for me (6) and the stats line (7) follow.
+ * reading, Continue watching, Up next + Pick for me, empty state. The stats line arrives in phase 7.
  */
 export default function Home() {
   const { t, name } = useTheme();
@@ -119,7 +119,8 @@ export default function Home() {
         <Press
           accessibilityRole="search"
           accessibilityLabel={copy.home.search}
-          onPress={() => toast({ message: copy.errors.notYet })}
+          testID="home-search"
+          onPress={() => router.push('/search')}
           scaleTo={0.99}
           style={{
             minHeight: 50,
@@ -170,6 +171,7 @@ export default function Home() {
       )}
 
       <ContinueWatching />
+      <UpNextPreview />
     </TabScreen>
   );
 }

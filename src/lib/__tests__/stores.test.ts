@@ -76,3 +76,39 @@ describe('clearStorageKeepingTheme', () => {
     expect(storage.getString(storageKeys.theme)).toBe('night');
   });
 });
+
+describe('drag to collect', () => {
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  const { hitTarget, useDragStore } = require('../stores/drag') as typeof import('../stores/drag');
+  const item = {
+    id: 'shining',
+    kind: 'book' as const,
+    title: 'The Shining',
+    cover: { coverPath: null, coverUrl: null, posterPath: null },
+  };
+
+  it('finds the chip under the finger', () => {
+    const targets = { sk: { x: 20, y: 600, width: 120, height: 48 }, grrm: { x: 150, y: 600, width: 80, height: 48 } };
+    expect(hitTarget(targets, 60, 620)).toBe('sk');
+    expect(hitTarget(targets, 200, 647)).toBe('grrm');
+    expect(hitTarget(targets, 145, 620)).toBeNull();
+  });
+
+  it('reports entering a chip once, and drops on it', () => {
+    const s = useDragStore.getState();
+    s.setTarget('sk', { x: 20, y: 600, width: 120, height: 48 });
+    s.lift(item, 100, 200);
+    expect(useDragStore.getState().move(100, 400)).toBe(false);
+    expect(useDragStore.getState().move(60, 620)).toBe(true);
+    expect(useDragStore.getState().move(70, 622)).toBe(false); // still over the same chip
+    expect(useDragStore.getState().drop()).toBe('sk');
+    expect(useDragStore.getState().item).toBeNull();
+  });
+
+  it('dropping anywhere else cancels', () => {
+    const s = useDragStore.getState();
+    s.lift(item, 100, 200);
+    s.move(300, 100);
+    expect(useDragStore.getState().drop()).toBeNull();
+  });
+});

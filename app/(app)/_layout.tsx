@@ -7,6 +7,7 @@ import { OfflineBanner } from '@/components/calico/OfflineBanner';
 import { SheetHost } from '@/components/hosts/SheetHost';
 import { ToastHost } from '@/components/hosts/ToastHost';
 import { processDrafts } from '@/features/capture/drafts';
+import { DragLayer } from '@/features/collections/DragLayer';
 import { startReminderSync } from '@/features/loans/reminders';
 import { useReminderResponses } from '@/features/loans/responses';
 import { useProfileThemeSync } from '@/features/profile/hooks';
@@ -34,10 +35,14 @@ export default function AppLayout() {
   }, []);
   return (
     <View style={{ flex: 1, backgroundColor: t.surfacePage }}>
-      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: t.surfacePage } }} />
+      <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: t.surfacePage } }}>
+        {/* Declared here, not from inside the screen: changing presentation later remounts it. */}
+        <Stack.Screen name="pick" options={{ presentation: 'transparentModal', animation: 'fade' }} />
+      </Stack>
       <OfflineBanner />
       <ToastHost />
       <SheetHost />
+      <DragLayer />
     </View>
   );
 }

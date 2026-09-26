@@ -39,7 +39,6 @@ import { useReturn } from '@/features/loans/hooks';
 import { copy } from '@/i18n/en';
 import { colomboToday, fmtLong, fmtShort } from '@/lib/dates';
 import { openSheet } from '@/lib/stores/sheet';
-import { toast } from '@/lib/stores/toast';
 import { alpha, fontFamily, layout, motion, palette, radius, shadow, size, tracking, useTheme } from '@/theme';
 
 function SectionTitle({ children, aside }: { children: string; aside?: string }) {
@@ -249,7 +248,7 @@ export default function BookDetailScreen() {
           ))}
           <Press
             accessibilityRole="button"
-            onPress={() => toast({ message: copy.errors.notYet })}
+            onPress={() => openSheet('addToCollection', { itemId: book.id, title: main })}
             style={{
               minHeight: 40,
               justifyContent: 'center',

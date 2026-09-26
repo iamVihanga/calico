@@ -1,11 +1,13 @@
 import { router } from 'expo-router';
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
+import { GestureDetector } from 'react-native-gesture-handler';
 import { View } from 'react-native';
 
 import { Poster } from '@/components/calico/Poster';
 import { starString } from '@/components/calico/TicketStub';
 import { Press } from '@/components/ds/Press';
 import { Txt } from '@/components/ds/Txt';
+import { useCollectDrag } from '@/features/collections/useCollectDrag';
 import { copy } from '@/i18n/en';
 import { radius, shadow, useTheme } from '@/theme';
 
@@ -30,29 +32,33 @@ export const mediaHref = (item: Pick<Media, 'id' | 'kind'>) =>
 export const MediaTile = memo(function MediaTile({ item, progress }: { item: Media; progress?: ShowProgress }) {
   const { t } = useTheme();
   const tag = mediaTag(item, progress);
+  const drag = useCollectDrag(useMediaDragItem(item));
   return (
-    <Press
-      accessibilityRole="button"
-      accessibilityLabel={`${item.title}, ${copy.media[item.kind]}, ${tag.text}`}
-      testID={`media-tile-${item.id}`}
-      onPress={() => router.push(mediaHref(item))}
-      style={{ flex: 1 }}
-    >
-      <Poster item={item} kind={item.kind} />
-      <Txt family="ui" weight={600} size="2xs" numberOfLines={1} style={{ marginTop: 7 }}>
-        {item.title}
-      </Txt>
-      <Txt
-        family="ui"
-        weight={600}
-        size="3xs"
-        tint={tag.accent ? t.textAccent : t.textMuted}
-        numberOfLines={1}
-        style={{ minHeight: 17, marginTop: 2 }}
+    <GestureDetector gesture={drag}>
+      <Press
+        accessibilityRole="button"
+        accessibilityLabel={`${item.title}, ${copy.media[item.kind]}, ${tag.text}`}
+        testID={`media-tile-${item.id}`}
+        accessibilityHint={copy.collections.lift(item.title)}
+        onPress={() => router.push(mediaHref(item))}
+        style={{ flex: 1 }}
       >
-        {tag.text}
-      </Txt>
-    </Press>
+        <Poster item={item} kind={item.kind} />
+        <Txt family="ui" weight={600} size="2xs" numberOfLines={1} style={{ marginTop: 7 }}>
+          {item.title}
+        </Txt>
+        <Txt
+          family="ui"
+          weight={600}
+          size="3xs"
+          tint={tag.accent ? t.textAccent : t.textMuted}
+          numberOfLines={1}
+          style={{ minHeight: 17, marginTop: 2 }}
+        >
+          {tag.text}
+        </Txt>
+      </Press>
+    </GestureDetector>
   );
 });
 
@@ -97,3 +103,15 @@ export const MediaRow = memo(function MediaRow({ item, progress }: { item: Media
     </Press>
   );
 });
+
+function useMediaDragItem(item: Media) {
+  return useMemo(
+    () => ({
+      id: item.id,
+      kind: item.kind,
+      title: item.title,
+      cover: { coverPath: null, coverUrl: null, posterPath: item.posterPath },
+    }),
+    [item.id, item.kind, item.title, item.posterPath],
+  );
+}

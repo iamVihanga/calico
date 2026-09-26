@@ -248,10 +248,11 @@ export async function addToUpNext({ itemId, position }: QueueVars): Promise<void
   if (error) throw error;
 }
 
-export async function fetchUpNextPositions(): Promise<{ itemId: string; position: string }[]> {
-  const { data, error } = await supabase.from('up_next').select('item_id, position');
+export type QueueEntry = { itemId: string; position: string; addedAt?: string };
+export async function fetchUpNextPositions(): Promise<QueueEntry[]> {
+  const { data, error } = await supabase.from('up_next').select('item_id, position, added_at');
   if (error) throw error;
-  return data.map((r) => ({ itemId: r.item_id, position: r.position }));
+  return data.map((r) => ({ itemId: r.item_id, position: r.position, addedAt: r.added_at }));
 }
 
 export const newId = () => randomUUID();

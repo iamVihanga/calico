@@ -1,5 +1,6 @@
 import { router } from 'expo-router';
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
+import { GestureDetector } from 'react-native-gesture-handler';
 import { View } from 'react-native';
 
 import { CoverPhoto } from '@/components/calico/CoverPhoto';
@@ -7,6 +8,8 @@ import { coverFor } from '@/components/calico/coverPalette';
 import { coverRadius } from '@/components/calico/GeneratedCover';
 import { Press } from '@/components/ds/Press';
 import { Txt } from '@/components/ds/Txt';
+import { useCollectDrag } from '@/features/collections/useCollectDrag';
+import { copy } from '@/i18n/en';
 import { type LocalDate } from '@/lib/dates';
 import { alpha, radius, shadow, useTheme } from '@/theme';
 
@@ -24,65 +27,82 @@ export const BookTile = memo(function BookTile({ book, lead, today }: Props) {
   const tagColor = tag.tone === 'danger' ? t.statusDanger : tag.tone === 'accent' ? t.textAccent : t.textMuted;
   const reading = book.status === 'reading';
 
+  const drag = useCollectDrag(
+    useMemo(
+      () => ({
+        id: book.id,
+        kind: 'book' as const,
+        title: main,
+        cover: { coverPath: book.coverPath, coverUrl: book.coverUrl, posterPath: null },
+      }),
+      [book.id, main, book.coverPath, book.coverUrl],
+    ),
+  );
+
   return (
-    <Press
-      accessibilityRole="button"
-      accessibilityLabel={`${main}, ${tag.text}`}
-      testID={`book-tile-${book.id}`}
-      onPress={() => router.push(`/book/${book.id}`)}
-      style={{ flex: 1 }}
-    >
-      <View
-        style={[
-          {
-            aspectRatio: 2 / 3,
-            backgroundColor: p.bg,
-            boxShadow: shadow.cover,
-            paddingVertical: 10,
-            paddingHorizontal: 9,
-            overflow: 'hidden',
-          },
-          coverRadius,
-        ]}
+    <GestureDetector gesture={drag}>
+      <Press
+        accessibilityRole="button"
+        accessibilityLabel={`${main}, ${tag.text}`}
+        accessibilityHint={copy.collections.lift(main)}
+        testID={`book-tile-${book.id}`}
+        onPress={() => router.push(`/book/${book.id}`)}
+        style={{ flex: 1 }}
       >
-        <Txt family="display" weight={700} size="2xs" leading={1.2} tint={p.ink} numberOfLines={6}>
-          {main}
-        </Txt>
-        <CoverPhoto item={book} />
-        <View style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 5, backgroundColor: alpha.black18 }} />
-      </View>
-      <Txt family="ui" weight={600} size="2xs" numberOfLines={1} style={{ marginTop: 7 }}>
-        {main}
-      </Txt>
-      {reading && (
         <View
-          style={{
-            height: 4,
-            borderRadius: radius.pill,
-            backgroundColor: t.surfaceSunk,
-            marginTop: 5,
-            overflow: 'hidden',
-          }}
+          style={[
+            {
+              aspectRatio: 2 / 3,
+              backgroundColor: p.bg,
+              boxShadow: shadow.cover,
+              paddingVertical: 10,
+              paddingHorizontal: 9,
+              overflow: 'hidden',
+            },
+            coverRadius,
+          ]}
         >
+          <Txt family="display" weight={700} size="2xs" leading={1.2} tint={p.ink} numberOfLines={6}>
+            {main}
+          </Txt>
+          <CoverPhoto item={book} />
           <View
-            style={{
-              height: '100%',
-              width: `${progressPct(book.currentPage, book.totalPages)}%`,
-              backgroundColor: t.accentPrimary,
-            }}
+            style={{ position: 'absolute', left: 0, top: 0, bottom: 0, width: 5, backgroundColor: alpha.black18 }}
           />
         </View>
-      )}
-      <Txt
-        family="ui"
-        weight={600}
-        size="3xs"
-        tint={tagColor}
-        numberOfLines={1}
-        style={{ minHeight: 17, marginTop: 2 }}
-      >
-        {tag.text}
-      </Txt>
-    </Press>
+        <Txt family="ui" weight={600} size="2xs" numberOfLines={1} style={{ marginTop: 7 }}>
+          {main}
+        </Txt>
+        {reading && (
+          <View
+            style={{
+              height: 4,
+              borderRadius: radius.pill,
+              backgroundColor: t.surfaceSunk,
+              marginTop: 5,
+              overflow: 'hidden',
+            }}
+          >
+            <View
+              style={{
+                height: '100%',
+                width: `${progressPct(book.currentPage, book.totalPages)}%`,
+                backgroundColor: t.accentPrimary,
+              }}
+            />
+          </View>
+        )}
+        <Txt
+          family="ui"
+          weight={600}
+          size="3xs"
+          tint={tagColor}
+          numberOfLines={1}
+          style={{ minHeight: 17, marginTop: 2 }}
+        >
+          {tag.text}
+        </Txt>
+      </Press>
+    </GestureDetector>
   );
 });

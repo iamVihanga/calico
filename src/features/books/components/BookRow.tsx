@@ -14,7 +14,6 @@ import { Press } from '@/components/ds/Press';
 import { Txt } from '@/components/ds/Txt';
 import { copy } from '@/i18n/en';
 import { openSheet } from '@/lib/stores/sheet';
-import { toast } from '@/lib/stores/toast';
 import { radius, shadow, size, tracking, useTheme } from '@/theme';
 
 import { leadAuthor, leadTitle, nextLogicalStatus, statusLabel } from '../logic';
@@ -76,7 +75,9 @@ export const BookRow = memo(function BookRow({ book, lead, onStatus, onQueue }: 
         renderRightActions={() => (
           <View style={{ flexDirection: 'row', backgroundColor: t.surfaceSunk }}>
             {action('playlist_add', copy.library.swipe.upNext, () => onQueue(book.id))}
-            {action('category', copy.library.swipe.collection, () => toast({ message: copy.errors.notYet }))}
+            {action('category', copy.library.swipe.collection, () =>
+              openSheet('addToCollection', { itemId: book.id, title: main }),
+            )}
             {action('delete', copy.library.swipe.delete, () => openSheet('confirmDelete', { itemId: book.id }))}
           </View>
         )}
