@@ -16,6 +16,17 @@ export type SheetParams = {
   loanQuick: { itemId: string };
   loanForm: { itemId: string };
   notif: undefined;
+  tmdbPreview: {
+    tmdbId: number;
+    kind: 'movie' | 'show';
+    title: string;
+    year: number | null;
+    posterPath: string | null;
+    overview: string | null;
+  };
+  franchise: { itemId: string; tmdbId: number; collectionId: number };
+  watchAgain: { itemId: string };
+  mediaOverflow: { itemId: string };
 };
 export type SheetName = keyof SheetParams;
 

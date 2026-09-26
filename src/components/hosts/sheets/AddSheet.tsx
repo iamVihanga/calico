@@ -7,19 +7,18 @@ import { Icon, type IconName } from '@/components/ds/Icon';
 import { Press } from '@/components/ds/Press';
 import { Txt } from '@/components/ds/Txt';
 import { copy } from '@/i18n/en';
-import { toast } from '@/lib/stores/toast';
 import { alpha, radius, shadow, space, useTheme } from '@/theme';
 
 /**
  * "What are you adding?" (prototype sheetAdd). Book expands into the three capture methods;
- * Movie and Show go to TMDB search. Destinations arrive in phases 3 (capture) and 5 (TMDB).
+ * Movie and Show go to TMDB search.
  */
 export function AddSheetBody({ onClose }: { onClose: () => void }) {
   const { t } = useTheme();
   const [bookOpen, setBookOpen] = useState(false);
-  const later = () => {
+  const tmdb = (type: 'movie' | 'show') => {
     onClose();
-    toast({ message: copy.errors.notYet });
+    router.push({ pathname: '/tmdb', params: { type } });
   };
 
   const tile = (label: string, art: ReactNode, onPress: () => void, active = false) => (
@@ -101,12 +100,12 @@ export function AddSheetBody({ onClose }: { onClose: () => void }) {
               ))}
             </View>
           </View>,
-          later,
+          () => tmdb('movie'),
         )}
         {tile(
           copy.add.show,
           <View style={{ width: 42, height: 28, borderRadius: radius.sm, backgroundColor: t.cover[5] }} />,
-          later,
+          () => tmdb('show'),
         )}
       </View>
       {bookOpen && (

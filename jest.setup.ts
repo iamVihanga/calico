@@ -66,3 +66,9 @@ jest.mock('expo-notifications', () => ({
   clearLastNotificationResponse: jest.fn(),
   addNotificationResponseReceivedListener: jest.fn(() => ({ remove: jest.fn() })),
 }));
+
+// Client-generated ids (CLAUDE.md): real UUIDs in tests too.
+jest.mock('expo-crypto', () => ({
+  ...jest.requireActual('expo-crypto'),
+  randomUUID: () => require('node:crypto').randomUUID(),
+}));

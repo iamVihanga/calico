@@ -33,25 +33,31 @@ has a "Dev: sign in as the seed user" link (`dilan@calico.test` / `calico-dev`) 
 
 ### Edge functions
 
-`isbn-lookup` (Open Library, then Google Books) and `extract-book` (Gemini reads the cover photos) live
-in `supabase/functions/`. Pure helpers shared with the app are in `supabase/functions/_shared/` and
+`isbn-lookup` (Open Library, then Google Books), `extract-book` (Gemini reads the cover photos), `tmdb`
+(TMDB search and details; fills the shared episode cache) and `refresh-shows` (nightly cron) live in
+`supabase/functions/`. Pure helpers shared with the app are in `supabase/functions/_shared/` and
 imported in the app as `@shared/*`.
 
 ```sh
 supabase functions serve         # local
 npm run fn:test                  # Deno unit tests for the handlers (needs deno)
-supabase secrets set GEMINI_API_KEY=… CONTACT_EMAIL=…   # production
+supabase secrets set GEMINI_API_KEY=… CONTACT_EMAIL=… TMDB_READ_TOKEN=… CRON_SECRET=…   # production
 ```
 
-| Secret                 | Used by        | Notes                                            |
-| ---------------------- | -------------- | ------------------------------------------------ |
-| `GEMINI_API_KEY`       | `extract-book` | required                                         |
-| `GEMINI_MODEL`         | `extract-book` | default `gemini-3.6-flash`                       |
-| `AI_DAILY_LIMIT`       | `extract-book` | cover reads per user per Colombo day, default 30 |
-| `GOOGLE_BOOKS_API_KEY` | `isbn-lookup`  | optional (higher quota)                          |
-| `CONTACT_EMAIL`        | `isbn-lookup`  | sent in the Open Library `User-Agent`            |
-| `TMDB_READ_TOKEN`      | Phase 5        |                                                  |
-| `CRON_SECRET`          | cron functions | Phase 4+                                         |
+| Secret                 | Used by                 | Notes                                            |
+| ---------------------- | ----------------------- | ------------------------------------------------ |
+| `GEMINI_API_KEY`       | `extract-book`          | required                                         |
+| `GEMINI_MODEL`         | `extract-book`          | default `gemini-3.6-flash`                       |
+| `AI_DAILY_LIMIT`       | `extract-book`          | cover reads per user per Colombo day, default 30 |
+| `GOOGLE_BOOKS_API_KEY` | `isbn-lookup`           | optional (higher quota)                          |
+| `CONTACT_EMAIL`        | `isbn-lookup`           | sent in the Open Library `User-Agent`            |
+| `TMDB_READ_TOKEN`      | `tmdb`, `refresh-shows` | TMDB v4 read access token                        |
+| `CRON_SECRET`          | `refresh-shows`         | must match the `cron_secret` Vault secret        |
+
+The nightly `refresh-shows` job (02:00 Colombo, migration `…04_cron.sql`) reads two Vault secrets:
+`project_url` (e.g. `https://<ref>.supabase.co`) and `cron_secret` (same value as `CRON_SECRET`). Create
+them in Supabase → Project Settings → Vault. The function skips JWT checks (`supabase/config.toml`) and
+rejects calls without the right `x-cron-secret`.
 
 ### Reminders
 
@@ -87,5 +93,6 @@ Native Google sign-in needs a development build (not Expo Go):
 | 1     | Backend and auth             | Merged — pending on-device Google sign-in check |
 | 2     | Books                        | Merged — pending device review                  |
 | 3     | Capture                      | Merged — pending device check and cover eval    |
-| 4     | Loans and reminders          | Done — pending device check (F4, reminders)     |
-| 5–8   | See build plan §13           | Not started                                     |
+| 4     | Loans and reminders          | Merged — pending device check (F4, reminders)   |
+| 5     | Movies and shows             | Done — pending device check (F5, F6, cron)      |
+| 6–8   | See build plan §13           | Not started                                     |

@@ -8,6 +8,8 @@ import { initials } from '@/components/ds/Avatar';
 import { TabScreen } from '@/components/layout/TabScreen';
 import { useBooks, useLeadScript, useReadingLogs } from '@/features/books/hooks';
 import { ContinueReadingCard } from '@/features/home/components/ContinueReadingCard';
+import { ContinueWatching } from '@/features/home/components/ContinueWatching';
+import { useMovies, useShows } from '@/features/media/hooks';
 import { DueSoonRow } from '@/features/home/components/DueSoonRow';
 import { HomeEmpty } from '@/features/home/components/HomeEmpty';
 import { PendingCapturesCard } from '@/features/home/components/PendingCapturesCard';
@@ -24,7 +26,7 @@ function greeting(hour: number) {
 
 /**
  * Home (prototype `home`): greeting, search pill, night toggle, Due soon (overdue first), Continue
- * reading, empty state. Continue watching (5), Up next + Pick for me (6) and the stats line (7) follow.
+ * reading, Continue watching, empty state. Up next + Pick for me (6) and the stats line (7) follow.
  */
 export default function Home() {
   const { t, name } = useTheme();
@@ -34,7 +36,13 @@ export default function Home() {
   const books = useBooks();
   const reading = (books.data ?? []).filter((b) => b.status === 'reading');
   const logs = useReadingLogs(reading.map((b) => b.id)).data ?? {};
-  const empty = books.isSuccess && books.data.length === 0;
+  const movies = useMovies();
+  const shows = useShows();
+  const empty =
+    books.isSuccess &&
+    movies.isSuccess &&
+    shows.isSuccess &&
+    books.data.length + movies.data.length + shows.data.length === 0;
   const displayName = profile.data?.display_name ?? '';
   const night = name === 'night';
 
@@ -160,6 +168,8 @@ export default function Home() {
           </ScrollView>
         </View>
       )}
+
+      <ContinueWatching />
     </TabScreen>
   );
 }

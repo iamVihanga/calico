@@ -650,6 +650,17 @@ export type Database = {
         Args: { p_collection: string; p_items: string[]; p_positions: string[] };
         Returns: undefined;
       };
+      create_collection: {
+        Args: {
+          p_description?: string;
+          p_id: string;
+          p_items?: string[];
+          p_name: string;
+          p_position: string;
+          p_positions?: string[];
+        };
+        Returns: string;
+      };
       create_book: { Args: { p: Json }; Returns: string };
       export_my_data: { Args: Record<PropertyKey, never>; Returns: Json };
       finish_book: {

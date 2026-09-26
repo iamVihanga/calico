@@ -2,6 +2,7 @@ import type { QueryClient } from '@tanstack/react-query';
 
 import * as books from '@/features/books/api';
 import * as loans from '@/features/loans/api';
+import * as media from '@/features/media/api';
 import { type ProfilePatch, updateProfile } from '@/features/profile/api';
 
 /**
@@ -23,7 +24,16 @@ export const mk = {
   loanRenew: ['loans', 'renew'] as const,
   loanReturn: ['loans', 'return'] as const,
   loanReopen: ['loans', 'reopen'] as const,
+  mediaAdd: ['media', 'add'] as const,
+  mediaViewing: ['media', 'viewing'] as const,
+  mediaMarkEpisodes: ['media', 'markEpisodes'] as const,
+  mediaMarkSeason: ['media', 'markSeason'] as const,
+  mediaStatus: ['media', 'status'] as const,
+  collectionCreate: ['collections', 'create'] as const,
 };
+
+/** Movie/show writes run one at a time, so a collection or episode mark never beats the add it depends on. */
+export const MEDIA_SCOPE = { id: 'media' };
 
 export function registerMutations(qc: QueryClient) {
   qc.setMutationDefaults(mk.profileUpdate, {
@@ -41,4 +51,25 @@ export function registerMutations(qc: QueryClient) {
   qc.setMutationDefaults(mk.loanRenew, { mutationFn: (v: loans.RenewVars) => loans.renewLoan(v) });
   qc.setMutationDefaults(mk.loanReturn, { mutationFn: (v: loans.ReturnVars) => loans.returnLoan(v) });
   qc.setMutationDefaults(mk.loanReopen, { mutationFn: (v: loans.ReopenVars) => loans.reopenLoan(v) });
+  qc.setMutationDefaults(mk.mediaAdd, { scope: MEDIA_SCOPE, mutationFn: (v: media.NewMedia) => media.addTmdbItem(v) });
+  qc.setMutationDefaults(mk.mediaViewing, {
+    scope: MEDIA_SCOPE,
+    mutationFn: (v: media.ViewingVars) => media.logViewing(v),
+  });
+  qc.setMutationDefaults(mk.mediaMarkEpisodes, {
+    scope: MEDIA_SCOPE,
+    mutationFn: (v: media.MarkVars) => media.markEpisodes(v),
+  });
+  qc.setMutationDefaults(mk.mediaMarkSeason, {
+    scope: MEDIA_SCOPE,
+    mutationFn: (v: media.SeasonVars) => media.markSeason(v),
+  });
+  qc.setMutationDefaults(mk.mediaStatus, {
+    scope: MEDIA_SCOPE,
+    mutationFn: (v: media.MediaStatusVars) => media.setItemStatus(v),
+  });
+  qc.setMutationDefaults(mk.collectionCreate, {
+    scope: MEDIA_SCOPE,
+    mutationFn: (v: media.CollectionVars) => media.createCollection(v),
+  });
 }

@@ -13,6 +13,12 @@ import {
   NotifSheetBody,
   RenewSheetBody,
 } from '@/features/loans/sheets/LoanSheets';
+import {
+  FranchiseSheetBody,
+  MediaOverflowSheetBody,
+  TmdbPreviewSheetBody,
+  WatchAgainSheetBody,
+} from '@/features/media/sheets/MediaSheets';
 import { copy } from '@/i18n/en';
 import { type SheetName, useSheetStore } from '@/lib/stores/sheet';
 
@@ -74,6 +80,22 @@ export function SheetHost() {
       </Sheet>
       <Sheet open={sheet?.name === 'loanForm'} onClose={closer('loanForm')} testID="sheet-loan-form">
         {sheet?.name === 'loanForm' && <LoanFormSheetBody key={id} itemId={id} onClose={closer('loanForm')} />}
+      </Sheet>
+      <Sheet open={sheet?.name === 'tmdbPreview'} onClose={closer('tmdbPreview')} testID="sheet-tmdb-preview">
+        {sheet?.name === 'tmdbPreview' && (
+          <TmdbPreviewSheetBody key={sheet.params.tmdbId} p={sheet.params} onClose={closer('tmdbPreview')} />
+        )}
+      </Sheet>
+      <Sheet open={sheet?.name === 'franchise'} onClose={closer('franchise')} testID="sheet-franchise">
+        {sheet?.name === 'franchise' && <FranchiseSheetBody key={id} p={sheet.params} onClose={closer('franchise')} />}
+      </Sheet>
+      <Sheet open={sheet?.name === 'watchAgain'} onClose={closer('watchAgain')} testID="sheet-watch-again">
+        {sheet?.name === 'watchAgain' && <WatchAgainSheetBody key={id} itemId={id} onClose={closer('watchAgain')} />}
+      </Sheet>
+      <Sheet open={sheet?.name === 'mediaOverflow'} onClose={closer('mediaOverflow')} testID="sheet-media-overflow">
+        {sheet?.name === 'mediaOverflow' && (
+          <MediaOverflowSheetBody key={id} itemId={id} onClose={closer('mediaOverflow')} />
+        )}
       </Sheet>
       <Sheet open={sheet?.name === 'notif'} onClose={closer('notif')} testID="sheet-notif">
         {sheet?.name === 'notif' && <NotifSheetBody onClose={closer('notif')} />}
