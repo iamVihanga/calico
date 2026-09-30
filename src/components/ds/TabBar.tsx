@@ -65,7 +65,7 @@ export function TabBar<V extends string>({ items, value, onChange, onAdd, onAddL
 
   return (
     <View
-      accessibilityRole="tabbar"
+      accessibilityRole="tablist"
       style={[
         {
           backgroundColor: t.surfaceCard,
