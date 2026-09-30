@@ -97,6 +97,8 @@ checklist.
 - Public pages (privacy policy, account deletion, terms): `site/`, built with
   `npm run site:build` into `site/dist/` for any static host.
 - Android package: `com.codeville.calico` (permanent after the first Play upload).
+- Icons, splash and Play Store graphics: `npm run brand` (needs Chrome) regenerates `assets/images/` and
+  `assets/store/` from `scripts/brand.mjs`.
 
 ## Status
 
