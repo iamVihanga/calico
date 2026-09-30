@@ -5,3 +5,4 @@ src/components/ds/iconGlyphs.json
 docs/build-plan.md
 AGENTS.md
 src/types/database.ts
+supabase/.temp/

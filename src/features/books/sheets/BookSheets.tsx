@@ -291,12 +291,8 @@ function MenuRows({ items }: { items: MenuItem[] }) {
   );
 }
 
-/** Change cover photo: camera or gallery → upload → point the book at the new photo. */
-export function ChangeCoverSheetBody({ itemId, onClose }: Props) {
-  const book = useBook(itemId).data;
-  const update = useUpdateBook();
-  const [busy, setBusy] = useState(false);
-  if (!book) return null;
+/** Take a photo / Choose from gallery → a cropped (2:3), resized local photo for `onPicked`. */
+export function CoverSourceRows({ onPicked, busy }: { onPicked: (uri: string) => void; busy?: boolean }) {
   const go = async (source: 'camera' | 'gallery') => {
     let uri: string | null;
     try {
@@ -305,7 +301,37 @@ export function ChangeCoverSheetBody({ itemId, onClose }: Props) {
       toast({ message: e instanceof CameraDenied ? copy.edit.cameraDenied : copy.edit.coverFailed });
       return;
     }
-    if (!uri) return;
+    if (uri) onPicked(uri);
+  };
+  return (
+    <MenuRows
+      items={[
+        {
+          icon: 'photo_camera',
+          label: copy.edit.takePhoto,
+          testID: 'cover-camera',
+          disabled: busy,
+          run: () => void go('camera'),
+        },
+        {
+          icon: 'photo_library',
+          label: copy.edit.choosePhoto,
+          testID: 'cover-gallery',
+          disabled: busy,
+          run: () => void go('gallery'),
+        },
+      ]}
+    />
+  );
+}
+
+/** Change cover photo: camera or gallery → upload → point the book at the new photo. */
+export function ChangeCoverSheetBody({ itemId, onClose }: Props) {
+  const book = useBook(itemId).data;
+  const update = useUpdateBook();
+  const [busy, setBusy] = useState(false);
+  if (!book) return null;
+  const save = async (uri: string) => {
     setBusy(true);
     try {
       const old = book.coverPath;
@@ -325,24 +351,7 @@ export function ChangeCoverSheetBody({ itemId, onClose }: Props) {
       <Txt family="display" weight={700} size={22} accessibilityRole="header">
         {busy ? copy.edit.coverSaving : copy.edit.coverTitle}
       </Txt>
-      <MenuRows
-        items={[
-          {
-            icon: 'photo_camera',
-            label: copy.edit.takePhoto,
-            testID: 'cover-camera',
-            disabled: busy,
-            run: () => void go('camera'),
-          },
-          {
-            icon: 'photo_library',
-            label: copy.edit.choosePhoto,
-            testID: 'cover-gallery',
-            disabled: busy,
-            run: () => void go('gallery'),
-          },
-        ]}
-      />
+      <CoverSourceRows busy={busy} onPicked={(uri) => void save(uri)} />
     </View>
   );
 }

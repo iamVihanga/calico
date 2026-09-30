@@ -1,7 +1,7 @@
 import { Image } from 'expo-image';
 import { router } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { type LayoutChangeEvent, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
@@ -15,6 +15,7 @@ import { containedRect, dragBox, initialCropBox, type Rect, viewRectToImage } fr
 import { capture, useCaptureStore } from '@/features/capture/store';
 import { copy } from '@/i18n/en';
 import { processCover, rotatedSize } from '@/lib/images';
+import { toast } from '@/lib/stores/toast';
 import { alpha, palette, useTheme } from '@/theme';
 
 type Handle = 'tl' | 'tr' | 'bl' | 'br' | 't' | 'b' | 'l' | 'r' | 'move';
@@ -28,6 +29,8 @@ export default function Crop() {
   const [view, setView] = useState<{ width: number; height: number } | null>(null);
   const [rotation, setRotation] = useState(0);
   const [busy, setBusy] = useState(false);
+  // Set once "Use photo" hands the photo on: clearing `pending` then is expected, not "nothing to crop".
+  const leaving = useRef(false);
 
   const box = useSharedValue<Rect>({ x: 0, y: 0, width: 0, height: 0 });
   const start = useSharedValue<Rect>({ x: 0, y: 0, width: 0, height: 0 });
@@ -68,7 +71,7 @@ export default function Crop() {
 
   // Nothing to crop (e.g. restored after the app was killed): go back to the camera.
   useEffect(() => {
-    if (!pending) router.back();
+    if (!pending && !leaving.current) router.back();
   }, [pending]);
   if (!pending) return null;
 
@@ -79,9 +82,13 @@ export default function Crop() {
       const crop = viewRectToImage(box.value, view, size);
       const out = await processCover(pending.uri, rotation, crop);
       const side = pending.side;
+      leaving.current = true;
       capture().patch({ [side]: out.uri, pending: null, extraction: side === 'front' ? null : capture().extraction });
       // Front → read the cover. Back (from Review) → read both again.
       router.replace('/capture/reading');
+    } catch {
+      leaving.current = false;
+      toast({ message: copy.errors.saveFailed });
     } finally {
       setBusy(false);
     }
@@ -166,7 +173,7 @@ export default function Crop() {
         </Press>
       </View>
 
-      <View style={{ flex: 1, margin: 20 }} onLayout={onLayout}>
+      <View style={{ flex: 1, margin: 20 }} onLayout={onLayout} testID="crop-area">
         {shown && (
           <>
             <Image

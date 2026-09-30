@@ -34,6 +34,8 @@ Expo-specific guidance: @AGENTS.md
   Pure code shared with the app lives in `supabase/functions/_shared/` and is imported as `@shared/*.ts`.
 - The capture flow keeps one draft in `useCaptureStore` (`src/features/capture/store.ts`); covers upload to
   `covers/{uid}/{itemId}/front|back.jpg`. Offline captures go to `useDrafts` and are read by `processDrafts()`.
+  Review can attach a photo in any mode (`CoverSourceRows`): it's uploaded as `front.jpg` on save, and if the upload
+  fails the book is saved without it and a toast says so.
 - Loans: mutations in `src/features/loans/hooks.ts` (optimistic, call `requestReminderSync()`); Undo after
   Returned is the `reopen_loan` RPC. Reminders are diffed against `getAllScheduledNotificationsAsync()` by
   identifier `loan:{loanId}:3d|1d` + a content signature (`features/loans/logic.ts`); never request

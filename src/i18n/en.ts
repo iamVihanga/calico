@@ -594,6 +594,9 @@ export const en = {
     added: (title: string) => `Added ${title}`,
     needTitle: 'Add a title in either script.',
     badPages: 'Pages should be a number.',
+    addCover: 'Add a cover photo',
+    changeCover: 'Change photo',
+    coverSkipped: "Saved without the cover photo. Add it later from the book's menu.",
   },
   capture: {
     close: 'Close',

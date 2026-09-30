@@ -12,12 +12,15 @@ import { Button } from '@/components/ds/Button';
 import { IconButton } from '@/components/ds/IconButton';
 import { Press } from '@/components/ds/Press';
 import { Select } from '@/components/ds/Select';
+import { Sheet } from '@/components/ds/Sheet';
 import { Tag } from '@/components/ds/Tag';
 import { Txt } from '@/components/ds/Txt';
 import { type NewBook, newId } from '@/features/books/api';
 import { useBooks, useCreateBook, useFinishBook } from '@/features/books/hooks';
 import { statusLabel } from '@/features/books/logic';
 import { DUE_CHOICES, type ReviewForm, reviewSchema, SOURCES, statusOptions } from '@/features/books/schema';
+import { CoverSourceRows } from '@/features/books/sheets/BookSheets';
+import { uploadCover } from '@/features/capture/api';
 import { removeDraft } from '@/features/capture/drafts';
 import {
   CONFIDENCE_OF,
@@ -32,7 +35,7 @@ import { maybeAskForReminders } from '@/features/loans/sheets/LoanSheets';
 import { useProfile, useUpdateProfile } from '@/features/profile/hooks';
 import { copy } from '@/i18n/en';
 import { addLocalDays, colomboToday, fmtShort } from '@/lib/dates';
-import { toast } from '@/lib/stores/toast';
+import { toast, useToastStore } from '@/lib/stores/toast';
 import { layout, radius, shadow, useTheme } from '@/theme';
 
 function Label({ children }: { children: string }) {
@@ -61,6 +64,10 @@ export default function Review() {
   const extraction = draft?.extraction ?? null;
   const lookup = draft?.lookup ?? null;
   const itemId = useMemo(() => draft?.itemId ?? newId(), [draft]);
+  // A cover photo added here (any mode): uploaded as the book's front cover when it's saved.
+  const [photo, setPhoto] = useState<string | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const coverUri = photo ?? draft?.front ?? lookup?.coverUrl ?? null;
   const books = useBooks().data ?? [];
   const today = colomboToday();
   const defaultDue = (DUE_CHOICES as readonly number[]).includes(profile?.default_loan_days ?? 0)
@@ -111,7 +118,16 @@ export default function Review() {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- only on source change
   }, [source]);
 
-  const save = handleSubmit((v) => {
+  const save = handleSubmit(async (v) => {
+    let coverPath = draft?.frontPath ?? undefined;
+    let coverSkipped = false;
+    if (photo) {
+      try {
+        coverPath = await uploadCover(itemId, 'front', photo);
+      } catch {
+        coverSkipped = true; // offline or failed: save the book anyway, the cover can be added later
+      }
+    }
     const pages = v.pages ? Number(v.pages) : undefined;
     const finalStatus = v.source === 'wishlist' ? 'wishlist' : statuses.includes(v.status) ? v.status : 'to_read';
     const book: NewBook = {
@@ -128,8 +144,8 @@ export default function Review() {
       ownership: v.source === 'bought' ? 'owned' : v.source === 'wishlist' ? 'none' : v.source,
       wishlistPriority: v.source === 'wishlist' ? v.priority : undefined,
       wishlistPriceLkr: v.source === 'wishlist' && v.price ? Number(v.price) : undefined,
-      coverPath: draft?.frontPath ?? undefined,
-      coverUrl: !draft?.frontPath && lookup?.coverUrl ? lookup.coverUrl : undefined,
+      coverPath,
+      coverUrl: !coverPath && !photo && lookup?.coverUrl ? lookup.coverUrl : undefined,
       isbn: extraction?.isbn ?? draft?.isbn ?? undefined,
       publisher: extraction?.publisher ?? lookup?.publisher ?? undefined,
       publishedYear: extraction?.published_year ?? lookup?.year ?? undefined,
@@ -165,6 +181,7 @@ export default function Review() {
       message: copy.review.added(shown),
       action: { label: copy.finish.open, onPress: () => router.push(`/book/${itemId}`) },
     });
+    if (coverSkipped) useToastStore.getState().enqueue({ message: copy.review.coverSkipped });
   });
 
   const chips = <V extends string | number>(
@@ -252,24 +269,38 @@ export default function Review() {
         testID="screen-review"
       >
         <View style={{ flexDirection: 'row', gap: 16, paddingTop: 20, paddingBottom: 4 }}>
-          {draft?.front || lookup?.coverUrl ? (
-            <View style={[{ width: 80, height: 120, boxShadow: shadow.cover, overflow: 'hidden' }, coverRadius]}>
-              <Image
-                accessibilityLabel={copy.capture.coverPhoto}
-                source={{ uri: draft?.front ?? lookup?.coverUrl ?? undefined }}
-                contentFit="cover"
-                style={{ width: '100%', height: '100%' }}
-              />
-            </View>
-          ) : (
-            <GeneratedCover
-              seed={itemId}
-              title={titleNative || title || '…'}
-              width={80}
-              height={120}
-              showAuthor={false}
-            />
-          )}
+          <View style={{ alignItems: 'center', gap: 6 }}>
+            <Press
+              accessibilityRole="button"
+              accessibilityLabel={coverUri ? copy.review.changeCover : copy.review.addCover}
+              testID="review-cover"
+              onPress={() => setPickerOpen(true)}
+            >
+              {coverUri ? (
+                <View style={[{ width: 80, height: 120, boxShadow: shadow.cover, overflow: 'hidden' }, coverRadius]}>
+                  <Image
+                    accessibilityLabel={copy.capture.coverPhoto}
+                    source={{ uri: coverUri }}
+                    contentFit="cover"
+                    style={{ width: '100%', height: '100%' }}
+                  />
+                </View>
+              ) : (
+                <GeneratedCover
+                  seed={itemId}
+                  title={titleNative || title || '…'}
+                  width={80}
+                  height={120}
+                  showAuthor={false}
+                />
+              )}
+            </Press>
+            <Press accessibilityRole="button" onPress={() => setPickerOpen(true)} hitSlop={8}>
+              <Txt family="ui" weight={600} size={11} color="textAccent" align="center" style={{ maxWidth: 88 }}>
+                {coverUri ? copy.review.changeCover : copy.review.addCover}
+              </Txt>
+            </Press>
+          </View>
           <View style={{ flex: 1 }}>
             <Txt family="hand" weight={400} size={19} leading={1.25} color="textMuted">
               {copy.review.hint}
@@ -430,6 +461,14 @@ export default function Review() {
           </Button>
         </View>
       </ScrollView>
+      <Sheet open={pickerOpen} onClose={() => setPickerOpen(false)} title={copy.edit.coverTitle}>
+        <CoverSourceRows
+          onPicked={(uri) => {
+            setPhoto(uri);
+            setPickerOpen(false);
+          }}
+        />
+      </Sheet>
     </KeyboardAvoidingView>
   );
 }

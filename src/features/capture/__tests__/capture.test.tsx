@@ -1,6 +1,6 @@
 import type { NormalizedExtraction } from '@shared/extraction.ts';
 import { onlineManager } from '@tanstack/react-query';
-import { renderRouter, screen, waitFor } from 'expo-router/testing-library';
+import { fireEvent, renderRouter, screen, waitFor } from 'expo-router/testing-library';
 
 import { copy } from '@/i18n/en';
 import { cleanupAppState } from '@/test/cleanup';
@@ -89,6 +89,10 @@ jest.mock('@/features/capture/api', () => ({
   uploadCover: (...a: unknown[]) => mockUpload(...a),
   extractBook: (...a: unknown[]) => mockExtract(...a),
 }));
+jest.mock('@/lib/images', () => ({
+  ...jest.requireActual('@/lib/images'),
+  processCover: async () => ({ uri: 'file:///cropped.jpg', width: 1000, height: 1500 }),
+}));
 jest.mock('@/features/capture/drafts', () => ({
   ...jest.requireActual('@/features/capture/drafts'),
   saveDraft: (...a: unknown[]) => mockSaveDraft(...a),
@@ -123,6 +127,23 @@ describe('F1: snap the cover', () => {
     expect(screen.getAllByLabelText(copy.capture.aiBadge).length).toBeGreaterThanOrEqual(4);
     expect(screen.getByText(copy.capture.check)).toBeTruthy();
     expect(await screen.findByTestId('review-duplicate')).toBeTruthy();
+  });
+
+  // Regression: "Use photo" cleared the pending photo, and the "nothing to crop" guard sent it back to the camera.
+  it('crop → Use photo goes on to read the cropped cover', async () => {
+    capture().start();
+    const id = capture().itemId;
+    capture().patch({ pending: { uri: 'file:///raw.jpg', width: 3000, height: 4000, side: 'front' } });
+    mockExtract.mockResolvedValue({ fields: reading, remaining: 29 });
+
+    await renderRouter('./app', { initialUrl: '/capture/crop' });
+    await fireEvent(await screen.findByTestId('crop-area'), 'layout', {
+      nativeEvent: { layout: { x: 0, y: 0, width: 360, height: 540 } },
+    });
+    await fireEvent.press(screen.getByTestId('crop-use'));
+    await waitFor(() => expect(mockUpload).toHaveBeenCalledWith(id, 'front', 'file:///cropped.jpg'));
+    expect(await screen.findByTestId('screen-review', {}, { timeout: 5000 })).toBeTruthy();
+    expect(screen.queryByTestId('screen-camera')).toBeNull();
   });
 
   it('falls back to a blank form with a toast when the daily limit is reached', async () => {
