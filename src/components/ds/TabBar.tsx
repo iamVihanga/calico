@@ -1,5 +1,6 @@
 import { View, type StyleProp, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Svg, { Rect } from 'react-native-svg';
 
 import { copy } from '@/i18n/en';
 import { radius, shadow, useTheme } from '@/theme';
@@ -7,6 +8,9 @@ import { radius, shadow, useTheme } from '@/theme';
 import { Icon, type IconName } from './Icon';
 import { Press } from './Press';
 import { Txt } from './Txt';
+
+const PILL_W = 42;
+const PILL_H = 28;
 
 export type TabItem<V extends string> = { id: V; label: string; icon: IconName };
 
@@ -44,17 +48,13 @@ export function TabBar<V extends string>({ items, value, onChange, onAdd, onAddL
         onPress={() => onChange?.(it.id)}
         style={{ flex: 1, alignItems: 'center', justifyContent: 'center', gap: 3, minHeight: 52 }}
       >
-        <View
-          style={{
-            width: 42,
-            height: 28,
-            // Exactly half the height: Android drew this small borderless pill square with radius.pill (999).
-            borderRadius: 14,
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: active ? t.surfaceAccentSoft : 'transparent',
-          }}
-        >
+        <View style={{ width: PILL_W, height: PILL_H, alignItems: 'center', justifyContent: 'center' }}>
+          {/* Drawn as SVG: on Android this view's rounded background rendered square, whatever the radius. */}
+          {active && (
+            <Svg width={PILL_W} height={PILL_H} style={{ position: 'absolute' }} testID="tab-active-pill">
+              <Rect width={PILL_W} height={PILL_H} rx={PILL_H / 2} fill={t.surfaceAccentSoft} />
+            </Svg>
+          )}
           <Icon name={it.icon} size={23} tint={fg} />
         </View>
         <Txt family="ui" weight={700} size={10} leading={1.2} tint={fg} style={{ letterSpacing: 0.2 }}>

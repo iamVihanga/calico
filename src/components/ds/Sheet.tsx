@@ -10,6 +10,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { layout, radius, shadow, space, useTheme } from '@/theme';
 
 import { Portal } from './Portal';
+import { InSheetContext } from './TextField';
 import { Txt } from './Txt';
 
 type HeaderProps = { title?: string; hand?: string };
@@ -119,6 +120,9 @@ export function Sheet({ open, onClose, testID, ...panel }: SheetProps) {
         index={0}
         animateOnMount
         enablePanDownToClose
+        // Text fields (TextField) lift the sheet above the keyboard; it settles back when they blur.
+        keyboardBehavior="interactive"
+        keyboardBlurBehavior="restore"
         onClose={onClose}
         enableDynamicSizing
         maxDynamicContentSize={Math.round(height * 0.88)}
@@ -137,7 +141,9 @@ export function Sheet({ open, onClose, testID, ...panel }: SheetProps) {
         topInset={insets.top}
       >
         <BottomSheetScrollView testID={testID} contentContainerStyle={{ paddingBottom: 30 + insets.bottom }}>
-          <SheetBody {...panel} />
+          <InSheetContext.Provider value>
+            <SheetBody {...panel} />
+          </InSheetContext.Provider>
         </BottomSheetScrollView>
       </BottomSheet>
     </Portal>

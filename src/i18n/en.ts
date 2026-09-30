@@ -419,6 +419,7 @@ export const en = {
     placeholder: 'Search movies and shows',
     tabs: { movie: 'Movies', show: 'Shows' },
     typeMore: 'type at least two characters',
+    searching: 'Searching TMDB…',
     nothing: (q: string) => `nothing found for '${q}' — try the original title`,
     attribution: 'movie and show data from TMDB',
     metaMovie: (year: number | null) => [year, 'Movie'].filter(Boolean).join(' · '),

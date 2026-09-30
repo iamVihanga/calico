@@ -6,6 +6,7 @@ import { fontFamily, layout, leading, radius, shadow, size, space, useTheme } fr
 
 import { FieldLabel } from './FieldLabel';
 import { Icon, type IconName } from './Icon';
+import { TextField } from './TextField';
 import { Txt } from './Txt';
 
 export type InputProps = Omit<TextInputProps, 'style' | 'onChange' | 'multiline'> & {
@@ -69,7 +70,7 @@ export const Input = forwardRef<TextInput, InputProps>(function Input(
         ]}
       >
         {icon && <Icon name={icon} size={20} color="textMuted" style={{ paddingTop: multiline ? 13 : 0 }} />}
-        <TextInput
+        <TextField
           ref={ref}
           accessibilityLabel={label}
           editable={!disabled}

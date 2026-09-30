@@ -1,9 +1,10 @@
 import { useMemo, useRef, useState } from 'react';
-import { TextInput, View } from 'react-native';
+import { View } from 'react-native';
 
 import { PageRuler, type PageRulerHandle } from '@/components/calico/PageRuler';
 import { Button } from '@/components/ds/Button';
 import { Press } from '@/components/ds/Press';
+import { TextField } from '@/components/ds/TextField';
 import { Txt } from '@/components/ds/Txt';
 import { copy } from '@/i18n/en';
 import { colomboToday, fmtDay } from '@/lib/dates';
@@ -82,7 +83,7 @@ export function RulerSheetBody({ itemId, onClose }: { itemId: string; onClose: (
       </Txt>
       <View style={{ alignItems: 'center', paddingTop: 14, paddingBottom: 6 }}>
         {typing ? (
-          <TextInput
+          <TextField
             autoFocus
             keyboardType="number-pad"
             accessibilityLabel={copy.ruler.typePage}

@@ -11,6 +11,7 @@ import { IconButton } from '@/components/ds/IconButton';
 import { Press } from '@/components/ds/Press';
 import { SearchField } from '@/components/ds/SearchField';
 import { SegmentedControl } from '@/components/ds/SegmentedControl';
+import { SkeletonRows } from '@/components/ds/Skeleton';
 import { Txt } from '@/components/ds/Txt';
 import { useAddFromTmdb } from '@/features/media/add';
 import { searchTmdb } from '@/features/media/api';
@@ -70,8 +71,11 @@ export default function TmdbSearch() {
   }, [movies, shows]);
 
   const results = q.length >= MIN_CHARS ? (search.data?.results ?? []) : [];
+  // Searching: TMDB is being asked, or the user is still typing (the debounce hasn't fired yet).
+  const typed = text.trim();
+  const searching = typed.length >= MIN_CHARS && (typed !== q || search.isFetching);
   const emptyCopy =
-    q.length < MIN_CHARS ? copy.tmdb.typeMore : search.isFetched && !search.isFetching ? copy.tmdb.nothing(q) : null;
+    typed.length < MIN_CHARS ? copy.tmdb.typeMore : !searching && search.isFetched ? copy.tmdb.nothing(q) : null;
 
   const quickAdd = async (r: TmdbSearchResult) => {
     setAdding(r.tmdbId);
@@ -169,13 +173,38 @@ export default function TmdbSearch() {
             </Txt>
           </View>
         )}
-        {search.isError && q.length >= MIN_CHARS && (
+        {searching && results.length === 0 && (
+          <View accessible accessibilityLabel={copy.tmdb.searching} accessibilityLiveRegion="polite">
+            <SkeletonRows n={5} height={104} />
+          </View>
+        )}
+        {searching && results.length > 0 && (
+          <View
+            accessibilityLiveRegion="polite"
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 8,
+              paddingHorizontal: layout.gutterScreen,
+              paddingBottom: 10,
+            }}
+          >
+            <ActivityIndicator size="small" color={t.accentPrimary} />
+            <Txt family="ui" size="xs" color="textMuted">
+              {copy.tmdb.searching}
+            </Txt>
+          </View>
+        )}
+        {search.isError && !searching && q.length >= MIN_CHARS && (
           <Txt family="ui" size="xs" color="statusDanger" align="center" style={{ padding: 16 }}>
             {copy.tmdb.failed}
           </Txt>
         )}
 
-        <View style={{ gap: 12, paddingHorizontal: layout.gutterScreen }}>
+        <View
+          testID="tmdb-results"
+          style={{ gap: 12, paddingHorizontal: layout.gutterScreen, opacity: searching ? 0.55 : 1 }}
+        >
           {results.map((r) => {
             const have = owned.get(`${r.kind}:${r.tmdbId}`);
             const busy = adding === r.tmdbId;

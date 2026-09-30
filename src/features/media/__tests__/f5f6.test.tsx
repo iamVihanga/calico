@@ -274,6 +274,15 @@ describe('F6: movie rewatch, and the franchise offer', () => {
   beforeEach(reset);
   afterAll(cleanupAppState);
 
+  it('shows a loading state while TMDB is searched, then the results', async () => {
+    await renderRouter('./app', { initialUrl: '/tmdb?type=movie' });
+    await fireEvent.changeText(await screen.findByTestId('tmdb-query'), 'it');
+    expect(screen.getByLabelText(copy.tmdb.searching)).toBeTruthy();
+    expect(screen.queryByText(copy.tmdb.typeMore)).toBeNull();
+    expect(await screen.findByTestId('tmdb-add-346364', {}, { timeout: 3000 })).toBeTruthy();
+    expect(screen.queryByLabelText(copy.tmdb.searching)).toBeNull();
+  });
+
   it('quick add IT offers the rest of the series and creates the collection', async () => {
     await renderRouter('./app', { initialUrl: '/tmdb?type=movie' });
     await fireEvent.changeText(await screen.findByTestId('tmdb-query'), 'it');

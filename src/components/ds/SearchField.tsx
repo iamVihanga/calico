@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { TextInput, type TextInputProps, View, type StyleProp, type ViewStyle } from 'react-native';
+import { type TextInputProps, View, type StyleProp, type ViewStyle } from 'react-native';
 
 import { copy } from '@/i18n/en';
 import { hasSinhala } from '@/lib/sinhala';
@@ -7,6 +7,7 @@ import { fontFamily, layout, radius, shadow, size, space, useTheme } from '@/the
 
 import { Icon, type IconName } from './Icon';
 import { Press } from './Press';
+import { TextField } from './TextField';
 
 type Props = Omit<TextInputProps, 'style' | 'onChange'> & {
   value: string;
@@ -47,7 +48,7 @@ export function SearchField({
       ]}
     >
       <Icon name={icon} size={20} color="textMuted" />
-      <TextInput
+      <TextField
         value={value}
         placeholder={placeholder}
         accessibilityLabel={placeholder}
