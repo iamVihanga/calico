@@ -15,6 +15,12 @@ import { useProfileThemeSync } from '@/features/profile/hooks';
 import { setupNotifications } from '@/lib/notifications';
 import { useTheme } from '@/theme';
 
+/**
+ * Home is the first screen of the signed-in stack. Without this, the first screen declared below
+ * (`pick`) would be the landing screen after sign-in, and cold deep links would have nothing beneath them.
+ */
+export const unstable_settings = { initialRouteName: '(tabs)' };
+
 /** A render error in any signed-in screen lands here (and in Sentry) instead of closing the app. */
 export const ErrorBoundary = CrashScreen;
 
@@ -40,6 +46,7 @@ export default function AppLayout() {
   return (
     <View style={{ flex: 1, backgroundColor: t.surfacePage }}>
       <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: t.surfacePage } }}>
+        <Stack.Screen name="(tabs)" />
         {/* Declared here, not from inside the screen: changing presentation later remounts it. */}
         <Stack.Screen name="pick" options={{ presentation: 'transparentModal', animation: 'fade' }} />
       </Stack>

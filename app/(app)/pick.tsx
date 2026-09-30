@@ -37,6 +37,9 @@ const TICK_MS = 140;
 const CARD_W = 150;
 const DECK = 5;
 
+/** With nothing underneath (opened from a notification or a cold link), Close goes Home. */
+const closePick = () => (router.canGoBack() ? router.back() : router.replace('/'));
+
 /**
  * Pick for me (plan §11.8): the top ten riffle, Kiri's paw bats one out, it flips over with the
  * reason. Pick again skips what was already picked this session. Reduced motion: straight to the card.
@@ -126,7 +129,7 @@ export default function Pick() {
           <Txt family="hand" weight={400} size="xl" tint={t.accentSecondary} align="center">
             {copy.pick.empty}
           </Txt>
-          <Button variant="secondary" onPress={() => router.back()}>
+          <Button variant="secondary" onPress={closePick}>
             {copy.pick.close}
           </Button>
         </View>
@@ -303,7 +306,7 @@ function Reveal({
       </View>
       <Press
         accessibilityRole="button"
-        onPress={() => router.back()}
+        onPress={closePick}
         style={{ minHeight: 44, justifyContent: 'center' }}
         testID="pick-close"
       >

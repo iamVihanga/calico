@@ -26,8 +26,10 @@ happens and what "done" looks like. Section 15 of the build plan is the checklis
 
 **Google Cloud**
 
-- OAuth consent screen: app name Calico, the support email, the privacy policy URL, scopes `email`,
-  `profile`, `openid` only. Publish it (a consent screen still in "Testing" limits sign-in to test users).
+- OAuth consent screen: app name Calico, the support email, scopes `email`, `profile`, `openid` only,
+  no logo (a logo triggers brand verification). While it's in "Testing", only listed test users can
+  sign in. Publishing needs the home page and privacy policy URLs, so publish after step 3: Branding →
+  home, privacy and terms URLs + the host under Authorized domains → Audience → Publish app.
 - Android OAuth client with the final package name and the **Play App Signing** SHA-1 (step 5). Keep
   the upload-key and EAS development SHA-1 clients too, so development and preview builds still sign in.
 - Gemini API: use a billing-enabled (paid tier) key so prompts and photos aren't used to improve

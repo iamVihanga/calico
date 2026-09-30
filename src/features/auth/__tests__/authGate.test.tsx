@@ -1,15 +1,17 @@
-import { renderRouter, screen } from 'expo-router/testing-library';
+import { act, renderRouter, screen } from 'expo-router/testing-library';
 
 import { copy } from '@/i18n/en';
 import { cleanupAppState } from '@/test/cleanup';
 
 type Listener = (event: string, session: unknown) => void;
 let mockSession: unknown = null;
+let mockEmit: Listener = () => undefined;
 
 jest.mock('@/lib/supabase', () => ({
   supabase: {
     auth: {
       onAuthStateChange: (cb: Listener) => {
+        mockEmit = cb;
         cb('INITIAL_SESSION', mockSession);
         return { data: { subscription: { unsubscribe: () => undefined } } };
       },
@@ -76,5 +78,15 @@ describe('auth gate', () => {
     expect(await screen.findByTestId('reading-it')).toBeTruthy();
     expect(screen.getByTestId('tab-add')).toBeTruthy();
     expect(screen.queryByText(copy.welcome.google)).toBeNull();
+  });
+
+  // Regression: the signed-in stack's first declared screen (Pick) used to be the landing screen.
+  it('lands on Home, not Pick for me, right after signing in', async () => {
+    mockSession = null;
+    await renderRouter('./app', { initialUrl: '/' });
+    await screen.findByText(copy.welcome.google);
+    await act(async () => mockEmit('SIGNED_IN', { user: { id: 'user-1', email: 'dilan@calico.test' } }));
+    expect(await screen.findByTestId('screen-home')).toBeTruthy();
+    expect(screen.queryByTestId('screen-pick')).toBeNull();
   });
 });
