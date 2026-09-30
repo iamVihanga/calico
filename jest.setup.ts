@@ -45,7 +45,9 @@ jest.mock('@react-native-async-storage/async-storage', () =>
 );
 jest.mock('@react-native-community/netinfo', () => require('@react-native-community/netinfo/jest/netinfo-mock.js'));
 
-jest.mock('@gorhom/bottom-sheet', () => require('@gorhom/bottom-sheet/mock'));
+// The library's mock lacks __esModule, so its `default` (the plain BottomSheet that Sheet uses) would
+// resolve to the whole module object.
+jest.mock('@gorhom/bottom-sheet', () => ({ __esModule: true, ...require('@gorhom/bottom-sheet/mock') }));
 
 // Local notifications: a quiet fake (no permission yet, nothing scheduled). Tests override per file.
 jest.mock('expo-notifications', () => ({

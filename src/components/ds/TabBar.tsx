@@ -48,7 +48,8 @@ export function TabBar<V extends string>({ items, value, onChange, onAdd, onAddL
           style={{
             width: 42,
             height: 28,
-            borderRadius: radius.pill,
+            // Exactly half the height: Android drew this small borderless pill square with radius.pill (999).
+            borderRadius: 14,
             alignItems: 'center',
             justifyContent: 'center',
             backgroundColor: active ? t.surfaceAccentSoft : 'transparent',

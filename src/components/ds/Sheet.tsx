@@ -1,15 +1,15 @@
-import {
+import BottomSheet, {
   BottomSheetBackdrop,
   type BottomSheetBackdropProps,
-  BottomSheetModal,
   BottomSheetScrollView,
 } from '@gorhom/bottom-sheet';
-import { type ReactNode, useCallback, useEffect, useRef } from 'react';
+import { type ReactNode, useCallback, useEffect } from 'react';
 import { BackHandler, useWindowDimensions, View, type StyleProp, type ViewStyle } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { layout, radius, shadow, space, useTheme } from '@/theme';
 
+import { Portal } from './Portal';
 import { Txt } from './Txt';
 
 type HeaderProps = { title?: string; hand?: string };
@@ -80,17 +80,15 @@ type SheetProps = PanelProps & {
 /**
  * Bottom sheet from the prototype: page-coloured paper, 28dp top corners, biscuit handle,
  * ink scrim, dynamic height (max 88%). Android back closes it.
+ *
+ * A plain BottomSheet mounted only while open, not BottomSheetModal: the modal's present() waits
+ * for requestAnimationFrame, which on Android can stall until the next touch, so sheets opened late
+ * or not at all. It renders through `Portal`, so it covers the whole screen wherever it's used.
  */
 export function Sheet({ open, onClose, testID, ...panel }: SheetProps) {
   const { t } = useTheme();
   const insets = useSafeAreaInsets();
   const { height } = useWindowDimensions();
-  const ref = useRef<BottomSheetModal>(null);
-
-  useEffect(() => {
-    if (open) ref.current?.present();
-    else ref.current?.dismiss();
-  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -114,26 +112,34 @@ export function Sheet({ open, onClose, testID, ...panel }: SheetProps) {
     [t.surfaceScrim],
   );
 
+  if (!open) return null;
   return (
-    <BottomSheetModal
-      ref={ref}
-      onDismiss={onClose}
-      enableDynamicSizing
-      maxDynamicContentSize={Math.round(height * 0.88)}
-      backdropComponent={backdrop}
-      backgroundStyle={{
-        backgroundColor: t.surfacePage,
-        borderTopLeftRadius: radius.xl,
-        borderTopRightRadius: radius.xl,
-        boxShadow: shadow.sheet,
-      }}
-      handleStyle={{ paddingTop: 12, paddingBottom: 6 }}
-      handleIndicatorStyle={{ width: 44, height: 5, borderRadius: radius.pill, backgroundColor: t.borderStrong }}
-      topInset={insets.top}
-    >
-      <BottomSheetScrollView testID={testID} contentContainerStyle={{ paddingBottom: 30 + insets.bottom }}>
-        <SheetBody {...panel} />
-      </BottomSheetScrollView>
-    </BottomSheetModal>
+    <Portal>
+      <BottomSheet
+        index={0}
+        animateOnMount
+        enablePanDownToClose
+        onClose={onClose}
+        enableDynamicSizing
+        maxDynamicContentSize={Math.round(height * 0.88)}
+        // Sideways drags belong to the content (the page ruler, chip rows), not to the sheet.
+        activeOffsetY={[-8, 8]}
+        failOffsetX={[-8, 8]}
+        backdropComponent={backdrop}
+        backgroundStyle={{
+          backgroundColor: t.surfacePage,
+          borderTopLeftRadius: radius.xl,
+          borderTopRightRadius: radius.xl,
+          boxShadow: shadow.sheet,
+        }}
+        handleStyle={{ paddingTop: 12, paddingBottom: 6 }}
+        handleIndicatorStyle={{ width: 44, height: 5, borderRadius: radius.pill, backgroundColor: t.borderStrong }}
+        topInset={insets.top}
+      >
+        <BottomSheetScrollView testID={testID} contentContainerStyle={{ paddingBottom: 30 + insets.bottom }}>
+          <SheetBody {...panel} />
+        </BottomSheetScrollView>
+      </BottomSheet>
+    </Portal>
   );
 }

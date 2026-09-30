@@ -1,4 +1,3 @@
-import { BottomSheetModalProvider } from '@gorhom/bottom-sheet';
 import { PersistQueryClientProvider } from '@tanstack/react-query-persist-client';
 import { useFonts } from 'expo-font';
 import { Stack, useNavigationContainerRef } from 'expo-router';
@@ -6,6 +5,8 @@ import * as SplashScreen from 'expo-splash-screen';
 import { useEffect, useState } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+
+import { PortalHost } from '@/components/ds/Portal';
 
 import { AuthProvider, useAuth } from '@/features/auth/AuthProvider';
 import { persistOptions, queryClient } from '@/lib/queryClient';
@@ -65,9 +66,9 @@ function RootLayout() {
             onError={() => setRestored(true)}
           >
             <AuthProvider>
-              <BottomSheetModalProvider>
-                <RootStack ready={(fontsLoaded || !!fontError) && restored} />
-              </BottomSheetModalProvider>
+              <RootStack ready={(fontsLoaded || !!fontError) && restored} />
+              {/* Sheets (and anything else portaled) draw here, above every screen. */}
+              <PortalHost />
             </AuthProvider>
           </PersistQueryClientProvider>
         </ThemeProvider>

@@ -63,6 +63,9 @@ Expo-specific guidance: @AGENTS.md
 - `Press` gives anything under 48dp a 48dp touch target automatically (`minTargetSlop`); `Txt` caps font
   scaling at 200%.
 - Global sheets open via `openSheet(name)` (`src/lib/stores/sheet.ts`, rendered by `SheetHost`); toasts via `toast({...})`.
+- `Sheet` is a plain `BottomSheet` mounted only while open and drawn through `Portal` (`PortalHost` in the root
+  layout). Don't use `BottomSheetModal`: its `present()` waits on `requestAnimationFrame`, which stalls on Android.
+- Android rejects iOS-only accessibility roles (e.g. `tabbar`) at mount; `accessibilityRoles.test.ts` checks them.
 - Every mutation has a `mutationKey` and is registered in `src/lib/mutations.ts` via `setMutationDefaults`, so paused offline mutations resume after restart.
 - Pure logic (pace, next episode, pick reasons, fractional keys, ISBN validation) lives in `features/*/logic.ts` with unit tests.
 - Every gesture has a visible button alternative. Respect reduced motion (`useReducedMotion`).

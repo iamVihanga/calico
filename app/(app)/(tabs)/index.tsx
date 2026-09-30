@@ -6,7 +6,7 @@ import { Press } from '@/components/ds/Press';
 import { QueryError } from '@/components/ds/QueryError';
 import { SkeletonRows } from '@/components/ds/Skeleton';
 import { Txt } from '@/components/ds/Txt';
-import { initials } from '@/components/ds/Avatar';
+import { AvatarFace } from '@/features/profile/AvatarFace';
 import { TabScreen } from '@/components/layout/TabScreen';
 import { useBooks, useLeadScript, useReadingLogs } from '@/features/books/hooks';
 import { ContinueReadingCard } from '@/features/home/components/ContinueReadingCard';
@@ -109,11 +109,10 @@ export default function Home() {
               borderWidth: 1,
               borderColor: t.borderStrong,
               boxShadow: shadow.xs,
+              overflow: 'hidden',
             }}
           >
-            <Txt family="ui" weight={700} size="sm" tint={t.inkOnWarm}>
-              {initials(displayName)}
-            </Txt>
+            <AvatarFace name={displayName} size="sm" />
           </Press>
         </View>
       </View>

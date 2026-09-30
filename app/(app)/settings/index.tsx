@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Linking, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { initials } from '@/components/ds/Avatar';
+import { AvatarFace } from '@/features/profile/AvatarFace';
 import { Button } from '@/components/ds/Button';
 import { IconButton } from '@/components/ds/IconButton';
 import { Press } from '@/components/ds/Press';
@@ -108,11 +108,10 @@ export default function Settings() {
             borderColor: t.borderStrong,
             alignItems: 'center',
             justifyContent: 'center',
+            overflow: 'hidden',
           }}
         >
-          <Txt family="ui" weight={700} size="lg" tint={t.inkOnWarm}>
-            {initials(name)}
-          </Txt>
+          <AvatarFace name={name} size="lg" />
         </View>
         <View style={{ flex: 1 }}>
           <Txt family="display" weight={700} size="xl" style={{ letterSpacing: -0.02 * 24 }} accessibilityRole="header">
