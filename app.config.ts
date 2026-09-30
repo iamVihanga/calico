@@ -35,7 +35,11 @@ const config: ExpoConfig = {
     '@sentry/react-native/expo',
   ],
   experiments: { typedRoutes: true },
-  extra: { eas: { projectId: process.env.EAS_PROJECT_ID } },
+  extra: { eas: { projectId: '139d5856-a401-4de1-bc3d-334305a0ad50' } },
+  // EAS Update: JS-only fixes ship with `eas update --channel <profile>`. Bump `version` whenever native
+  // code changes (new native package, config plugin, SDK upgrade) so old builds never get an incompatible update.
+  runtimeVersion: { policy: 'appVersion' },
+  updates: { url: 'https://u.expo.dev/139d5856-a401-4de1-bc3d-334305a0ad50' },
 };
 
 export default config;

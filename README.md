@@ -111,3 +111,7 @@ checklist.
 | 6     | Up next, pick, collections, search | Merged — pending device check (F7, F8, shake)                          |
 | 7     | Stats, settings, polish            | Merged — pending device passes (TalkBack, 200% font, low-end fps)      |
 | 8     | Release                            | Code done — Play Console, hosting and store steps in `docs/release.md` |
+
+---
+
+---
