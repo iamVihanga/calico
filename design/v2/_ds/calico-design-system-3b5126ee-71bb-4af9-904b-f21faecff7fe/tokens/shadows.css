@@ -1,0 +1,13 @@
+:root{
+  /* Warm brown shadows only — never neutral black. Soft, low, diffuse. */
+  --shadow-none:none;
+  --shadow-xs:0 1px 2px rgba(84,51,46,.06);
+  --shadow-sm:0 2px 8px rgba(84,51,46,.08);
+  --shadow-md:0 6px 18px rgba(84,51,46,.10);
+  --shadow-lg:0 14px 34px rgba(84,51,46,.14);
+  --shadow-sheet:0 -10px 40px rgba(84,51,46,.16);
+  --shadow-cover:0 6px 14px rgba(84,51,46,.22);
+  --shadow-press:0 1px 2px rgba(84,51,46,.14) inset;
+  --ring-focus:0 0 0 3px rgba(236,100,38,.32);
+  --ring-inset-hairline:inset 0 0 0 1px var(--border-hairline);
+}

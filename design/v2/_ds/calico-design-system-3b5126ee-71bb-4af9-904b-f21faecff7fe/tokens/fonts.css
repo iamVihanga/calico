@@ -1,0 +1,9 @@
+/* Calico webfonts.
+   SUBSTITUTION NOTE: no font binaries were supplied with the brief. These are the
+   nearest Google Fonts matches to the reference screens and are loaded from the
+   Google Fonts CDN (which serves the @font-face rules with woff2 subsets).
+   - Display serif  : Playfair Display  (ref: high-contrast bold serif headlines)
+   - Handwriting    : Caveat            (ref: marker-pen accents + button labels)
+   - UI / body sans : Nunito            (rounded, warm, cozy)
+   - Mono / meta    : Nunito Sans is NOT used; numerals ride on Nunito tabular. */
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Caveat:wght@400..700&family=Nunito:ital,wght@0,300..900;1,300..900&display=swap");

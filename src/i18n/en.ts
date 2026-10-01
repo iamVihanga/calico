@@ -123,23 +123,35 @@ export const en = {
     viewing: 'Viewing',
   },
   kiri: {
-    curled: 'Kiri curled up asleep on the shelf',
+    curled: 'A calico cat curled up asleep',
     paw: "Kiri's paw",
-    stretch: 'Kiri stretching',
-    asleep: 'Kiri asleep',
+    stretch: 'A calico cat stretching happily',
+    asleep: 'A calico cat asleep on a bookshelf',
+  },
+  /** Labels for illustrations that carry meaning (decorative ones stay unlabelled). */
+  art: {
+    reader: 'A reader holding an orange book',
+    magnifier: 'A calico cat with a magnifying glass',
+    scatter: 'A calico cat beside scattered books',
+    openBookWorld: 'An open book with a mountain rising from it',
+    desk: 'A stack of books and a mug on a desk',
+    appIcon: 'Calico app icon',
+  },
+  splash: {
+    opening: 'Calico is opening',
   },
   welcome: {
     eyebrow: 'a shelf that remembers',
     title: 'Calico',
-    body: 'Books, films and shows — borrowed, read, watched and waiting, all in one place.',
+    headline: 'People who read',
+    hand: 'live different lives.',
+    body: "Books, films and shows — borrowed, read, watched and waiting. We'll keep your place, always.",
     google: 'Continue with Google',
     googleBadge: 'G',
     error: "Google sign-in didn't finish. Try again.",
     privacy: 'Privacy policy',
     terms: 'Terms',
     devSignIn: 'Dev: sign in as the seed user',
-    // The three covers on the welcome panel.
-    covers: { left: 'Madol Doova', right: 'Fire & Blood', centre: 'IT', centreAuthor: 'Stephen King' },
   },
   home: {
     greetingMorning: 'Good morning,',

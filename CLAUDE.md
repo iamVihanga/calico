@@ -1,7 +1,8 @@
 # Calico – working rules
 
-Engineering source of truth: `docs/build-plan.md`. Visual source of truth: `design/Calico_Prototype.html`
-(unpack with `npm run unpack:design` to read `design/unpacked/app.js`, `template.html`, `ds.js`).
+Engineering source of truth: `docs/build-plan.md`. Visual source of truth: `design/v2/Calico Prototype.dc.html`
+(the Claude Design UI upgrade: readable markup per screen, illustrations in `design/v2/assets/{art,el}`).
+The original prototype `design/Calico_Prototype.html` (`npm run unpack:design`) is history; v2 wins where they differ.
 Expo-specific guidance: @AGENTS.md
 
 ## Commands
@@ -72,7 +73,12 @@ Expo-specific guidance: @AGENTS.md
 - Pure logic (pace, next episode, pick reasons, fractional keys, ISBN validation) lives in `features/*/logic.ts` with unit tests.
 - Every gesture has a visible button alternative. Respect reduced motion (`useReducedMotion`).
 - Minimum touch target 48dp (use `hitSlop` when the visual is smaller).
-- Match the prototype in `design/unpacked/` for layout and copy.
+- Match `design/v2/Calico Prototype.dc.html` for layout and copy.
+- Illustrations: `npm run illustrations` turns `design/v2/assets` into WebP under `assets/illustrations/` and
+  regenerates `illustrations.generated.ts`; show them with `<Illustration name width>` (decorative unless labelled,
+  `float` for the prototype's bob). Kiri poses map to the cat illustrations (the paw stays vector for Pick).
+- Launch: native splash (static Kiri on `splash.native`) hands off to `AnimatedSplash` in `app/_layout.tsx`,
+  which covers the app only until fonts, cache and session are ready.
 
 ## Status
 

@@ -20,6 +20,15 @@ export const palette = {
   white: '#FFFDF9',
 } as const;
 
+/** Splash (design/v2): the same in day and night. `native` is app.config.ts's splash background. */
+export const splash = {
+  top: palette.fern,
+  bottom: '#11201B',
+  native: '#203830',
+  glow: 'rgba(236,100,38,0.22)',
+  halo: 'rgba(245,226,206,0.09)',
+} as const;
+
 export const alpha = {
   ink04: 'rgba(28,23,20,0.04)',
   ink08: 'rgba(28,23,20,0.08)',

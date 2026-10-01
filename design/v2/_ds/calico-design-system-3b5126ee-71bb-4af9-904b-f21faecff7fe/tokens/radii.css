@@ -1,0 +1,11 @@
+:root{
+  --radius-xs:6px;
+  --radius-sm:10px;
+  --radius-md:14px;      /* buttons, inputs */
+  --radius-lg:20px;      /* cards */
+  --radius-xl:28px;      /* sheets, hero panels */
+  --radius-2xl:36px;
+  --radius-phone:44px;   /* device frame */
+  --radius-pill:999px;
+  --radius-cover:4px 12px 12px 4px; /* book cover: spine left, soft fore-edge */
+}

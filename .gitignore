@@ -48,3 +48,12 @@ design/unpacked/
 site/dist/
 
 secrets.txt
+ui_upgrade/
+# Design v2 (Claude Design export): keep the readable prototype and final assets in git;
+# raw sources, chat uploads, screenshots and the 9 MB bundled copies stay local.
+design/v2/assets/raw/
+design/v2/uploads/
+design/v2/screenshots/
+design/v2/.thumbnail
+design/v2/Calico Prototype.html
+design/v2/Calico Prototype - Standalone.html

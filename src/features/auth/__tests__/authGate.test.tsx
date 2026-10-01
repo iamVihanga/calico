@@ -1,4 +1,4 @@
-import { act, renderRouter, screen } from 'expo-router/testing-library';
+import { act, renderRouter, screen, waitFor } from 'expo-router/testing-library';
 
 import { copy } from '@/i18n/en';
 import { cleanupAppState } from '@/test/cleanup';
@@ -66,7 +66,10 @@ describe('auth gate', () => {
     mockSession = null;
     await renderRouter('./app', { initialUrl: '/' });
     expect(await screen.findByText(copy.welcome.google)).toBeTruthy();
+    expect(screen.getByText(copy.welcome.headline)).toBeTruthy();
     expect(screen.queryByTestId('screen-home')).toBeNull();
+    // The animated splash covered the app only while loading.
+    await waitFor(() => expect(screen.queryByTestId('animated-splash')).toBeNull());
   });
 
   it('shows the tab shell with the seed user when signed in', async () => {

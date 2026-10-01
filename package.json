@@ -89,7 +89,8 @@
     "db:types": "supabase gen types typescript --local --schema public > src/types/database.ts",
     "fn:test": "cd supabase/functions && deno test",
     "site:build": "node scripts/build-site.mjs",
-    "brand": "node scripts/brand.mjs"
+    "brand": "node scripts/brand.mjs",
+    "illustrations": "python3 scripts/illustrations.py && prettier --write src/components/calico/illustrations.generated.ts"
   },
   "private": true,
   "jest": {

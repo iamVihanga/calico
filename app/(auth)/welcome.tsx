@@ -1,22 +1,29 @@
 import { StatusBar } from 'expo-status-bar';
 import { useState } from 'react';
-import { ActivityIndicator, ScrollView, View } from 'react-native';
+import { ActivityIndicator, type LayoutChangeEvent, Linking, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { coverRadius } from '@/components/calico/GeneratedCover';
+import { Illustration } from '@/components/calico/Illustration';
 import { Icon } from '@/components/ds/Icon';
 import { Press } from '@/components/ds/Press';
 import { Txt } from '@/components/ds/Txt';
 import { devSignInAsSeedUser, signInWithGoogle, SignInCancelled } from '@/features/auth/google';
 import { copy } from '@/i18n/en';
-import { alpha, palette, radius, shadow, useTheme } from '@/theme';
+import { env } from '@/lib/env';
+import { palette, radius, shadow, useTheme } from '@/theme';
 
-/** Prototype `welcome`: forest panel, three fanned covers, Caveat eyebrow, Google button. */
+/** The illustration cluster is drawn at this size (prototype) and scaled down to fit the phone. */
+const ART_W = 340;
+const ART_H = 446;
+const coverShadow = { filter: 'drop-shadow(0 7px 14px rgba(84,51,46,0.22))' } as const;
+
+/** Prototype `welcome` (design/v2): a reader at her bookshelf, "People who read / live different lives." */
 export default function Welcome() {
   const { t } = useTheme();
   const insets = useSafeAreaInsets();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
+  const [scale, setScale] = useState(1);
 
   const run = async (fn: () => Promise<void>) => {
     setBusy(true);
@@ -30,100 +37,109 @@ export default function Welcome() {
     }
   };
 
-  const cover = (title: string, bg: string, fg: string, rotate: number, pos: object, big = false) => (
-    <View
-      style={[
-        {
-          position: 'absolute',
-          width: big ? 108 : 104,
-          height: big ? 162 : 150,
-          backgroundColor: bg,
-          boxShadow: big ? shadow.lg : shadow.cover,
-          transform: [{ rotate: `${rotate}deg` }],
-          paddingVertical: big ? 16 : 14,
-          paddingHorizontal: big ? 13 : 12,
-        },
-        coverRadius,
-        pos,
-      ]}
-    >
-      <Txt family="display" weight={700} size={big ? 17 : 15} leading={big ? 1.16 : 1.2} tint={fg}>
-        {title}
-      </Txt>
-      {big && (
-        <Txt family="hand" weight={400} size={15} tint={fg} style={{ marginTop: 8, opacity: 0.8 }}>
-          {copy.welcome.covers.centreAuthor}
+  const fit = (e: LayoutChangeEvent) => {
+    const { width, height } = e.nativeEvent.layout;
+    setScale(Math.min(1, width / ART_W, height / ART_H));
+  };
+
+  const link = (label: string, url: string | undefined) =>
+    url ? (
+      <Press accessibilityRole="link" onPress={() => void Linking.openURL(url)} hitSlop={8}>
+        <Txt family="ui" size="2xs" color="textMuted">
+          {label}
         </Txt>
-      )}
-    </View>
-  );
+      </Press>
+    ) : (
+      <Txt family="ui" size="2xs" color="textMuted">
+        {label}
+      </Txt>
+    );
 
   return (
     <ScrollView
-      style={{ flex: 1, backgroundColor: t.panel2 }}
+      style={{ flex: 1, backgroundColor: t.surfacePage }}
       contentContainerStyle={{
         flexGrow: 1,
-        justifyContent: 'space-between',
-        paddingTop: insets.top + 30,
-        paddingBottom: insets.bottom + 36,
-        paddingHorizontal: 28,
-        experimental_backgroundImage: `linear-gradient(175deg, ${t.panel2} 0%, ${t.welcomeEnd} 100%)`,
+        paddingTop: insets.top + 8,
+        paddingBottom: insets.bottom + 28,
+        paddingHorizontal: 26,
       }}
+      testID="screen-welcome"
     >
-      <StatusBar style="light" />
-      <View style={{ flex: 1, justifyContent: 'center', gap: 40 }}>
-        <View
-          style={{ height: 210, alignItems: 'center', justifyContent: 'center' }}
-          importantForAccessibility="no-hide-descendants"
-        >
-          <View style={{ width: 250, height: 196 }}>
-            {cover(copy.welcome.covers.left, palette.petal, palette.espresso, -9, { left: 0, top: 26 })}
-            {cover(copy.welcome.covers.right, palette.biscuit, palette.espresso, 8, { right: 0, top: 20 })}
-            {cover(copy.welcome.covers.centre, palette.marmalade, t.textOnAccent, 0, { left: 73, top: 0 }, true)}
-            <View
-              style={{
-                position: 'absolute',
-                left: 96,
-                bottom: -6,
-                width: 62,
-                height: 9,
-                borderRadius: radius.pill,
-                backgroundColor: alpha.black28,
-                filter: [{ blur: 4 }],
-              }}
-            />
-          </View>
+      <StatusBar style={t.statusBarStyle} />
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 11 }}>
+        <View style={{ borderRadius: 12, overflow: 'hidden', boxShadow: shadow.sm }}>
+          <Illustration name="app-icon" width={40} />
         </View>
-        <View style={{ alignItems: 'center' }}>
-          <Txt family="hand" weight={400} size={26} leading={1} tint={t.accentSecondary} align="center">
-            {copy.welcome.eyebrow}
-          </Txt>
-          <Txt
-            family="display"
-            weight={700}
-            size={60}
-            leading={1.02}
-            tint={t.textInverse}
-            align="center"
-            accessibilityRole="header"
-            style={{ letterSpacing: -0.03 * 60, marginTop: 6 }}
-          >
-            {copy.welcome.title}
-          </Txt>
-          <Txt
-            family="ui"
-            size={16}
-            leading={1.45}
-            tint={t.textInverseMuted}
-            align="center"
-            style={{ marginTop: 14, maxWidth: 262 }}
-          >
-            {copy.welcome.body}
-          </Txt>
+        <Txt family="display" weight={700} size={23} style={{ letterSpacing: -0.02 * 23 }}>
+          {copy.welcome.title}
+        </Txt>
+      </View>
+
+      <View style={{ flex: 1, minHeight: 260, alignItems: 'center', justifyContent: 'center' }} onLayout={fit}>
+        <View style={{ width: ART_W, height: ART_H, transform: [{ scale }] }}>
+          <Illustration
+            name="bookshelf"
+            width={238}
+            style={{ position: 'absolute', left: (ART_W - 238) / 2, top: 0 }}
+          />
+          <Illustration
+            name="girl-reading"
+            width={172}
+            accessibilityLabel={copy.art.reader}
+            style={{
+              position: 'absolute',
+              left: (ART_W - 172) / 2,
+              top: 38,
+              filter: 'drop-shadow(0 14px 24px rgba(84,51,46,0.2))',
+            }}
+          />
+          <Illustration
+            name="cover-midnight"
+            width={70}
+            rotate={-9}
+            style={{ position: 'absolute', left: -4, top: 54, ...coverShadow }}
+          />
+          <Illustration
+            name="cover-atlas"
+            width={66}
+            rotate={8}
+            style={{ position: 'absolute', right: -4, top: 30, ...coverShadow }}
+          />
+          <Illustration
+            name="cover-brighter"
+            width={62}
+            rotate={7}
+            style={{ position: 'absolute', right: -2, bottom: 22, ...coverShadow }}
+          />
+          <Illustration name="strokes" width={34} style={{ position: 'absolute', left: 58, top: 0 }} />
+          <Illustration name="star" width={14} style={{ position: 'absolute', right: 94, top: 10, opacity: 0.75 }} />
+          <Illustration name="asterisk" width={30} float={6000} style={{ position: 'absolute', left: 0, top: 196 }} />
+          <Illustration name="moon" width={34} style={{ position: 'absolute', right: 2, top: 170 }} />
+          <Illustration name="flower" width={32} style={{ position: 'absolute', left: 4, bottom: 134 }} />
+          <Illustration name="sprout" width={30} style={{ position: 'absolute', left: 46, bottom: -4 }} />
+          <Illustration name="dots" width={38} style={{ position: 'absolute', right: 66, bottom: 2 }} />
         </View>
       </View>
 
-      <View style={{ gap: 18, marginTop: 32 }}>
+      <View style={{ paddingTop: 22 }}>
+        <Txt
+          family="display"
+          weight={700}
+          size={37}
+          leading={1.04}
+          accessibilityRole="header"
+          style={{ letterSpacing: -0.03 * 37 }}
+        >
+          {copy.welcome.headline}
+        </Txt>
+        <Txt family="hand" weight={400} size={38} leading={1} color="textAccent" style={{ marginTop: 2 }}>
+          {copy.welcome.hand}
+        </Txt>
+        <Txt family="ui" size={15} leading={1.45} color="textSecondary" style={{ marginTop: 12, maxWidth: 300 }}>
+          {copy.welcome.body}
+        </Txt>
+
         {error && (
           <View
             accessibilityRole="alert"
@@ -131,20 +147,20 @@ export default function Welcome() {
               flexDirection: 'row',
               gap: 10,
               alignItems: 'center',
+              marginTop: 16,
               paddingVertical: 13,
               paddingHorizontal: 15,
-              backgroundColor: alpha.cream16,
-              borderWidth: 1,
-              borderColor: t.borderInverse,
+              backgroundColor: t.statusDangerSoft,
               borderRadius: radius.md,
             }}
           >
-            <Icon name="error" size={18} tint={t.accentSecondary} />
-            <Txt family="ui" size="xs" tint={t.textInverse} style={{ flex: 1 }}>
+            <Icon name="error" size={18} tint={t.statusDanger} />
+            <Txt family="ui" size="xs" tint={t.inkOnWarm} style={{ flex: 1 }}>
               {copy.welcome.error}
             </Txt>
           </View>
         )}
+
         <Press
           accessibilityRole="button"
           accessibilityLabel={copy.welcome.google}
@@ -155,17 +171,18 @@ export default function Welcome() {
           onPress={() => run(signInWithGoogle)}
           style={{
             minHeight: 58,
+            marginTop: 22,
             flexDirection: 'row',
             alignItems: 'center',
             justifyContent: 'center',
             gap: 12,
-            backgroundColor: t.accentPrimary,
+            backgroundColor: t.ctaBg,
             borderRadius: radius.pill,
             boxShadow: shadow.lg,
           }}
         >
           {busy ? (
-            <ActivityIndicator color={t.textOnAccent} />
+            <ActivityIndicator color={t.ctaFg} />
           ) : (
             <>
               <View
@@ -182,22 +199,19 @@ export default function Welcome() {
                   {copy.welcome.googleBadge}
                 </Txt>
               </View>
-              <Txt family="ui" weight={700} size="md" tint={t.textOnAccent}>
+              <Txt family="ui" weight={700} size="md" tint={t.ctaFg}>
                 {copy.welcome.google}
               </Txt>
             </>
           )}
         </Press>
-        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 22 }}>
-          <Txt family="ui" size="2xs" tint={t.textInverseMuted}>
-            {copy.welcome.privacy}
-          </Txt>
-          <Txt family="ui" size="2xs" tint={t.textInverseMuted}>
+
+        <View style={{ flexDirection: 'row', justifyContent: 'center', gap: 18, marginTop: 14 }}>
+          {link(copy.welcome.privacy, env.EXPO_PUBLIC_PRIVACY_URL)}
+          <Txt family="ui" size="2xs" color="textMuted">
             ·
           </Txt>
-          <Txt family="ui" size="2xs" tint={t.textInverseMuted}>
-            {copy.welcome.terms}
-          </Txt>
+          {link(copy.welcome.terms, env.EXPO_PUBLIC_TERMS_URL)}
         </View>
         {__DEV__ && (
           <Press
@@ -206,13 +220,7 @@ export default function Welcome() {
             onPress={() => run(devSignInAsSeedUser)}
             style={{ alignSelf: 'center', minHeight: 44, justifyContent: 'center' }}
           >
-            <Txt
-              family="ui"
-              weight={600}
-              size="2xs"
-              tint={t.textInverseMuted}
-              style={{ textDecorationLine: 'underline' }}
-            >
+            <Txt family="ui" weight={600} size="2xs" color="textMuted" style={{ textDecorationLine: 'underline' }}>
               {copy.welcome.devSignIn}
             </Txt>
           </Press>
