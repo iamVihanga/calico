@@ -31,6 +31,7 @@ type Props = {
   size?: keyof typeof dims;
   round?: boolean;
   active?: boolean;
+  disabled?: boolean;
   iconSize?: number;
   onPress?: () => void;
   onLongPress?: () => void;
@@ -45,6 +46,7 @@ export function IconButton({
   size = 'md',
   round = true,
   active = false,
+  disabled = false,
   iconSize,
   onPress,
   onLongPress,
@@ -59,7 +61,8 @@ export function IconButton({
     <Press
       accessibilityRole="button"
       accessibilityLabel={label}
-      accessibilityState={{ selected: active }}
+      accessibilityState={{ selected: active, disabled }}
+      disabled={disabled}
       testID={testID}
       hitSlop={slop}
       onPress={onPress}
@@ -69,6 +72,7 @@ export function IconButton({
         {
           width: d,
           height: d,
+          opacity: disabled ? 0.45 : 1,
           alignItems: 'center',
           justifyContent: 'center',
           borderWidth: 1,

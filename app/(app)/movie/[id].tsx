@@ -11,6 +11,7 @@ import { Button } from '@/components/ds/Button';
 import { IconButton } from '@/components/ds/IconButton';
 import { DetailLoadState } from '@/components/ds/LoadState';
 import { Txt } from '@/components/ds/Txt';
+import { AskCalicoCard } from '@/features/media/chat/AskCalicoCard';
 import { useMovie, useSetMediaStatus } from '@/features/media/hooks';
 import { fmtRuntime, MOVIE_STOPS } from '@/features/media/logic';
 import type { MovieStatus } from '@/features/media/types';
@@ -138,6 +139,8 @@ export default function MovieDetail() {
           onSelect={onStatus}
         />
       </View>
+
+      <AskCalicoCard itemId={movie.id} />
 
       <View style={{ paddingTop: 26, paddingHorizontal: layout.gutterScreen }}>
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 14 }}>

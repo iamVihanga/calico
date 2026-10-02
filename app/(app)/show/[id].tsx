@@ -14,6 +14,7 @@ import { DetailLoadState } from '@/components/ds/LoadState';
 import { Press } from '@/components/ds/Press';
 import { Switch } from '@/components/ds/Switch';
 import { Txt } from '@/components/ds/Txt';
+import { AskCalicoCard } from '@/features/media/chat/AskCalicoCard';
 import { SeasonBlock } from '@/features/media/components/SeasonBlock';
 import { tmdbSeason } from '@/features/media/api';
 import { useIncludeSpecials, useProgress, useSetMediaStatus, useShow, useWatches } from '@/features/media/hooks';
@@ -202,6 +203,8 @@ function ShowBody({ show }: { show: Show }) {
           onSelect={onStatus}
         />
       </View>
+
+      <AskCalicoCard itemId={show.id} />
 
       {/* Next up */}
       <View style={{ paddingTop: 22, paddingHorizontal: layout.gutterScreen }}>

@@ -5,6 +5,7 @@ export const qk = {
   profile: ['profile'] as const,
   items: (kind: MediaKind, filter: string) => ['items', kind, filter] as const,
   item: (id: string) => ['item', id] as const, // item + detail row + loan + sessions
+  chat: (itemId: string) => ['chat', itemId] as const, // AI conversation about one movie/show
   pageLogs: (id: string) => ['pageLogs', id] as const,
   openLoans: ['loans', 'open'] as const,
   showProgress: (id?: string) => ['showProgress', id ?? 'all'] as const,

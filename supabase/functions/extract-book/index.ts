@@ -13,11 +13,12 @@ Deno.serve((req) =>
             .from('ai_usage')
             .select('id', { count: 'exact', head: true })
             .eq('user_id', user)
+            .eq('kind', 'cover') // chat messages have their own limit
             .gte('created_at', since);
           return count ?? 0;
         },
         recordUsage: async (user, ok) => {
-          await admin.from('ai_usage').insert({ user_id: user, ok });
+          await admin.from('ai_usage').insert({ user_id: user, ok, kind: 'cover' });
         },
         download: async (path) => {
           const { data, error } = await admin.storage.from('covers').download(path);

@@ -4,6 +4,7 @@ import * as books from '@/features/books/api';
 import * as collections from '@/features/collections/api';
 import * as loans from '@/features/loans/api';
 import * as media from '@/features/media/api';
+import * as chat from '@/features/media/chat/api';
 import * as upnext from '@/features/upnext/api';
 import { type ProfilePatch, updateProfile } from '@/features/profile/api';
 
@@ -39,6 +40,8 @@ export const mk = {
   collectionAdd: ['collections', 'add'] as const,
   collectionRemove: ['collections', 'remove'] as const,
   collectionDelete: ['collections', 'delete'] as const,
+  chatSend: ['chat', 'send'] as const,
+  chatClear: ['chat', 'clear'] as const,
 };
 
 /** Movie/show writes run one at a time, so a collection or episode mark never beats the add it depends on. */
@@ -97,4 +100,6 @@ export function registerMutations(qc: QueryClient) {
     scope: MEDIA_SCOPE,
     mutationFn: (v: media.CollectionVars) => media.createCollection(v),
   });
+  qc.setMutationDefaults(mk.chatSend, { mutationFn: (v: chat.SendChatVars) => chat.sendChat(v) });
+  qc.setMutationDefaults(mk.chatClear, { mutationFn: (v: { itemId: string }) => chat.clearChat(v) });
 }

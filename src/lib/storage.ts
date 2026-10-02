@@ -10,6 +10,8 @@ export const storageKeys = {
   remindersAsked: 'reminders-asked',
   recentTmdb: 'recent-tmdb-searches',
   recentSearches: 'recent-searches',
+  /** { [itemId]: { language, spoilers } } for the AI chat about each title. */
+  chatPrefs: 'chat-prefs',
 } as const;
 
 /** Wipe everything except the theme (sign-out keeps the paper colour for the welcome screen). */

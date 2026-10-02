@@ -3,15 +3,17 @@
 // Deploy site/dist to any static host (e.g. Vercel with output directory `site/dist`).
 import { mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync, copyFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const root = new URL('../site/', import.meta.url).pathname;
+// fileURLToPath, not .pathname: the repo path may contain spaces ("Mobile Apps" → %20).
+const root = fileURLToPath(new URL('../site/', import.meta.url));
 const out = join(root, 'dist');
 const email = process.env.CONTACT_EMAIL || 'vihangarashansilva@gmail.com';
 if (!email || !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
   console.error('CONTACT_EMAIL must be an email address (shown on the privacy and deletion pages).');
   process.exit(1);
 }
-const updated = process.env.POLICY_UPDATED ?? '26 September 2026';
+const updated = process.env.POLICY_UPDATED ?? '2 October 2026';
 const nav = readFileSync(join(root, '_nav.html'), 'utf8').trim();
 
 rmSync(out, { recursive: true, force: true });
