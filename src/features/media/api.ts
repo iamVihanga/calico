@@ -117,7 +117,7 @@ export async function fetchEpisodes(tmdbId: number): Promise<Episode[]> {
   const read = async () => {
     const { data, error } = await supabase
       .from('tmdb_episodes')
-      .select('season, episode, name, air_date, still_path, vote_average, runtime_min')
+      .select('season, episode, name, air_date, still_path, vote_average, runtime_min, overview')
       .eq('tmdb_show_id', tmdbId)
       .order('season')
       .order('episode')
@@ -134,11 +134,11 @@ export async function fetchEpisodes(tmdbId: number): Promise<Episode[]> {
 export async function fetchWatches(itemId: string): Promise<EpisodeRef[]> {
   const { data, error } = await supabase
     .from('episode_watches')
-    .select('season, episode')
+    .select('season, episode, watched_at')
     .eq('item_id', itemId)
     .range(0, 4999);
   if (error) throw error;
-  return data;
+  return data.map((w) => ({ season: w.season, episode: w.episode, watchedAt: w.watched_at }));
 }
 
 // TMDB (edge function) ----------------------------------------------------------------------------
@@ -157,6 +157,9 @@ export const searchTmdb = (type: 'movie' | 'show', query: string, page = 1) =>
     page,
   });
 export const tmdbMovie = (id: number) => tmdb<TmdbMovie>({ action: 'movie', id });
+/** One season through the function: fills overviews for seasons cached before they were stored. */
+export const tmdbSeason = (id: number, season: number) =>
+  tmdb<{ episodes: Episode[] }>({ action: 'season', id, season });
 export const tmdbCollection = (id: number) => tmdb<TmdbCollection>({ action: 'collection', id });
 export const tmdbShow = (id: number) => tmdb<TmdbShow>({ action: 'show', id });
 

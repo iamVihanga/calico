@@ -1,7 +1,5 @@
 import { act, fireEvent, renderRouter, screen, waitFor } from 'expo-router/testing-library';
 import { router } from 'expo-router';
-import { fireGestureHandler, getByGestureTestId } from 'react-native-gesture-handler/jest-utils';
-import { State } from 'react-native-gesture-handler';
 
 import { copy } from '@/i18n/en';
 import { addLocalDays, colomboToday } from '@/lib/dates';
@@ -21,6 +19,7 @@ const ep = (season: number, episode: number, name: string, daysAgo: number | nul
   stillPath: `/s${season}e${episode}.jpg`,
   voteAverage: 8.1,
   runtimeMin: 60,
+  overview: `What happens in S${season} E${episode}.`,
 });
 const mockHotdEps: Episode[] = [
   ...Array.from({ length: 10 }, (_, i) => ep(1, i + 1, `S1 episode ${i + 1}`, 900 - i * 7)),
@@ -218,21 +217,11 @@ const reset = () => {
   useSheetStore.getState().close();
 };
 
-/** Tap the n-th square of a season (tests have no layout width, so the grid is one square wide). */
-const tapSquare = (season: number, episode: number) =>
-  act(() =>
-    fireGestureHandler(getByGestureTestId(`tap-${season}`), [
-      { state: State.BEGAN, x: 10, y: (episode - 1) * 43 + 10 },
-      { state: State.ACTIVE, x: 10, y: (episode - 1) * 43 + 10 },
-      { state: State.END, x: 10, y: (episode - 1) * 43 + 10 },
-    ]),
-  );
-
 describe('F5: add a show and watch the next episode', () => {
   beforeEach(reset);
   afterAll(cleanupAppState);
 
-  it('search → preview → already watched → fill S1 → tap S2 E1–E4 → Home ticks S2 E5', async () => {
+  it('search → preview → already watched → mark S1 → tick S2 E1–E4 → episode sheet → Home ticks S2 E5', async () => {
     await renderRouter('./app', { initialUrl: '/tmdb?type=show' });
     await fireEvent.changeText(await screen.findByTestId('tmdb-query'), 'house of the dragon');
     await fireEvent.press(await screen.findByTestId('tmdb-result-94997', {}, { timeout: 3000 }));
@@ -244,19 +233,33 @@ describe('F5: add a show and watch the next episode', () => {
       expect(mockCalls.add).toHaveBeenCalledWith(expect.objectContaining({ kind: 'show', status: 'watchlist' })),
     );
     expect(await screen.findByTestId('screen-show')).toBeTruthy();
-    expect(await screen.findByTestId('grid-1')).toBeTruthy();
-
-    // Hold on Season 1 (the accessibility action is the same fill).
+    // Nothing watched yet: the next episode's season (1) is the one open; season 2 is closed.
+    expect(await screen.findByTestId('fill-1')).toBeTruthy();
+    expect(screen.queryByTestId('episode-row-2-1')).toBeNull();
     await act(async () => {
-      fireEvent(screen.getByLabelText(copy.shows.expand('Season 1')), 'accessibilityAction', {
-        nativeEvent: { actionName: 'fill' },
-      });
+      await fireEvent.press(screen.getByTestId('fill-1'));
     });
     expect(await screen.findByText(copy.shows.seasonMarked('Season 1'))).toBeTruthy();
     await waitFor(() => expect(screen.getByTestId('next-code')).toHaveTextContent('S2 E1'));
+    expect(screen.getByTestId('season-count-1')).toHaveTextContent('10/10');
 
-    for (const e of [1, 2, 3, 4]) await tapSquare(2, e);
+    // One season open at a time: opening season 2 closes season 1.
+    await fireEvent.press(screen.getByTestId('season-toggle-2'));
+    expect(await screen.findByTestId('episode-row-2-1')).toBeTruthy();
+    expect(screen.queryByTestId('episode-row-1-1')).toBeNull();
+    for (const e of [1, 2, 3, 4]) {
+      await act(async () => {
+        await fireEvent.press(screen.getByTestId(`episode-tick-2-${e}`));
+      });
+    }
     await waitFor(() => expect(screen.getByTestId('next-code')).toHaveTextContent('S2 E5'));
+    expect(screen.getByTestId('season-count-2')).toHaveTextContent('4/8');
+
+    // Tapping the row (not the tick) opens the episode sheet with its overview.
+    await fireEvent.press(screen.getByTestId('episode-row-2-5'));
+    expect(await screen.findByTestId('episode-overview')).toHaveTextContent('What happens in S2 E5.');
+    expect(screen.getByTestId('episode-mark')).toHaveTextContent(copy.episodeSheet.markWatched);
+    await act(async () => useSheetStore.getState().close());
     expect(screen.getByTestId('episode-count')).toHaveTextContent(copy.shows.episodeCount(14, 19));
 
     await act(async () => router.navigate('/'));

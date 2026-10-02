@@ -111,6 +111,17 @@ export const en = {
     denied: 'Reminders are off. You can turn them on in Android settings.',
     on: 'Reminders on',
   },
+  episodeSheet: {
+    openHint: 'Opens the episode details',
+    tick: (season: number, episode: number) => `Season ${season}, episode ${episode} watched`,
+    code: (season: number, episode: number) => `S${season} E${episode}`,
+    minutes: (n: number) => `${n} min`,
+    noOverview: 'TMDB has no summary for this episode yet.',
+    loadingOverview: 'Getting the summary…',
+    markWatched: 'Mark watched',
+    markUnwatched: 'Mark unwatched',
+    notAired: 'Not aired yet',
+  },
   episode: {
     a11y: (season: number, episode: number, name: string | undefined, state: string) =>
       `Season ${season}, episode ${episode}${name ? `, ${name}` : ''}, ${state}`,
@@ -483,7 +494,6 @@ export const en = {
     episodeCount: (w: number, t: number) => `${w} of ${t} episodes`,
     season: (n: number) => (n === 0 ? 'Specials' : `Season ${n}`),
     coming: 'Coming',
-    hint: 'tap a square · hold one to fill the season',
     includeSpecials: 'Include specials',
     tmdb: 'TMDB',
     aired: (day: string) => `Aired ${day}`,
@@ -492,7 +502,6 @@ export const en = {
     marked: (code: string) => `Marked ${code} watched`,
     unmarked: (code: string) => `${code} unmarked`,
     seasonMarked: (label: string) => `${label} marked watched`,
-    painted: (n: number) => `Marked ${n} ${n === 1 ? 'episode' : 'episodes'} watched`,
     lastEpisode: (title: string) => `That was the last episode of ${title}. Mark the show as watched?`,
     markWatched: 'Mark watched',
     specialCode: (e: number) => `Special ${e}`,
@@ -501,8 +510,7 @@ export const en = {
     square: (season: number, episode: number, name: string | null, state: string) =>
       `${season === 0 ? 'Special' : `Season ${season}`}, episode ${episode}${name ? `, ${name}` : ''}, ${state}`,
     fillSeason: (label: string) => `Mark all of ${label} watched`,
-    expand: (label: string) => `${label}, show episode list`,
-    collapse: (label: string) => `${label}, show squares`,
+    seasonA11y: (label: string, seen: number, total: number) => `${label}, ${seen} of ${total} watched`,
     continueWatching: 'Continue watching',
     tickHint: "tap the tick when you're done",
     caughtUpLine: (title: string, day: string | null) =>

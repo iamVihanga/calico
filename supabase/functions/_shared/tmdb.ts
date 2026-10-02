@@ -56,6 +56,8 @@ export type TmdbEpisode = {
   stillPath: string | null;
   voteAverage: number | null;
   runtimeMin: number | null;
+  /** '' when TMDB has none; null when cached before overviews were stored. */
+  overview: string | null;
 };
 
 /** A `tmdb_episodes` row. */
@@ -68,6 +70,7 @@ export type EpisodeRow = {
   still_path: string | null;
   vote_average: number | null;
   runtime_min: number | null;
+  overview: string | null;
   fetched_at: string;
 };
 
@@ -151,6 +154,7 @@ export function mapEpisode(e: Json, season: number): TmdbEpisode {
     stillPath: str(e.still_path),
     voteAverage: num(e.vote_average) ? Math.round(e.vote_average * 10) / 10 : null,
     runtimeMin: num(e.runtime) || null,
+    overview: typeof e.overview === 'string' ? e.overview.trim() : '',
   };
 }
 
@@ -168,10 +172,13 @@ export const toEpisodeRow = (tmdbShowId: number, e: TmdbEpisode, fetchedAt: stri
   still_path: e.stillPath,
   vote_average: e.voteAverage,
   runtime_min: e.runtimeMin,
+  overview: e.overview,
   fetched_at: fetchedAt,
 });
 
-export const fromEpisodeRow = (r: Omit<EpisodeRow, 'tmdb_show_id' | 'fetched_at'>): TmdbEpisode => ({
+export const fromEpisodeRow = (
+  r: Omit<EpisodeRow, 'tmdb_show_id' | 'fetched_at' | 'overview'> & { overview?: string | null },
+): TmdbEpisode => ({
   season: r.season,
   episode: r.episode,
   name: r.name,
@@ -179,6 +186,7 @@ export const fromEpisodeRow = (r: Omit<EpisodeRow, 'tmdb_show_id' | 'fetched_at'
   stillPath: r.still_path,
   voteAverage: r.vote_average === null ? null : Number(r.vote_average),
   runtimeMin: r.runtime_min,
+  overview: r.overview ?? null,
 });
 
 /** TMDB allows 20 appended sub-requests per call: season numbers in chunks of 20. */

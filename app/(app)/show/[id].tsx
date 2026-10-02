@@ -1,7 +1,8 @@
 import { tmdbImage } from '@shared/tmdb.ts';
 import { Image } from 'expo-image';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -14,18 +15,28 @@ import { Press } from '@/components/ds/Press';
 import { Switch } from '@/components/ds/Switch';
 import { Txt } from '@/components/ds/Txt';
 import { SeasonBlock } from '@/features/media/components/SeasonBlock';
-import { useIncludeSpecials, useProgress, useSetMediaStatus, useShow } from '@/features/media/hooks';
-import { ENDED_STATUS, epCode, seasonsOf, SHOW_STOPS } from '@/features/media/logic';
-import type { Show, ShowStatus } from '@/features/media/types';
+import { tmdbSeason } from '@/features/media/api';
+import { useIncludeSpecials, useProgress, useSetMediaStatus, useShow, useWatches } from '@/features/media/hooks';
+import {
+  defaultOpenSeason,
+  ENDED_STATUS,
+  epCode,
+  epKey,
+  type Season,
+  seasonsOf,
+  SHOW_STOPS,
+} from '@/features/media/logic';
+import type { Episode, Show, ShowStatus } from '@/features/media/types';
 import { useShowMarker } from '@/features/media/useShowMarker';
 import { useUpdateProfile } from '@/features/profile/hooks';
 import { copy } from '@/i18n/en';
 import { colomboToday, fmtDay } from '@/lib/dates';
+import { qk } from '@/lib/queryKeys';
 import { openSheet } from '@/lib/stores/sheet';
 import { toast } from '@/lib/stores/toast';
 import { alpha, layout, palette, radius, shadow, size, tracking, useTheme } from '@/theme';
 
-/** Show detail (prototype `showDetail`): hero, status rail, Next up, seasons with the episode grid. */
+/** Show detail (prototype `showDetail`): hero, status rail, Next up, seasons as an accordion. */
 export default function ShowDetail() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { t } = useTheme();
@@ -54,9 +65,35 @@ function ShowBody({ show }: { show: Show }) {
   const updateProfile = useUpdateProfile();
   const setStatus = useSetMediaStatus();
   const marker = useShowMarker(show);
-  const [expanded, setExpanded] = useState<number | null>(null);
+  const watches = useWatches(show.id).data;
+  const qc = useQueryClient();
+  // undefined until the user taps a season: then the default (latest watched episode's season) applies.
+  const [chosen, setChosen] = useState<number | null | undefined>(undefined);
   const today = colomboToday();
   const seasons = useMemo(() => (progress ? seasonsOf(progress.episodes, specials) : []), [progress, specials]);
+  const expanded = chosen !== undefined ? chosen : defaultOpenSeason(seasons, watches ?? [], progress?.next ?? null);
+
+  const onToggleExpand = useCallback(
+    (n: number) => setChosen((c) => ((c === undefined ? expanded : c) === n ? null : n)),
+    [expanded],
+  );
+  const onToggleEpisode = useCallback((e: Episode) => marker.toggle(e), [marker]);
+  const onFillSeason = useCallback((s: Season) => void marker.fillSeason(s), [marker]);
+  const onOpenEpisode = useCallback(
+    (e: Episode) => openSheet('episode', { itemId: show.id, season: e.season, episode: e.episode }),
+    [show.id],
+  );
+
+  // Seasons cached before episode overviews were stored: fetch the open one again, once.
+  const refreshed = useRef(new Set<number>());
+  useEffect(() => {
+    const open = seasons.find((s) => s.n === expanded);
+    if (!open || refreshed.current.has(open.n) || !open.episodes.some((e) => e.overview === null)) return;
+    refreshed.current.add(open.n);
+    void tmdbSeason(show.tmdbId, open.n)
+      .then(() => qc.invalidateQueries({ queryKey: qk.episodes(show.tmdbId) }))
+      .catch(() => undefined);
+  }, [expanded, seasons, show.tmdbId, qc]);
   const p = coverFor(show.id);
   const backdrop = tmdbImage(show.backdropPath, 'w780');
   const meta = [show.year, show.network, show.tmdbStatus].filter(Boolean).join(' · ');
@@ -251,17 +288,19 @@ function ShowBody({ show }: { show: Show }) {
                 key={s.n}
                 season={s}
                 watched={progress.watchedSet}
-                next={next}
+                seenSig={s.episodes
+                  .filter((e) => progress.watchedSet.has(epKey(e.season, e.episode)))
+                  .map((e) => e.episode)
+                  .join(',')}
                 today={today}
                 expanded={expanded === s.n}
-                onExpand={() => setExpanded((e) => (e === s.n ? null : s.n))}
-                marker={marker}
+                onToggleExpand={onToggleExpand}
+                onToggleEpisode={onToggleEpisode}
+                onOpenEpisode={onOpenEpisode}
+                onFillSeason={onFillSeason}
               />
             ))}
         </View>
-        <Txt family="hand" weight={400} size={17} color="textMuted" style={{ paddingTop: 12 }}>
-          {copy.shows.hint}
-        </Txt>
         <View style={{ paddingTop: 20 }}>
           <Switch
             label={copy.shows.includeSpecials}

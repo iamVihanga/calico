@@ -133,3 +133,26 @@ export function countBy<S extends string>(items: { status: S }[], statuses: read
   for (const i of items) counts[i.status] = (counts[i.status] ?? 0) + 1;
   return counts;
 }
+
+/**
+ * The season show detail opens on: the one holding the most recently watched episode (by
+ * `watchedAt`; marks made this session have none and count as newest, then the furthest along),
+ * else the next episode's, else the first. Only seasons on screen count (specials may be hidden).
+ */
+export function defaultOpenSeason(
+  seasons: Season[],
+  watches: EpisodeRef[],
+  next: { season: number } | null,
+): number | null {
+  const shown = new Set(seasons.map((s) => s.n));
+  const latest = watches
+    .filter((w) => shown.has(w.season))
+    .sort((a, b) => {
+      const at = (w: EpisodeRef) => w.watchedAt ?? '￿';
+      if (at(a) !== at(b)) return at(a) < at(b) ? 1 : -1;
+      return b.season - a.season || b.episode - a.episode;
+    })[0];
+  if (latest) return latest.season;
+  if (next && shown.has(next.season)) return next.season;
+  return seasons[0]?.n ?? null;
+}

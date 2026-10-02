@@ -7,6 +7,7 @@ import {
   franchiseOthers,
   nextEpisode,
   progressOf,
+  defaultOpenSeason,
   seasonsOf,
 } from '../logic';
 
@@ -18,6 +19,7 @@ const ep = (season: number, episode: number, name: string, airDate: string | nul
   stillPath: null,
   voteAverage: null,
   runtimeMin: null,
+  overview: null,
 });
 const today = '2026-09-23';
 const w = (...keys: [number, number][]) => new Set(keys.map(([s, e]) => epKey(s, e)));
@@ -100,5 +102,34 @@ describe('formatting', () => {
   it('offers the other films of a series only', () => {
     const parts = [{ tmdbId: 1 }, { tmdbId: 2 }, { tmdbId: 3 }];
     expect(franchiseOthers(parts, new Set([3]), 1)).toEqual([{ tmdbId: 2 }]);
+  });
+});
+
+describe('defaultOpenSeason', () => {
+  const s = (n: number) => ({ n, episodes: [] });
+  const seasons = [s(1), s(2), s(3)];
+
+  it('opens the season of the most recently watched episode', () => {
+    const watches = [
+      { season: 3, episode: 1, watchedAt: '2026-09-01T10:00:00Z' },
+      { season: 1, episode: 4, watchedAt: '2026-09-20T10:00:00Z' },
+    ];
+    expect(defaultOpenSeason(seasons, watches, { season: 3 })).toBe(1);
+  });
+
+  it('treats marks made this session (no watchedAt) as newest, then the furthest along', () => {
+    const watches = [
+      { season: 1, episode: 2, watchedAt: '2026-09-20T10:00:00Z' },
+      { season: 2, episode: 1 },
+      { season: 2, episode: 3 },
+    ];
+    expect(defaultOpenSeason(seasons, watches, null)).toBe(2);
+  });
+
+  it("falls back to the next episode's season, then the first; ignores hidden seasons", () => {
+    expect(defaultOpenSeason(seasons, [], { season: 2 })).toBe(2);
+    expect(defaultOpenSeason(seasons, [], null)).toBe(1);
+    expect(defaultOpenSeason(seasons, [{ season: 0, episode: 1, watchedAt: '2026-09-30T00:00:00Z' }], null)).toBe(1);
+    expect(defaultOpenSeason([], [], null)).toBeNull();
   });
 });

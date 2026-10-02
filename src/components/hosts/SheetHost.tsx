@@ -28,6 +28,7 @@ import {
   TmdbPreviewSheetBody,
   WatchAgainSheetBody,
 } from '@/features/media/sheets/MediaSheets';
+import { EpisodeSheetBody } from '@/features/media/sheets/EpisodeSheet';
 import { copy } from '@/i18n/en';
 import { type SheetName, useSheetStore } from '@/lib/stores/sheet';
 
@@ -104,6 +105,17 @@ export function SheetHost() {
       </Sheet>
       <Sheet open={sheet?.name === 'watchAgain'} onClose={closer('watchAgain')} testID="sheet-watch-again">
         {sheet?.name === 'watchAgain' && <WatchAgainSheetBody key={id} itemId={id} onClose={closer('watchAgain')} />}
+      </Sheet>
+      <Sheet open={sheet?.name === 'episode'} onClose={closer('episode')} testID="sheet-episode">
+        {sheet?.name === 'episode' && (
+          <EpisodeSheetBody
+            key={`${id}-${sheet.params.season}-${sheet.params.episode}`}
+            itemId={id}
+            season={sheet.params.season}
+            episode={sheet.params.episode}
+            onClose={closer('episode')}
+          />
+        )}
       </Sheet>
       <Sheet open={sheet?.name === 'mediaOverflow'} onClose={closer('mediaOverflow')} testID="sheet-media-overflow">
         {sheet?.name === 'mediaOverflow' && (

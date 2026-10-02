@@ -61,4 +61,5 @@ export type ShowProgress = {
 };
 
 export type Episode = TmdbEpisode;
-export type EpisodeRef = { season: number; episode: number };
+/** `watchedAt` is set for rows read from the server; optimistic marks leave it out. */
+export type EpisodeRef = { season: number; episode: number; watchedAt?: string };

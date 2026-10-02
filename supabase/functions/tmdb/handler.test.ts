@@ -132,6 +132,7 @@ Deno.test('show fetches every season in one appended call and caches the episode
     still_path: null,
     vote_average: 8.4,
     runtime_min: null,
+    overview: '', // TMDB had none: stored as '' so it isn't refetched
     fetched_at: '2026-09-23T12:00:00.000Z',
   });
 });
@@ -146,12 +147,38 @@ Deno.test('season serves a fresh cache without calling TMDB', async () => {
     still_path: null,
     vote_average: 8.1,
     runtime_min: 62,
+    overview: 'Eddard Stark is torn between his family and an old friend.',
     fetched_at: '2026-09-10T00:00:00Z', // 13 days old: fresh for an ended show
   };
   const { d, calls } = deps(() => undefined, [row], 'Ended');
   const body = await (await handle(post({ action: 'season', id: 1399, season: 1 }), d)).json();
   assertEquals(calls.length, 0);
   assertEquals(body.episodes[0].name, 'Winter Is Coming');
+  assertEquals(body.episodes[0].overview, 'Eddard Stark is torn between his family and an old friend.');
+});
+
+Deno.test('a fresh season cached before overviews existed is fetched once more', async () => {
+  const row: EpisodeRow = {
+    tmdb_show_id: 1399,
+    season: 1,
+    episode: 1,
+    name: 'Winter Is Coming',
+    air_date: '2011-04-17',
+    still_path: null,
+    vote_average: 8.1,
+    runtime_min: 62,
+    overview: null,
+    fetched_at: '2026-09-22T00:00:00Z',
+  };
+  const { d, calls, upserts } = deps(
+    () => ({ episodes: [{ episode_number: 1, name: 'Winter Is Coming', overview: ' Lord Stark rides north. ' }] }),
+    [row],
+    'Ended',
+  );
+  const body = await (await handle(post({ action: 'season', id: 1399, season: 1 }), d)).json();
+  assertEquals(calls.length, 1);
+  assertEquals(body.episodes[0].overview, 'Lord Stark rides north.');
+  assertEquals(upserts[0]![0]!.overview, 'Lord Stark rides north.');
 });
 
 Deno.test('season refetches a stale cache for a running show', async () => {
@@ -164,6 +191,7 @@ Deno.test('season refetches a stale cache for a running show', async () => {
     still_path: null,
     vote_average: null,
     runtime_min: null,
+    overview: 'old',
     fetched_at: '2026-09-22T00:00:00Z', // 36h old
   };
   const { d, upserts } = deps(

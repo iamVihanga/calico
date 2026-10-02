@@ -542,6 +542,7 @@ export type Database = {
           episode: number;
           fetched_at: string;
           name: string | null;
+          overview: string | null;
           runtime_min: number | null;
           season: number;
           still_path: string | null;
@@ -553,6 +554,7 @@ export type Database = {
           episode: number;
           fetched_at?: string;
           name?: string | null;
+          overview?: string | null;
           runtime_min?: number | null;
           season: number;
           still_path?: string | null;
@@ -564,6 +566,7 @@ export type Database = {
           episode?: number;
           fetched_at?: string;
           name?: string | null;
+          overview?: string | null;
           runtime_min?: number | null;
           season?: number;
           still_path?: string | null;

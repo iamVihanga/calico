@@ -107,7 +107,9 @@ export async function handle(req: Request, deps: Deps): Promise<Response> {
         const oldest = cached.length
           ? cached.reduce((a, r) => (r.fetched_at < a ? r.fetched_at : a), cached[0]!.fetched_at)
           : null;
-        if (cached.length && !isStale(oldest, await cache.showStatus(body.id), deps.now())) {
+        // A season cached before overviews were stored (overview null) is fetched again, once.
+        const missingOverviews = cached.some((r) => r.overview === null || r.overview === undefined);
+        if (cached.length && !missingOverviews && !isStale(oldest, await cache.showStatus(body.id), deps.now())) {
           return json({ episodes: cached.map(fromEpisodeRow) });
         }
         const episodes: TmdbEpisode[] = episodesOf(await get(`/tv/${body.id}/season/${body.season}`), body.season);

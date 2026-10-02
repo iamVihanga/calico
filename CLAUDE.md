@@ -53,6 +53,10 @@ Expo-specific guidance: @AGENTS.md
   `show_progress` for optimistic updates. Media writes share `MEDIA_SCOPE`, so they run in order (add before
   collection or episode marks). TMDB is only reached through the `tmdb` edge function; DTO types live in
   `@shared/tmdb.ts`; images load straight from `image.tmdb.org`.
+- Show detail seasons are an accordion (`SeasonBlock`, one open; default = latest watched episode's season,
+  `defaultOpenSeason`); rows open the `episode` sheet, the right-hand circle ticks. Episode overviews live in
+  `tmdb_episodes.overview` ('' = TMDB has none, null = cached before the column; the `season` action refetches).
+  Keep `useShowMarker` callbacks stable and pass per-season `seenSig` so ticks re-render one season only.
 - Router tests: never call `findBy*` inside `act()` (it waits forever); find first, then act.
 - Anything that lists "whatever it is" (Up next, collections, search, Pick) uses `useLibraryItems()`
   (`src/features/library/items.ts`) and `ItemCover`. Queue moves compute from the query cache at call time
