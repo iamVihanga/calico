@@ -17,7 +17,10 @@ const ART_W = 340;
 const ART_H = 446;
 const coverShadow = { filter: 'drop-shadow(0 7px 14px rgba(84,51,46,0.22))' } as const;
 
-/** Prototype `welcome` (design/v2): a reader at her bookshelf, "People who read / live different lives." */
+/**
+ * Prototype `welcome` (design/v2): a reader at her bookshelf, "People who read / live different lives."
+ * The prototype's icon + wordmark row is left out: on the phone it crowded the status bar and the art.
+ */
 export default function Welcome() {
   const { t } = useTheme();
   const insets = useSafeAreaInsets();
@@ -60,21 +63,13 @@ export default function Welcome() {
       style={{ flex: 1, backgroundColor: t.surfacePage }}
       contentContainerStyle={{
         flexGrow: 1,
-        paddingTop: insets.top + 8,
+        paddingTop: insets.top + 16,
         paddingBottom: insets.bottom + 28,
         paddingHorizontal: 26,
       }}
       testID="screen-welcome"
     >
       <StatusBar style={t.statusBarStyle} />
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 11 }}>
-        <View style={{ borderRadius: 12, overflow: 'hidden', boxShadow: shadow.sm }}>
-          <Illustration name="app-icon" width={40} />
-        </View>
-        <Txt family="display" weight={700} size={23} style={{ letterSpacing: -0.02 * 23 }}>
-          {copy.welcome.title}
-        </Txt>
-      </View>
 
       <View style={{ flex: 1, minHeight: 260, alignItems: 'center', justifyContent: 'center' }} onLayout={fit}>
         <View style={{ width: ART_W, height: ART_H, transform: [{ scale }] }}>

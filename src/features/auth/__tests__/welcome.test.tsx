@@ -30,7 +30,6 @@ describe('Welcome', () => {
     await renderWelcome();
     expect(screen.getByText(copy.welcome.headline)).toBeTruthy();
     expect(screen.getByText(copy.welcome.hand)).toBeTruthy();
-    expect(screen.getByText(copy.welcome.title)).toBeTruthy();
     expect(screen.getByLabelText(copy.art.reader)).toBeTruthy();
     expect(screen.getByText(copy.welcome.google)).toBeTruthy();
   });

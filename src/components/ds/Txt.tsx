@@ -90,6 +90,9 @@ export function Txt({
       // letter spacing and caps don't apply to Sinhala
       ...(allSinhala ? { fontFamily: sinhalaFamily, letterSpacing: 0 } : null),
     },
+    // Caveat's last letter overhangs its advance width and Android clips it ("the date card" read
+    // "cara"). Room on the right, cancelled by a negative margin, so the layout doesn't move.
+    spec.family === 'hand' && !allSinhala ? handOverhang(spec.size) : null,
     style,
   ];
 
@@ -111,6 +114,11 @@ export function Txt({
       {content}
     </Text>
   );
+}
+
+function handOverhang(size: number): TextStyle {
+  const room = Math.ceil(size * 0.12);
+  return { paddingRight: room, marginRight: -room };
 }
 
 export { fontFamily };
