@@ -9,7 +9,7 @@ import { copy } from '@/i18n/en';
 import { openSheet } from '@/lib/stores/sheet';
 import { layout, radius, useTheme } from '@/theme';
 
-/** New user: Kiri curled on an empty shelf, one line, one button (prototype homeEmpty). */
+/** New user: Kiri asleep on the empty shelf, one line, one button (design/v2 homeEmpty). */
 export function HomeEmpty() {
   const { t } = useTheme();
   return (
@@ -17,16 +17,16 @@ export function HomeEmpty() {
       testID="home-empty"
       style={{
         marginHorizontal: layout.gutterScreen,
-        paddingTop: 44,
+        paddingTop: 26,
         paddingHorizontal: 26,
-        paddingBottom: 34,
+        paddingBottom: 32,
         backgroundColor: t.surfacePageWarm,
         borderRadius: radius.xl,
         alignItems: 'center',
-        gap: 16,
+        gap: 14,
       }}
     >
-      <Kiri pose="curled" width={200} />
+      <Kiri pose="asleep" width={280} />
       <Txt family="hand" weight={400} size="xl" leading={1} color="textAccent" align="center">
         {copy.homeShelf.emptyHand}
       </Txt>

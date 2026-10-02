@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { ScrollView, View } from 'react-native';
 
+import { Illustration } from '@/components/calico/Illustration';
 import { Icon } from '@/components/ds/Icon';
 import { Press } from '@/components/ds/Press';
 import { QueryError } from '@/components/ds/QueryError';
@@ -61,13 +62,16 @@ export default function Home() {
           paddingBottom: 16,
         }}
       >
-        <View style={{ flex: 1 }}>
-          <Txt family="hand" weight={400} size={21} leading={1} color="textAccent">
-            {greeting(new Date().getHours())}
-          </Txt>
-          <Txt family="display" weight={700} size={34} leading={1.06} style={{ letterSpacing: -0.03 * 34 }}>
-            {displayName.split(' ')[0] ?? ''}
-          </Txt>
+        <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+          <Illustration name={night ? 'moon' : 'sun'} width={40} float={7000} />
+          <View style={{ flex: 1 }}>
+            <Txt family="hand" weight={400} size={21} leading={1} color="textAccent">
+              {greeting(new Date().getHours())}
+            </Txt>
+            <Txt family="display" weight={700} size={34} leading={1.06} style={{ letterSpacing: -0.03 * 34 }}>
+              {displayName.split(' ')[0] ?? ''}
+            </Txt>
+          </View>
         </View>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
           <Press

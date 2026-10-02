@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 
+import { Illustration } from '@/components/calico/Illustration';
 import { Icon } from '@/components/ds/Icon';
 import { Press } from '@/components/ds/Press';
 import { Txt } from '@/components/ds/Txt';
@@ -37,6 +38,7 @@ export function StatsLine() {
         borderRadius: radius.lg,
       }}
     >
+      <Illustration name="mug" width={30} />
       <Txt family="ui" weight={700} size={15} tint={t.inkOnWarm} style={{ flex: 1 }}>
         {line}
       </Txt>

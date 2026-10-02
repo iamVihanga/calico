@@ -79,6 +79,9 @@ describe('auth gate', () => {
     expect(await screen.findByText('Dilan')).toBeTruthy();
     expect(await screen.findByText(copy.homeShelf.continueReading)).toBeTruthy();
     expect(await screen.findByTestId('reading-it')).toBeTruthy();
+    // design/v2: the sun by the greeting in the day theme, the bookmark on the reading card.
+    expect(screen.getByTestId('art-sun', { includeHiddenElements: true })).toBeTruthy();
+    expect(screen.getByTestId('art-bookmark', { includeHiddenElements: true })).toBeTruthy();
     expect(screen.getByTestId('tab-add')).toBeTruthy();
     expect(screen.queryByText(copy.welcome.google)).toBeNull();
   });

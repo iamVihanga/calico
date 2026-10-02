@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { Kiri } from '@/components/calico/Kiri';
 import { ScriptToggle } from '@/components/calico/ScriptToggle';
 import { Button } from '@/components/ds/Button';
 import { QueryError } from '@/components/ds/QueryError';
@@ -221,13 +222,17 @@ export default function Library() {
       <View
         style={{
           margin: layout.gutterScreen,
-          paddingVertical: 52,
+          paddingTop: 30,
           paddingHorizontal: 28,
+          paddingBottom: 36,
           backgroundColor: t.surfacePageWarm,
           borderRadius: radius.xl,
+          alignItems: 'center',
         }}
+        testID="library-empty"
       >
-        <Txt family="hand" weight={400} size="xl" color="textAccent" align="center">
+        <Kiri pose="curled" width={214} />
+        <Txt family="hand" weight={400} size="xl" color="textAccent" align="center" style={{ marginTop: 10 }}>
           {isBooks
             ? copy.library.empty[filter as keyof typeof copy.library.empty]
             : copy.library.emptyMedia[filter as keyof typeof copy.library.emptyMedia]}

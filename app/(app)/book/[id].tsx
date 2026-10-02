@@ -1,5 +1,5 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { ScrollView, TextInput, View } from 'react-native';
 import Animated, {
   Easing,
@@ -11,6 +11,7 @@ import Animated, {
 } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { Illustration } from '@/components/calico/Illustration';
 import { CoverPhoto } from '@/components/calico/CoverPhoto';
 import { coverFor } from '@/components/calico/coverPalette';
 import { coverRadius } from '@/components/calico/GeneratedCover';
@@ -41,12 +42,15 @@ import { colomboToday, fmtLong, fmtShort } from '@/lib/dates';
 import { openSheet } from '@/lib/stores/sheet';
 import { alpha, fontFamily, layout, motion, palette, radius, shadow, size, tracking, useTheme } from '@/theme';
 
-function SectionTitle({ children, aside }: { children: string; aside?: string }) {
+function SectionTitle({ children, aside, art }: { children: string; aside?: string; art?: ReactNode }) {
   return (
     <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-      <Txt family="display" weight={700} size={22} style={{ letterSpacing: -0.02 * 22 }} accessibilityRole="header">
-        {children}
-      </Txt>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 9 }}>
+        {art}
+        <Txt family="display" weight={700} size={22} style={{ letterSpacing: -0.02 * 22 }} accessibilityRole="header">
+          {children}
+        </Txt>
+      </View>
       {aside && (
         <Txt family="hand" weight={400} size="md" color="textMuted">
           {aside}
@@ -267,7 +271,7 @@ export default function BookDetailScreen() {
       </View>
 
       <View style={{ paddingTop: 26, paddingHorizontal: layout.gutterScreen }}>
-        <SectionTitle>{copy.books.history}</SectionTitle>
+        <SectionTitle art={<Illustration name="openbook" width={26} />}>{copy.books.history}</SectionTitle>
         <View
           style={{
             backgroundColor: t.surfaceCard,
@@ -423,7 +427,7 @@ function Notes({ book }: { book: BookDetail }) {
   const [text, setText] = useState(book.note ?? '');
   return (
     <View style={{ paddingTop: 26, paddingHorizontal: layout.gutterScreen }}>
-      <SectionTitle>{copy.books.notes}</SectionTitle>
+      <SectionTitle art={<Illustration name="heart" width={22} />}>{copy.books.notes}</SectionTitle>
       <TextInput
         multiline
         value={text}

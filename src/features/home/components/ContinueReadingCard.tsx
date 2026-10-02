@@ -12,6 +12,7 @@ import { copy } from '@/i18n/en';
 import { colomboToday, fmtShort } from '@/lib/dates';
 import { openSheet } from '@/lib/stores/sheet';
 import { alpha, palette, radius, shadow, useTheme } from '@/theme';
+import { Illustration } from '@/components/calico/Illustration';
 
 export const CARD_WIDTH = 336;
 
@@ -42,6 +43,7 @@ export function ContinueReadingCard({ book, logs, lead }: { book: Book; logs: Pa
         experimental_backgroundImage: `linear-gradient(165deg, ${t.panel1} 0%, ${t.panel2} 100%)`,
       }}
     >
+      <Illustration name="bookmark" width={26} style={{ position: 'absolute', right: 20, top: 0 }} />
       <Press
         accessibilityRole="button"
         accessibilityLabel={main}

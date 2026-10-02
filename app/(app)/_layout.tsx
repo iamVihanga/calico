@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { View } from 'react-native';
 
 import { OfflineBanner } from '@/components/calico/OfflineBanner';
+import { Paper } from '@/components/calico/Paper';
 import { CrashScreen } from '@/components/ds/CrashScreen';
 import { SheetHost } from '@/components/hosts/SheetHost';
 import { ToastHost } from '@/components/hosts/ToastHost';
@@ -50,6 +51,7 @@ export default function AppLayout() {
         {/* Declared here, not from inside the screen: changing presentation later remounts it. */}
         <Stack.Screen name="pick" options={{ presentation: 'transparentModal', animation: 'fade' }} />
       </Stack>
+      <Paper />
       <OfflineBanner />
       <ToastHost />
       <SheetHost />
