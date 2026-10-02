@@ -8,6 +8,8 @@ const config: ExpoConfig = {
   slug: 'calico',
   scheme: 'calico',
   version: '1.0.0',
+  // Android only: keeps `eas update` / `expo export` from also bundling web (react-native-web isn't installed).
+  platforms: ['android'],
   orientation: 'portrait',
   userInterfaceStyle: 'automatic',
   icon: './assets/images/icon.png',
