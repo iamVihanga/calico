@@ -12,7 +12,7 @@ import type { Show, ShowProgress } from '@/features/media/types';
 import { useShowMarker } from '@/features/media/useShowMarker';
 import { copy } from '@/i18n/en';
 import { colomboToday, fmtDay } from '@/lib/dates';
-import { alpha, layout, palette, radius, shadow, size, tracking, useTheme } from '@/theme';
+import { alpha, layout, motion, palette, radius, shadow, size, tracking, useTheme } from '@/theme';
 
 /** One Watching show with an episode to watch (prototype homeV `watchTitle` / `markWatched`). */
 function WatchCard({ show, row }: { show: Show; row: ShowProgress }) {
@@ -20,9 +20,11 @@ function WatchCard({ show, row }: { show: Show; row: ShowProgress }) {
   const live = useProgress(show); // advances instantly after the tick
   const marker = useShowMarker(show);
   const next = live ? live.next : row.next;
-  const backdrop = tmdbImage(show.backdropPath, 'w780');
   if (!next) return null;
   const code = epCode(next.season, next.episode);
+  // The next episode's still when TMDB has one, else the show's backdrop.
+  const still = tmdbImage(next.stillPath, 'original');
+  const image = still ?? tmdbImage(show.backdropPath, 'w780');
   const open = () => router.push(`/show/${show.id}`);
 
   return (
@@ -43,9 +45,16 @@ function WatchCard({ show, row }: { show: Show; row: ShowProgress }) {
           experimental_backgroundImage: `linear-gradient(140deg, ${palette.fern}, ${palette.ink})`,
         }}
       >
-        {backdrop && (
+        {image && (
           <>
-            <Image source={{ uri: backdrop }} cachePolicy="disk" contentFit="cover" style={StyleSheet.absoluteFill} />
+            <Image
+              source={{ uri: image }}
+              cachePolicy="disk"
+              contentFit="cover"
+              transition={motion.duration.base}
+              style={StyleSheet.absoluteFill}
+              testID={still ? `watching-still-${show.id}` : undefined}
+            />
             <View
               style={[
                 StyleSheet.absoluteFill,
@@ -76,6 +85,17 @@ function WatchCard({ show, row }: { show: Show; row: ShowProgress }) {
               {show.network}
             </Txt>
           </View>
+        )}
+        {still && (
+          <Txt
+            family="ui"
+            weight={700}
+            size="3xs"
+            tint={palette.cream}
+            style={{ letterSpacing: tracking.wide * size['3xs'], marginBottom: 2 }}
+          >
+            {code}
+          </Txt>
         )}
         <Txt family="display" weight={700} size={20} leading={1.15} tint={palette.cream}>
           {show.title}

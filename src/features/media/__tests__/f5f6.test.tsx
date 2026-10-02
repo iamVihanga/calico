@@ -18,7 +18,7 @@ const ep = (season: number, episode: number, name: string, daysAgo: number | nul
   episode,
   name,
   airDate: daysAgo === null ? null : addLocalDays(today, -daysAgo),
-  stillPath: null,
+  stillPath: `/s${season}e${episode}.jpg`,
   voteAverage: 8.1,
   runtimeMin: 60,
 });
@@ -262,6 +262,10 @@ describe('F5: add a show and watch the next episode', () => {
     await act(async () => router.navigate('/'));
     const id = mockDb.shows[0]!.id;
     await waitFor(() => expect(screen.getByTestId(`watching-ep-${id}`)).toHaveTextContent('S2 E5  Regent'));
+    // The next episode's still, not the show's backdrop.
+    expect(screen.getByTestId(`watching-still-${id}`).props.source).toEqual([
+      { uri: 'https://image.tmdb.org/t/p/original/s2e5.jpg' },
+    ]);
     await act(async () => {
       await fireEvent.press(screen.getByTestId(`watching-tick-${id}`));
     });

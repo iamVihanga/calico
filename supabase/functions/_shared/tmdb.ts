@@ -211,6 +211,9 @@ export function showPatch(s: TmdbShow, now: Date) {
   };
 }
 
-/** Posters w342, backdrops w780, stills w300, loaded straight from TMDB (never re-hosted). */
-export const tmdbImage = (path: string | null | undefined, size: 'w342' | 'w780' | 'w300' | 'w185') =>
+/**
+ * Posters w342, backdrops w780, stills w300, loaded straight from TMDB (never re-hosted). Stills only
+ * come in w92/w185/w300/original, so a full-width still uses `original`.
+ */
+export const tmdbImage = (path: string | null | undefined, size: 'w342' | 'w780' | 'w300' | 'w185' | 'original') =>
   path ? `https://image.tmdb.org/t/p/${size}${path}` : null;
