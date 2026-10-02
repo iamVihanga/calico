@@ -653,6 +653,7 @@ export const en = {
     slow: 'Taking longer than usual. You can fill it in yourself.',
     fillMyself: 'Fill in myself',
     aiFailed: "Couldn't read this cover. Fill in the details, or try a sharper photo.",
+    aiDown: "The cover reader isn't available right now. Fill it in yourself — your photo is kept as the cover.",
     dailyLimit: "You've used today's 30 cover reads. They reset at midnight. Barcode scanning still works.",
     offline: "You're offline. The photo is saved and details will be read when you're back online.",
     addBack: '+ Add back cover',

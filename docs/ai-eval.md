@@ -2,7 +2,7 @@
 
 Phase 3 is done when 20 real covers have been read on a device (at least 10 of them Sinhala) and the
 results are recorded here (build plan §13, Phase 3). The results decide whether `GEMINI_MODEL` stays
-`gemini-3.6-flash` (§ Decisions).
+`gemini-flash-latest` by default, or whatever the `GEMINI_MODEL` secret names (§ Decisions).
 
 ## How to run it
 

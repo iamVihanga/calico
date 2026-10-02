@@ -47,7 +47,7 @@ supabase secrets set GEMINI_API_KEY=… CONTACT_EMAIL=… TMDB_READ_TOKEN=… CR
 | Secret                 | Used by                 | Notes                                            |
 | ---------------------- | ----------------------- | ------------------------------------------------ |
 | `GEMINI_API_KEY`       | `extract-book`          | required                                         |
-| `GEMINI_MODEL`         | `extract-book`          | default `gemini-3.6-flash`                       |
+| `GEMINI_MODEL`         | `extract-book`          | default `gemini-flash-latest` (Google's alias)   |
 | `AI_DAILY_LIMIT`       | `extract-book`          | cover reads per user per Colombo day, default 30 |
 | `GOOGLE_BOOKS_API_KEY` | `isbn-lookup`           | optional (higher quota)                          |
 | `CONTACT_EMAIL`        | `isbn-lookup`           | sent in the Open Library `User-Agent`            |

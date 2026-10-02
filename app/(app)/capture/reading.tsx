@@ -71,9 +71,14 @@ export default function Reading() {
         if (code === 'daily_limit') {
           capture().patch({ error: 'daily_limit', resetsAt: e instanceof ExtractError ? e.resetsAt : null });
           toast({ message: copy.capture.dailyLimit });
-        } else {
-          capture().patch({ error: 'ai_failed' });
+        } else if (code === 'ai_unreadable') {
+          // Gemini answered but couldn't make out the cover: a sharper photo may help.
+          capture().patch({ error: 'ai_unreadable' });
           toast({ message: copy.capture.aiFailed });
+        } else {
+          // The service itself failed (logged by the extract-book function): not the photo's fault.
+          capture().patch({ error: 'ai_failed' });
+          toast({ message: copy.capture.aiDown });
         }
         toReview();
       } finally {

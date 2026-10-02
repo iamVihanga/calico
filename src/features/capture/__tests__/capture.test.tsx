@@ -157,6 +157,22 @@ describe('F1: snap the cover', () => {
     expect(screen.queryByLabelText(copy.capture.aiBadge)).toBeNull();
   });
 
+  it('says the reader is down (not the photo) when the AI service fails', async () => {
+    photographed();
+    mockExtract.mockRejectedValue(new ExtractError('ai_failed'));
+    await renderRouter('./app', { initialUrl: '/capture/reading' });
+    expect(await screen.findByTestId('screen-review')).toBeTruthy();
+    expect(await screen.findByText(copy.capture.aiDown)).toBeTruthy();
+    expect(screen.queryByText(copy.capture.aiFailed)).toBeNull();
+  });
+
+  it('suggests a sharper photo when the cover was unreadable', async () => {
+    photographed();
+    mockExtract.mockRejectedValue(new ExtractError('ai_unreadable'));
+    await renderRouter('./app', { initialUrl: '/capture/reading' });
+    expect(await screen.findByText(copy.capture.aiFailed)).toBeTruthy();
+  });
+
   it('saves a draft and returns home when offline', async () => {
     const id = photographed();
     onlineManager.setOnline(false);
