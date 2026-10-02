@@ -276,6 +276,8 @@ describe('F6: movie rewatch, and the franchise offer', () => {
 
   it('shows a loading state while TMDB is searched, then the results', async () => {
     await renderRouter('./app', { initialUrl: '/tmdb?type=movie' });
+    // design/v2: Kiri with her magnifying glass over "type at least two characters".
+    expect(await screen.findByLabelText(copy.art.magnifier)).toBeTruthy();
     await fireEvent.changeText(await screen.findByTestId('tmdb-query'), 'it');
     expect(screen.getByLabelText(copy.tmdb.searching)).toBeTruthy();
     expect(screen.queryByText(copy.tmdb.typeMore)).toBeNull();

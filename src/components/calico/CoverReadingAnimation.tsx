@@ -1,91 +1,45 @@
-import { Image } from 'expo-image';
 import { useEffect, useState } from 'react';
 import { View } from 'react-native';
-import Animated, {
-  Easing,
-  FadeInUp,
-  useAnimatedStyle,
-  useReducedMotion,
-  useSharedValue,
-  withRepeat,
-  withTiming,
-} from 'react-native-reanimated';
+import Animated, { FadeInUp, useReducedMotion } from 'react-native-reanimated';
 
 import { Txt } from '@/components/ds/Txt';
 import { copy } from '@/i18n/en';
-import { radius, shadow, useTheme } from '@/theme';
+import { radius, useTheme } from '@/theme';
 
-import { coverRadius } from './GeneratedCover';
+import { Illustration } from './Illustration';
 
 export const FIELD_STAGGER_MS = 120;
 const STEP_MS = 900;
-const COVER = { w: 100, h: 150 };
+const CAT = 138;
 
 export type ReadingField = { label: string; value: string };
 
 type Props = {
-  /** Local uri of the cropped cover. */
-  cover: string | null;
   /** Empty while waiting; values fill in one at a time once they arrive. */
   fields: ReadingField[];
   done: boolean;
 };
 
 /**
- * "Reading the cover" (plan §6.2, brief §7.5.3): the cover sits top-left with a scan line passing over
- * it, the status line cycles, then the fields fill one at a time (120ms stagger), lifting into place.
+ * "Reading the cover" (design/v2 `reading`): Kiri with her magnifying glass, dots bobbing beside her,
+ * the status line cycles, then the fields fill one at a time (120ms stagger), lifting into place.
  */
-export function CoverReadingAnimation({ cover, fields, done }: Props) {
+export function CoverReadingAnimation({ fields, done }: Props) {
   const { t } = useTheme();
   const reduced = useReducedMotion();
   const [step, setStep] = useState(0);
-  const scan = useSharedValue(0);
-
-  useEffect(() => {
-    if (reduced) return;
-    scan.value = withRepeat(withTiming(1, { duration: 1200, easing: Easing.linear }), done ? 1 : -1, false);
-  }, [scan, reduced, done]);
-
   useEffect(() => {
     if (done) return;
     const id = setInterval(() => setStep((s) => Math.min(s + 1, copy.capture.readingSteps.length - 1)), STEP_MS);
     return () => clearInterval(id);
   }, [done]);
 
-  const line = useAnimatedStyle(() => ({ transform: [{ translateY: scan.value * (COVER.h - 4) }] }));
-
   return (
     <View>
       <View style={{ flexDirection: 'row', gap: 18, alignItems: 'flex-start' }}>
-        <View
-          style={[
-            {
-              width: COVER.w,
-              height: COVER.h,
-              overflow: 'hidden',
-              backgroundColor: t.surfaceSunk,
-              boxShadow: shadow.cover,
-            },
-            coverRadius,
-          ]}
-        >
-          {cover && <Image source={{ uri: cover }} style={{ width: '100%', height: '100%' }} contentFit="cover" />}
-          {!reduced && (
-            <Animated.View
-              style={[
-                {
-                  position: 'absolute',
-                  left: 0,
-                  right: 0,
-                  top: 0,
-                  height: 4,
-                  opacity: 0.9,
-                  backgroundColor: t.accentSecondary,
-                },
-                line,
-              ]}
-            />
-          )}
+        <View style={{ width: CAT }}>
+          <Illustration name="cat-magnifier" width={CAT} accessibilityLabel={copy.art.magnifier} />
+          <Illustration name="dots" width={38} float={2400} style={{ position: 'absolute', right: -6, top: 4 }} />
         </View>
         <View style={{ flex: 1, minWidth: 0, paddingTop: 6 }} accessibilityLiveRegion="polite">
           <Txt family="hand" weight={400} size="lg" color="textAccent">

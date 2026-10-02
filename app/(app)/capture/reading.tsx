@@ -18,7 +18,6 @@ import { layout, radius, useTheme } from '@/theme';
 export default function Reading() {
   const { t } = useTheme();
   const insets = useSafeAreaInsets();
-  const front = useCaptureStore((s) => s.front);
   const extraction = useCaptureStore((s) => s.extraction);
   const [slow, setSlow] = useState(false);
   const [done, setDone] = useState(false);
@@ -102,7 +101,7 @@ export default function Reading() {
       contentContainerStyle={{ paddingTop: insets.top + 22, paddingHorizontal: layout.gutterScreen, paddingBottom: 40 }}
       testID="screen-reading"
     >
-      <CoverReadingAnimation cover={front} fields={fields} done={done} />
+      <CoverReadingAnimation fields={fields} done={done} />
       {slow && !done && (
         <View style={{ marginTop: 24, padding: 16, backgroundColor: t.statusWarningSoft, borderRadius: radius.lg }}>
           <Txt family="ui" size={14} tint={t.inkOnWarm}>

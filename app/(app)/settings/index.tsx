@@ -5,6 +5,7 @@ import { Linking, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { AvatarFace } from '@/features/profile/AvatarFace';
+import { Illustration } from '@/components/calico/Illustration';
 import { Button } from '@/components/ds/Button';
 import { IconButton } from '@/components/ds/IconButton';
 import { Press } from '@/components/ds/Press';
@@ -248,6 +249,18 @@ export default function Settings() {
         </Press>
         <Txt family="ui" size="2xs" color="textMuted" align="center" style={{ marginTop: 12 }}>
           {copy.account.deleteHint}
+        </Txt>
+      </View>
+
+      <View style={{ alignItems: 'center', gap: 7, paddingTop: 36, paddingHorizontal: 20 }} testID="settings-about">
+        <View style={{ borderRadius: 16, overflow: 'hidden', boxShadow: shadow.sm }}>
+          <Illustration name="app-icon" width={54} accessibilityLabel={copy.art.appIcon} />
+        </View>
+        <Txt family="display" weight={700} size={18} style={{ letterSpacing: -0.02 * 18 }}>
+          {copy.settings.aboutName(Constants.expoConfig?.version ?? '')}
+        </Txt>
+        <Txt family="hand" weight={400} size={19} leading={1} color="textMuted">
+          {copy.settings.madeFor}
         </Txt>
       </View>
     </ScrollView>

@@ -16,6 +16,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { coverFor } from '@/components/calico/coverPalette';
 import { ItemCover } from '@/components/calico/ItemCover';
+import { Illustration } from '@/components/calico/Illustration';
 import { Kiri } from '@/components/calico/Kiri';
 import { Button } from '@/components/ds/Button';
 import { Press } from '@/components/ds/Press';
@@ -135,6 +136,11 @@ export default function Pick() {
         </View>
       ) : phase !== 'reveal' ? (
         <View style={{ alignItems: 'center' }} accessibilityLiveRegion="polite">
+          <Illustration
+            name="cat-loaf"
+            width={188}
+            style={{ marginBottom: 22, filter: 'drop-shadow(0 12px 24px rgba(10,18,15,0.5))' }}
+          />
           <View style={{ width: 200, height: 280 }}>
             {Array.from({ length: DECK }, (_, i) => (
               <DeckCard key={`${round}-${i}`} i={i} phase={phase} tone={t.cover[i % t.cover.length]!} />
@@ -273,6 +279,8 @@ function Reveal({
         >
           <ItemCover item={item} width={174} titleSize={19} />
         </Animated.View>
+        <Illustration name="strokes" width={46} style={{ position: 'absolute', left: -44, top: -18 }} />
+        <Illustration name="heart" width={34} style={{ position: 'absolute', right: -34, bottom: 14 }} />
       </View>
       <View style={{ alignItems: 'center' }} accessible accessibilityLiveRegion="polite">
         <Txt family="display" weight={700} size={24} align="center" tint={t.textInverse} testID="pick-title">

@@ -53,7 +53,7 @@ export function FinishSheetBody({ itemId, onClose }: Props) {
   return (
     <View style={{ gap: 10 }}>
       <View style={{ alignItems: 'center', paddingVertical: 6 }}>
-        <Kiri pose="stretch" width={132} />
+        <Kiri pose="stretch" width={218} />
       </View>
       <Txt family="hand" weight={400} size={22} leading={1} color="textAccent">
         {copy.finish.hand}

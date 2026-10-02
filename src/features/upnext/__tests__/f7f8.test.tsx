@@ -163,6 +163,7 @@ describe('F7: build the "Stephen King" collection', () => {
 
   it('+ New → name → Add items now → pick → Done; then drag The Shining onto the chip', async () => {
     await renderRouter('./app', { initialUrl: '/collections' });
+    expect(await screen.findByTestId('collection-new-tile')).toBeTruthy();
     await fireEvent.press(await screen.findByTestId('collections-new'));
     await fireEvent.changeText(await screen.findByTestId('collection-name'), 'Stephen King');
     await act(async () => {
@@ -254,6 +255,7 @@ describe('F8: reorder Up next and pick', () => {
     jest.spyOn(Math, 'random').mockReturnValue(0.35); // index 3 of the top ten: Gamperaliya
     await fireEvent.press(screen.getByTestId('pick-for-me'));
     expect(await screen.findByText(copy.pick.shuffling)).toBeTruthy();
+    expect(screen.getByTestId('art-cat-loaf', { includeHiddenElements: true })).toBeTruthy();
     // Shuffle (1s) → paw (0.5s) → reveal.
     await act(async () => {
       jest.advanceTimersByTime(1000);

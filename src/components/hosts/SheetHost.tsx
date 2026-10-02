@@ -1,3 +1,4 @@
+import { Illustration } from '@/components/calico/Illustration';
 import { Sheet } from '@/components/ds/Sheet';
 import {
   ChangeCoverSheetBody,
@@ -49,6 +50,7 @@ export function SheetHost() {
         onClose={closer('add')}
         hand={copy.add.hand}
         title={copy.add.title}
+        art={<Illustration name="flower" width={34} />}
         testID="sheet-add"
       >
         <AddSheetBody onClose={closer('add')} />

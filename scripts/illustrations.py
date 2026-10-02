@@ -34,16 +34,19 @@ def display_widths() -> dict[str, int]:
 
 
 def paper_tiles() -> None:
-    """The prototype's paper fleck: a 0.5dp dot every 4dp (`--fleck`). Saved @3x so React Native tiles it
-    every 4dp. Day: ink at 4%; night: cream at 5%."""
-    size, ss = 12, 8  # 4dp at 3x, drawn 8x supersampled
+    """The prototype's paper fleck: a 0.5dp dot every 4dp (`--fleck`). Saved at 1x/2x/3x so React Native
+    picks the phone's density and tiles it every 4dp. Day: ink at 4%; night: cream at 5%."""
+    ss = 8  # supersampling
     for name, rgba in [('paper-day', (28, 23, 20, 10)), ('paper-night', (230, 240, 233, 13))]:
-        big = Image.new('RGBA', (size * ss, size * ss), (0, 0, 0, 0))
-        r = 1.5 * ss  # 0.5dp at 3x
-        c = size * ss / 2
-        ImageDraw.Draw(big).ellipse((c - r, c - r, c + r, c + r), fill=rgba)
-        big.resize((size, size), Image.LANCZOS).save(OUT / f'{name}@3x.png')
-        print(f'{name}@3x.png  {size}x{size}')
+        for scale in (1, 2, 3):
+            size = 4 * scale
+            big = Image.new('RGBA', (size * ss, size * ss), (0, 0, 0, 0))
+            r = 0.5 * scale * ss
+            c = size * ss / 2
+            ImageDraw.Draw(big).ellipse((c - r, c - r, c + r, c + r), fill=rgba)
+            suffix = '' if scale == 1 else f'@{scale}x'
+            big.resize((size, size), Image.LANCZOS).save(OUT / f'{name}{suffix}.png')
+        print(f'{name}.png @1x/2x/3x')
 
 
 def main() -> None:

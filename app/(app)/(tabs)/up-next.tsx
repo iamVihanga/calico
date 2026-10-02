@@ -15,6 +15,7 @@ import type { QueueEntry } from '@/features/books/api';
 import { type QueueRow, useMoveInQueue, useQueue, useRemoveFromQueue } from '@/features/upnext/hooks';
 import { byPosition, keyForMove, PICK_POOL } from '@/features/upnext/logic';
 import { PickButton } from '@/features/upnext/PickButton';
+import { Illustration } from '@/components/calico/Illustration';
 import { QueueRowView } from '@/features/upnext/QueueRowView';
 import { useShake } from '@/features/upnext/shake';
 import { copy } from '@/i18n/en';
@@ -86,12 +87,21 @@ export default function UpNext() {
           style={{
             marginHorizontal: layout.gutterScreen,
             marginVertical: 8,
-            paddingVertical: 52,
+            paddingTop: 26,
             paddingHorizontal: 28,
+            paddingBottom: 34,
             backgroundColor: t.surfacePageWarm,
             borderRadius: radius.xl,
+            alignItems: 'center',
           }}
+          testID="upnext-empty"
         >
+          <Illustration
+            name="open-book-world"
+            width={232}
+            accessibilityLabel={copy.art.openBookWorld}
+            style={{ marginBottom: 6 }}
+          />
           <Txt family="hand" weight={400} size="xl" color="textMuted" align="center">
             {copy.upNext.empty}
           </Txt>

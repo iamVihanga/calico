@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { RefreshControl, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { Illustration } from '@/components/calico/Illustration';
 import { IconButton } from '@/components/ds/IconButton';
 import { QueryError } from '@/components/ds/QueryError';
 import { Select } from '@/components/ds/Select';
@@ -53,7 +54,22 @@ export default function YourYear() {
           options={years.map((y) => ({ value: y, label: y }))}
         />
       </View>
+      <View
+        style={{
+          height: 178,
+          marginTop: 16,
+          marginHorizontal: layout.gutterScreen,
+          borderRadius: radius.xl,
+          backgroundColor: t.surfacePageWarm,
+          overflow: 'hidden',
+          alignItems: 'center',
+          justifyContent: 'flex-end',
+        }}
+      >
+        <Illustration name="desk-scene" width={300} accessibilityLabel={copy.art.desk} style={{ marginBottom: -6 }} />
+      </View>
       <View style={{ paddingTop: 20, paddingHorizontal: layout.gutterScreen }}>
+        <Illustration name="stack" width={62} style={{ position: 'absolute', right: layout.gutterScreen, top: 30 }} />
         <Txt family="hand" weight={400} size={22} leading={1} color="textAccent">
           {copy.year.hand}
         </Txt>

@@ -13,7 +13,8 @@ import { Portal } from './Portal';
 import { InSheetContext } from './TextField';
 import { Txt } from './Txt';
 
-type HeaderProps = { title?: string; hand?: string };
+/** `art`: a small illustration beside the header (design/v2's Add sheet flower). */
+type HeaderProps = { title?: string; hand?: string; art?: ReactNode };
 
 type PanelProps = HeaderProps & {
   children?: ReactNode;
@@ -21,10 +22,10 @@ type PanelProps = HeaderProps & {
   style?: StyleProp<ViewStyle>;
 };
 
-function SheetHeader({ title, hand }: HeaderProps) {
+function SheetHeader({ title, hand, art }: HeaderProps) {
   if (!title && !hand) return null;
-  return (
-    <View style={{ gap: 4 }}>
+  const text = (
+    <View style={{ gap: 4, flex: art ? 1 : undefined }}>
       {hand && (
         <Txt family="hand" weight={400} size="lg" leading={1} color="textAccent">
           {hand}
@@ -37,12 +38,19 @@ function SheetHeader({ title, hand }: HeaderProps) {
       )}
     </View>
   );
+  if (!art) return text;
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'flex-start', gap: 12 }}>
+      <View style={{ marginTop: 2 }}>{art}</View>
+      {text}
+    </View>
+  );
 }
 
-function SheetBody({ title, hand, children, actions }: PanelProps) {
+function SheetBody({ title, hand, art, children, actions }: PanelProps) {
   return (
     <View style={{ gap: space[5], paddingHorizontal: layout.gutterScreen, paddingTop: space[3] }}>
-      <SheetHeader title={title} hand={hand} />
+      <SheetHeader title={title} hand={hand} art={art} />
       {children}
       {actions && <View style={{ gap: space[3] }}>{actions}</View>}
     </View>

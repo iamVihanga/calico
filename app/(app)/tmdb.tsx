@@ -12,6 +12,7 @@ import { Press } from '@/components/ds/Press';
 import { SearchField } from '@/components/ds/SearchField';
 import { SegmentedControl } from '@/components/ds/SegmentedControl';
 import { SkeletonRows } from '@/components/ds/Skeleton';
+import { Illustration } from '@/components/calico/Illustration';
 import { Txt } from '@/components/ds/Txt';
 import { useAddFromTmdb } from '@/features/media/add';
 import { searchTmdb } from '@/features/media/api';
@@ -162,12 +163,21 @@ export default function TmdbSearch() {
             style={{
               marginHorizontal: layout.gutterScreen,
               marginVertical: 8,
-              paddingVertical: 44,
+              paddingTop: 24,
               paddingHorizontal: 26,
+              paddingBottom: 32,
               backgroundColor: t.surfacePageWarm,
               borderRadius: radius.xl,
+              alignItems: 'center',
             }}
+            testID="tmdb-empty"
           >
+            <Illustration
+              name="cat-magnifier"
+              width={172}
+              accessibilityLabel={copy.art.magnifier}
+              style={{ marginBottom: 8 }}
+            />
             <Txt family="hand" weight={400} size="xl" color="textMuted" align="center">
               {emptyCopy}
             </Txt>

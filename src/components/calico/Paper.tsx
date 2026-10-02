@@ -3,8 +3,8 @@ import { Image, StyleSheet, View } from 'react-native';
 import { useTheme } from '@/theme';
 
 const tiles = {
-  day: require('../../../assets/illustrations/paper-day@3x.png'),
-  night: require('../../../assets/illustrations/paper-night@3x.png'),
+  day: require('../../../assets/illustrations/paper-day.png'),
+  night: require('../../../assets/illustrations/paper-night.png'),
 };
 
 /**

@@ -203,6 +203,8 @@ export const en = {
     privacy: 'Privacy policy',
     terms: 'Terms',
     version: 'App version',
+    aboutName: (version: string) => `Calico ${version}`.trim(),
+    madeFor: 'made for slow readers',
     save: 'Save',
     goalHint: "Books you'd like to finish this year",
     goalClear: 'No goal',

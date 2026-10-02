@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
+import { Illustration } from '@/components/calico/Illustration';
 import { ItemCover } from '@/components/calico/ItemCover';
 import { MediaShapeIcon } from '@/components/calico/MediaShapeIcon';
 import { Icon, type IconName } from '@/components/ds/Icon';
@@ -258,7 +259,20 @@ export default function Search() {
 
         {none && (
           <View style={{ paddingHorizontal: layout.gutterScreen, gap: 10 }}>
-            <Txt family="hand" weight={400} size={21} color="textMuted" style={{ paddingTop: 10, paddingBottom: 8 }}>
+            <Illustration
+              name="cat-scatter"
+              width={230}
+              accessibilityLabel={copy.art.scatter}
+              style={{ alignSelf: 'center', marginTop: 6 }}
+            />
+            <Txt
+              family="hand"
+              weight={400}
+              size={21}
+              color="textMuted"
+              align="center"
+              style={{ paddingTop: 4, paddingBottom: 8 }}
+            >
               {copy.globalSearch.nothing(q)}
             </Txt>
             {action(

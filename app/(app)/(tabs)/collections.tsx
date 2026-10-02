@@ -1,6 +1,7 @@
 import { router } from 'expo-router';
 import { View } from 'react-native';
 
+import { Illustration } from '@/components/calico/Illustration';
 import { CollectionMosaic, MediaCountDot } from '@/components/calico/CollectionMosaic';
 import { Press } from '@/components/ds/Press';
 import { QueryError } from '@/components/ds/QueryError';
@@ -101,6 +102,35 @@ export default function Collections() {
             </Press>
           );
         })}
+        {collections.isSuccess && (
+          <Press
+            accessibilityRole="button"
+            accessibilityLabel={copy.collections.newTitle}
+            testID="collection-new-tile"
+            onPress={() => openSheet('newCollection', {})}
+            style={{
+              width: '47%',
+              aspectRatio: 1,
+              alignItems: 'center',
+              justifyContent: 'flex-end',
+              gap: 8,
+              paddingTop: 12,
+              paddingHorizontal: 8,
+              paddingBottom: 14,
+              backgroundColor: t.surfacePageWarm,
+              borderWidth: 1,
+              borderStyle: 'dashed',
+              borderColor: t.borderStrong,
+              borderRadius: radius.lg,
+              overflow: 'hidden',
+            }}
+          >
+            <Illustration name="bookshelf" width={92} />
+            <Txt family="ui" weight={700} size={13} color="textSecondary">
+              {copy.collections.newTitle}
+            </Txt>
+          </Press>
+        )}
       </View>
     </TabScreen>
   );
