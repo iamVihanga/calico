@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { View } from 'react-native';
 
+import { DayChooser } from '@/components/calico/DayChooser';
 import { Button } from '@/components/ds/Button';
 import { Icon } from '@/components/ds/Icon';
 import { Input } from '@/components/ds/Input';
@@ -20,7 +21,7 @@ import { toast } from '@/lib/stores/toast';
 import { radius, shadow, useTheme } from '@/theme';
 
 import type { LoanKind } from '../api';
-import { useAddLoan, useRenew, useReturn } from '../hooks';
+import { useAddLoan, useRenew, useReturn, useSetBorrowedOn } from '../hooks';
 import { DEFAULT_RENEW, LOAN_DUE_CHOICES, renewOptions } from '../logic';
 import { requestReminderSync } from '../reminders';
 
@@ -188,6 +189,7 @@ export function LoanFormSheetBody({ itemId, onClose }: Props) {
   const [kind, setKind] = useState<LoanKind>(book?.ownership === 'owned' ? 'lent' : 'library');
   const [party, setParty] = useState(kind === 'library' ? (profile?.default_library ?? '') : '');
   const [dueDays, setDueDays] = useState<number | null>(kind === 'library' ? defaultDays : null);
+  const [borrowedOn, setBorrowedOn] = useState(today);
   const [error, setError] = useState<string | undefined>();
   if (!book) return null;
 
@@ -204,8 +206,8 @@ export function LoanFormSheetBody({ itemId, onClose }: Props) {
       setError(copy.loanForm.needParty);
       return;
     }
-    const dueOn = dueDays === null ? null : addLocalDays(today, dueDays);
-    add.mutate({ id: newId(), itemId, kind, party: name, borrowedOn: today, dueOn });
+    const dueOn = dueDays === null ? null : addLocalDays(borrowedOn, dueDays);
+    add.mutate({ id: newId(), itemId, kind, party: name, borrowedOn, dueOn });
     onClose();
     toast({ message: copy.loanForm.saved(name) });
     if (kind === 'library' && !profile?.default_library) updateProfile.mutate({ default_library: name });
@@ -241,9 +243,10 @@ export function LoanFormSheetBody({ itemId, onClose }: Props) {
           {kind === 'lent' ? copy.loanForm.lentOn : copy.loanForm.borrowed}
         </Txt>
         <Txt family="ui" weight={600} size="xs" color="textSecondary">
-          {copy.review.todayDate(fmtShort(today))}
+          {borrowedOn === today ? copy.review.todayDate(fmtShort(today)) : fmtShort(borrowedOn)}
         </Txt>
       </View>
+      <DayChooser value={borrowedOn} onChange={setBorrowedOn} testID="loan-borrowed" />
       <View style={{ gap: 8 }}>
         <Txt role="label" size={10} color="textMuted">
           {kind === 'library' ? copy.loanForm.due : copy.loanForm.dueOptional}
@@ -262,12 +265,41 @@ export function LoanFormSheetBody({ itemId, onClose }: Props) {
         </View>
         {dueDays !== null && (
           <Txt family="ui" size="2xs" tint={t.textMuted}>
-            {fmtShort(addLocalDays(today, dueDays))}
+            {fmtShort(addLocalDays(borrowedOn, dueDays))}
           </Txt>
         )}
       </View>
       <Button variant="accent" size="lg" block onPress={save} testID="loan-save">
         {copy.loanForm.save}
+      </Button>
+    </View>
+  );
+}
+
+/** Borrowed earlier than the loan says (added late): move the start, not past the due date. */
+export function BorrowedOnSheetBody({ itemId, onClose }: Props) {
+  const book = useBook(itemId).data;
+  const setOn = useSetBorrowedOn();
+  const [on, setDay] = useState(book?.loan?.borrowedOn ?? colomboToday());
+  const loan = book?.loan;
+  if (!loan) return null;
+  return (
+    <View style={{ gap: 16 }}>
+      <Title>{loan.direction === 'lent' ? copy.loanForm.lentOn : copy.borrowedOn.title}</Title>
+      <DayChooser value={on} onChange={setDay} max={loan.dueOn ?? undefined} testID="borrowed-on" />
+      <Button
+        variant="accent"
+        size="lg"
+        block
+        testID="borrowed-on-save"
+        disabled={on === loan.borrowedOn}
+        onPress={() => {
+          setOn.mutate({ loanId: loan.id, itemId, on });
+          onClose();
+          toast({ message: copy.borrowedOn.changed(fmtShort(on)) });
+        }}
+      >
+        {copy.borrowedOn.save}
       </Button>
     </View>
   );

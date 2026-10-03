@@ -79,6 +79,11 @@ export const useReopenLoan = () =>
     ownership: v.loan.direction === 'borrowed' ? (v.ownership ?? 'library') : b.ownership,
   }));
 
+export const useSetBorrowedOn = () =>
+  useLoanMutation<api.BorrowedOnVars>(mk.loanBorrowedOn, (v, b) =>
+    b.loan ? { loan: { ...b.loan, borrowedOn: v.on } } : {},
+  );
+
 /** Renew with the stamp "thunk" and "Renewed until 21 Oct" (brief §12: the message repeats the verb). */
 export function useRenew() {
   const renew = useRenewLoan();

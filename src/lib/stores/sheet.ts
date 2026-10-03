@@ -16,6 +16,7 @@ export type SheetParams = {
   renew: { itemId: string };
   loanQuick: { itemId: string };
   loanForm: { itemId: string };
+  borrowedOn: { itemId: string };
   notif: undefined;
   tmdbPreview: {
     tmdbId: number;

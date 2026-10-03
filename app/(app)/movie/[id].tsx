@@ -155,8 +155,10 @@ export default function MovieDetail() {
           ref={stack}
           viewings={movie.viewings.map((v) => ({
             id: v.id,
-            date:
-              v.watchedOn.slice(0, 4) === new Date().getFullYear().toString()
+            // Added "a while ago": the save date isn't when it was watched.
+            date: v.backfilled
+              ? copy.when.past
+              : v.watchedOn.slice(0, 4) === new Date().getFullYear().toString()
                 ? fmtDay(v.watchedOn)
                 : fmtLong(v.watchedOn),
             rating: v.rating,

@@ -4,7 +4,14 @@ export type MovieStatus = 'watchlist' | 'watched' | 'dropped';
 export type ShowStatus = 'watchlist' | 'watching' | 'watched' | 'dropped';
 export type MediaStatus = MovieStatus | ShowStatus;
 
-export type Viewing = { id: string; watchedOn: string; rating: number | null; note: string | null };
+export type Viewing = {
+  id: string;
+  watchedOn: string;
+  rating: number | null;
+  note: string | null;
+  /** Watched "a while ago" (not counted in period stats). */
+  backfilled?: boolean;
+};
 
 type MediaBase = {
   id: string;

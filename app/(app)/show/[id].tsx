@@ -79,7 +79,7 @@ function ShowBody({ show }: { show: Show }) {
     [expanded],
   );
   const onToggleEpisode = useCallback((e: Episode) => marker.toggle(e), [marker]);
-  const onFillSeason = useCallback((s: Season) => void marker.fillSeason(s), [marker]);
+  const onFillSeason = useCallback((s: Season, backfill: boolean) => void marker.fillSeason(s, backfill), [marker]);
   const onClearSeason = useCallback((s: Season) => void marker.clearSeason(s), [marker]);
   const onOpenEpisode = useCallback(
     (e: Episode) => openSheet('episode', { itemId: show.id, season: e.season, episode: e.episode }),

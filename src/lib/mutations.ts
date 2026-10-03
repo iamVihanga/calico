@@ -28,10 +28,12 @@ export const mk = {
   loanRenew: ['loans', 'renew'] as const,
   loanReturn: ['loans', 'return'] as const,
   loanReopen: ['loans', 'reopen'] as const,
+  loanBorrowedOn: ['loans', 'borrowedOn'] as const,
   mediaAdd: ['media', 'add'] as const,
   mediaViewing: ['media', 'viewing'] as const,
   mediaMarkEpisodes: ['media', 'markEpisodes'] as const,
   mediaMarkSeason: ['media', 'markSeason'] as const,
+  mediaMarkShow: ['media', 'markShow'] as const,
   mediaStatus: ['media', 'status'] as const,
   collectionCreate: ['collections', 'create'] as const,
   upNextMove: ['upNext', 'move'] as const,
@@ -64,6 +66,9 @@ export function registerMutations(qc: QueryClient) {
   qc.setMutationDefaults(mk.loanRenew, { mutationFn: (v: loans.RenewVars) => loans.renewLoan(v) });
   qc.setMutationDefaults(mk.loanReturn, { mutationFn: (v: loans.ReturnVars) => loans.returnLoan(v) });
   qc.setMutationDefaults(mk.loanReopen, { mutationFn: (v: loans.ReopenVars) => loans.reopenLoan(v) });
+  qc.setMutationDefaults(mk.loanBorrowedOn, {
+    mutationFn: (v: loans.BorrowedOnVars) => loans.setLoanBorrowedOn(v),
+  });
   qc.setMutationDefaults(mk.mediaAdd, { scope: MEDIA_SCOPE, mutationFn: (v: media.NewMedia) => media.addTmdbItem(v) });
   qc.setMutationDefaults(mk.mediaViewing, {
     scope: MEDIA_SCOPE,
@@ -76,6 +81,10 @@ export function registerMutations(qc: QueryClient) {
   qc.setMutationDefaults(mk.mediaMarkSeason, {
     scope: MEDIA_SCOPE,
     mutationFn: (v: media.SeasonVars) => media.markSeason(v),
+  });
+  qc.setMutationDefaults(mk.mediaMarkShow, {
+    scope: MEDIA_SCOPE,
+    mutationFn: (v: media.ShowWatchedVars) => media.markShowWatched(v),
   });
   qc.setMutationDefaults(mk.mediaStatus, {
     scope: MEDIA_SCOPE,

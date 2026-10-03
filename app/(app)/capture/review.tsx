@@ -7,7 +7,9 @@ import { KeyboardAvoidingView, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { type Confidence, ConfidenceField } from '@/components/calico/ConfidenceField';
+import { DayChooser } from '@/components/calico/DayChooser';
 import { coverRadius, GeneratedCover } from '@/components/calico/GeneratedCover';
+import { type When, WhenChooser } from '@/components/calico/WhenChooser';
 import { Button } from '@/components/ds/Button';
 import { IconButton } from '@/components/ds/IconButton';
 import { Press } from '@/components/ds/Press';
@@ -70,6 +72,9 @@ export default function Review() {
   const coverUri = photo ?? draft?.front ?? lookup?.coverUrl ?? null;
   const books = useBooks().data ?? [];
   const today = colomboToday();
+  // Added late: the loan can start on an earlier day, and a Read book can be "a while ago".
+  const [borrowedOn, setBorrowedOn] = useState(today);
+  const [readWhen, setReadWhen] = useState<When>('now');
   const defaultDue = (DUE_CHOICES as readonly number[]).includes(profile?.default_loan_days ?? 0)
     ? (profile!.default_loan_days as ReviewForm['dueDays'])
     : 14;
@@ -155,8 +160,8 @@ export default function Review() {
           ? {
               id: newId(),
               party: v.party || (v.source === 'library' ? copy.review.sources.library : copy.review.sources.friend),
-              borrowedOn: today,
-              dueOn: v.source === 'library' ? addLocalDays(today, v.dueDays) : undefined,
+              borrowedOn,
+              dueOn: v.source === 'library' ? addLocalDays(borrowedOn, v.dueDays) : undefined,
             }
           : undefined,
     };
@@ -167,7 +172,14 @@ export default function Review() {
       void maybeAskForReminders();
     }
     if (finalStatus === 'read') {
-      finish.mutate({ itemId, on: today, rating: null, note: null, returnLoan: false });
+      finish.mutate({
+        itemId,
+        on: today,
+        rating: null,
+        note: null,
+        returnLoan: false,
+        backfill: readWhen === 'past',
+      });
     }
     const shown = v.titleNative && profile?.lead_script === 'si' ? v.titleNative : book.title;
     if (draft) {
@@ -412,16 +424,17 @@ export default function Review() {
                 <View style={{ flex: 1 }}>
                   <Label>{copy.review.borrowed}</Label>
                   <Txt family="ui" size="sm">
-                    {copy.review.todayDate(fmtShort(today))}
+                    {borrowedOn === today ? copy.review.todayDate(fmtShort(today)) : fmtShort(borrowedOn)}
                   </Txt>
                 </View>
                 <View style={{ flex: 1 }}>
                   <Label>{copy.review.due}</Label>
                   <Txt family="ui" weight={700} size="sm" color="textAccent" testID="review-due">
-                    {fmtShort(addLocalDays(today, dueDays))}
+                    {fmtShort(addLocalDays(borrowedOn, dueDays))}
                   </Txt>
                 </View>
               </View>
+              <DayChooser value={borrowedOn} onChange={setBorrowedOn} testID="review-borrowed" />
               {chips(
                 'dueDays',
                 DUE_CHOICES.map((d) => ({ value: d, label: `+${d}` })),
@@ -430,8 +443,12 @@ export default function Review() {
           )}
 
           {source === 'friend' && (
-            <View style={{ padding: 16, backgroundColor: t.surfacePageWarm, borderRadius: radius.lg }}>
+            <View style={{ gap: 14, padding: 16, backgroundColor: t.surfacePageWarm, borderRadius: radius.lg }}>
               {field('party', copy.review.friendName)}
+              <View>
+                <Label>{copy.review.borrowed}</Label>
+                <DayChooser value={borrowedOn} onChange={setBorrowedOn} testID="review-borrowed" />
+              </View>
             </View>
           )}
 
@@ -452,6 +469,12 @@ export default function Review() {
               {chips(
                 'status',
                 statuses.map((s) => ({ value: s, label: statusLabel(s) })),
+              )}
+              {status === 'read' && (
+                <View style={{ gap: 8, marginTop: 14 }}>
+                  <Label>{copy.when.finishedTitle}</Label>
+                  <WhenChooser value={readWhen} onChange={setReadWhen} testID="review-when" />
+                </View>
               )}
             </View>
           )}

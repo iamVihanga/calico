@@ -17,6 +17,7 @@ import {
   TraySheetBody,
 } from '@/features/collections/CollectionSheets';
 import {
+  BorrowedOnSheetBody,
   LoanFormSheetBody,
   LoanQuickSheetBody,
   NotifSheetBody,
@@ -94,6 +95,9 @@ export function SheetHost() {
       </Sheet>
       <Sheet open={sheet?.name === 'loanForm'} onClose={closer('loanForm')} testID="sheet-loan-form">
         {sheet?.name === 'loanForm' && <LoanFormSheetBody key={id} itemId={id} onClose={closer('loanForm')} />}
+      </Sheet>
+      <Sheet open={sheet?.name === 'borrowedOn'} onClose={closer('borrowedOn')} testID="sheet-borrowed-on">
+        {sheet?.name === 'borrowedOn' && <BorrowedOnSheetBody key={id} itemId={id} onClose={closer('borrowedOn')} />}
       </Sheet>
       <Sheet open={sheet?.name === 'tmdbPreview'} onClose={closer('tmdbPreview')} testID="sheet-tmdb-preview">
         {sheet?.name === 'tmdbPreview' && (

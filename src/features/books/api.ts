@@ -84,6 +84,7 @@ export async function fetchBook(id: string): Promise<BookDetail | null> {
         finishedAt: s.finished_at,
         outcome: s.outcome as BookDetail['sessions'][number]['outcome'],
         rating: s.rating,
+        backfilled: s.backfilled,
       }))
       .sort((a, b) => (a.startedAt < b.startedAt ? -1 : 1)),
     collections: row.collection_items.flatMap((c) => (c.collections ? [c.collections] : [])),
@@ -203,6 +204,8 @@ export type FinishVars = {
   rating: number | null;
   note: string | null;
   returnLoan: boolean;
+  /** Finished "a while ago": kept out of the week/month/year stats. */
+  backfill?: boolean;
 };
 export async function finishBook(v: FinishVars): Promise<void> {
   const { error } = await supabase.rpc('finish_book', {
@@ -211,6 +214,7 @@ export async function finishBook(v: FinishVars): Promise<void> {
     p_rating: v.rating as number,
     p_note: v.note as string,
     p_return_loan: v.returnLoan,
+    p_backfill: v.backfill ?? false,
   });
   if (error) throw error;
 }

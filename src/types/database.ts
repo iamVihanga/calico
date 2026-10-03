@@ -175,6 +175,7 @@ export type Database = {
       };
       episode_watches: {
         Row: {
+          backfilled: boolean;
           episode: number;
           item_id: string;
           season: number;
@@ -182,6 +183,7 @@ export type Database = {
           watched_at: string;
         };
         Insert: {
+          backfilled?: boolean;
           episode: number;
           item_id: string;
           season: number;
@@ -189,6 +191,7 @@ export type Database = {
           watched_at?: string;
         };
         Update: {
+          backfilled?: boolean;
           episode?: number;
           item_id?: string;
           season?: number;
@@ -399,6 +402,7 @@ export type Database = {
       };
       page_logs: {
         Row: {
+          backfilled: boolean;
           id: string;
           item_id: string;
           logged_at: string;
@@ -406,6 +410,7 @@ export type Database = {
           user_id: string;
         };
         Insert: {
+          backfilled?: boolean;
           id?: string;
           item_id: string;
           logged_at?: string;
@@ -413,6 +418,7 @@ export type Database = {
           user_id?: string;
         };
         Update: {
+          backfilled?: boolean;
           id?: string;
           item_id?: string;
           logged_at?: string;
@@ -482,6 +488,7 @@ export type Database = {
       };
       reading_sessions: {
         Row: {
+          backfilled: boolean;
           created_at: string;
           finished_at: string | null;
           id: string;
@@ -493,6 +500,7 @@ export type Database = {
           user_id: string;
         };
         Insert: {
+          backfilled?: boolean;
           created_at?: string;
           finished_at?: string | null;
           id?: string;
@@ -504,6 +512,7 @@ export type Database = {
           user_id?: string;
         };
         Update: {
+          backfilled?: boolean;
           created_at?: string;
           finished_at?: string | null;
           id?: string;
@@ -647,6 +656,7 @@ export type Database = {
       };
       watch_logs: {
         Row: {
+          backfilled: boolean;
           created_at: string;
           id: string;
           item_id: string;
@@ -656,6 +666,7 @@ export type Database = {
           watched_on: string;
         };
         Insert: {
+          backfilled?: boolean;
           created_at?: string;
           id?: string;
           item_id: string;
@@ -665,6 +676,7 @@ export type Database = {
           watched_on?: string;
         };
         Update: {
+          backfilled?: boolean;
           created_at?: string;
           id?: string;
           item_id?: string;
@@ -709,6 +721,7 @@ export type Database = {
       export_my_data: { Args: Record<PropertyKey, never>; Returns: Json };
       finish_book: {
         Args: {
+          p_backfill?: boolean;
           p_item: string;
           p_note: string;
           p_on: string;
@@ -725,6 +738,7 @@ export type Database = {
       };
       log_viewing: {
         Args: {
+          p_backfill?: boolean;
           p_id: string;
           p_item: string;
           p_note: string;
@@ -735,6 +749,7 @@ export type Database = {
       };
       mark_episodes: {
         Args: {
+          p_backfill?: boolean;
           p_episodes: number[];
           p_item: string;
           p_season: number;
@@ -742,8 +757,12 @@ export type Database = {
         };
         Returns: undefined;
       };
+      mark_show_watched: {
+        Args: { p_backfill?: boolean; p_item: string };
+        Returns: undefined;
+      };
       mark_season: {
-        Args: { p_item: string; p_season: number };
+        Args: { p_backfill?: boolean; p_item: string; p_season: number };
         Returns: undefined;
       };
       pages_read_between: {
@@ -788,6 +807,10 @@ export type Database = {
           p_on?: string;
           p_status: Database['public']['Enums']['item_status'];
         };
+        Returns: undefined;
+      };
+      set_loan_borrowed_on: {
+        Args: { p_loan: string; p_on: string };
         Returns: undefined;
       };
       show_progress: {

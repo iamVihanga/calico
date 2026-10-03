@@ -47,3 +47,10 @@ export async function reopenLoan(v: ReopenVars): Promise<void> {
   });
   if (error) throw error;
 }
+
+/** Move the borrowed date (added late). Must not be in the future or after the due date. */
+export type BorrowedOnVars = { loanId: string; itemId: string; on: LocalDate };
+export async function setLoanBorrowedOn(v: BorrowedOnVars): Promise<void> {
+  const { error } = await supabase.rpc('set_loan_borrowed_on', { p_loan: v.loanId, p_on: v.on });
+  if (error) throw error;
+}

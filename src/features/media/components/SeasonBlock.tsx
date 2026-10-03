@@ -1,6 +1,6 @@
 import { tmdbImage } from '@shared/tmdb.ts';
 import { Image } from 'expo-image';
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import Animated, { FadeIn, useReducedMotion } from 'react-native-reanimated';
 
@@ -24,7 +24,8 @@ type Props = {
   onToggleExpand: (season: number) => void;
   onToggleEpisode: (e: Episode) => void;
   onOpenEpisode: (e: Episode) => void;
-  onFillSeason: (s: Season) => void;
+  /** `backfill`: watched "a while ago", kept out of period stats. */
+  onFillSeason: (s: Season, backfill: boolean) => void;
   onClearSeason: (s: Season) => void;
 };
 
@@ -52,6 +53,12 @@ function SeasonBlockView({
   const label = copy.shows.season(season.n);
   const airedCount = eps.filter((e) => isAired(e, today)).length;
   const seenCount = eps.filter((e) => watched.has(epKey(e.season, e.episode))).length;
+  // "Mark all watched" asks when first (Just now / A while ago).
+  const [asking, setAsking] = useState(false);
+  const fill = (backfill: boolean) => {
+    setAsking(false);
+    onFillSeason(season, backfill);
+  };
 
   return (
     // No layout transition here: on Android (Fabric) it can leave the panel at its collapsed height when
@@ -101,10 +108,10 @@ function SeasonBlockView({
         >
           {(airedCount > seenCount || seenCount > 0) && (
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', columnGap: 18 }}>
-              {airedCount > seenCount && (
+              {airedCount > seenCount && !asking && (
                 <Press
                   accessibilityRole="button"
-                  onPress={() => onFillSeason(season)}
+                  onPress={() => setAsking(true)}
                   style={{ minHeight: 44, justifyContent: 'center' }}
                   testID={`fill-${season.n}`}
                 >
@@ -113,7 +120,34 @@ function SeasonBlockView({
                   </Txt>
                 </Press>
               )}
-              {seenCount > 0 && (
+              {airedCount > seenCount && asking && (
+                <View style={{ flexDirection: 'row', alignItems: 'center', columnGap: 18, flexWrap: 'wrap' }}>
+                  <Txt family="ui" size="xs" color="textMuted">
+                    {copy.when.watchedTitle}
+                  </Txt>
+                  <Press
+                    accessibilityRole="button"
+                    onPress={() => fill(false)}
+                    style={{ minHeight: 44, justifyContent: 'center' }}
+                    testID={`fill-${season.n}-now`}
+                  >
+                    <Txt family="ui" weight={700} size="xs" color="textAccent">
+                      {copy.when.now}
+                    </Txt>
+                  </Press>
+                  <Press
+                    accessibilityRole="button"
+                    onPress={() => fill(true)}
+                    style={{ minHeight: 44, justifyContent: 'center' }}
+                    testID={`fill-${season.n}-past`}
+                  >
+                    <Txt family="ui" weight={700} size="xs" color="textAccent">
+                      {copy.when.past}
+                    </Txt>
+                  </Press>
+                </View>
+              )}
+              {seenCount > 0 && !asking && (
                 <Press
                   accessibilityRole="button"
                   onPress={() => onClearSeason(season)}

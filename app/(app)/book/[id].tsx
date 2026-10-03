@@ -64,6 +64,8 @@ const ARRIVAL_SHEETS: string[] = ['ruler', 'finish', 'stop', 'renew', 'loanQuick
 type ArrivalSheet = 'ruler' | 'finish' | 'stop' | 'renew' | 'loanQuick';
 
 function historyLine(s: ReadingSession, n: number): string {
+  // Added as Read "a while ago": the save date isn't when it was read.
+  if (s.outcome === 'read' && s.backfilled) return copy.books.historyFinishedPast(n);
   if (s.outcome === 'read' && s.finishedAt) return copy.books.historyFinished(n, fmtLong(s.finishedAt));
   if (s.outcome === 'abandoned' && s.finishedAt) return copy.books.historyAbandoned(n, fmtLong(s.finishedAt));
   if (s.outcome === 'paused' && s.finishedAt) return copy.books.historyPaused(n, fmtLong(s.finishedAt));
@@ -406,6 +408,7 @@ function LoanSection({ book }: { book: BookDetail }) {
         today={colomboToday()}
         onRenew={() => openSheet('renew', { itemId: book.id })}
         onReturned={() => doReturn(book, lead)}
+        onEditBorrowed={() => openSheet('borrowedOn', { itemId: book.id })}
       />
     </Animated.View>
   );

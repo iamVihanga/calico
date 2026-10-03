@@ -69,13 +69,13 @@ export function useShowMarker(show: Pick<Show, 'id' | 'tmdbId' | 'title' | 'tmdb
     [id, watched, markEpisodes, undo, maybeFinished],
   );
 
-  /** Every aired episode of a season (like SQL `mark_season`). */
+  /** Every aired episode of a season (like SQL `mark_season`); `backfill` = watched "a while ago". */
   const fillSeason = useCallback(
-    (s: Season): number[] => {
+    (s: Season, backfill = false): number[] => {
       const have = watched();
       const fresh = airedIn(s, colomboToday()).filter((n) => !have.has(epKey(s.n, n)));
       if (!fresh.length) return [];
-      markSeason({ itemId: id, season: s.n, episodes: fresh });
+      markSeason({ itemId: id, season: s.n, episodes: fresh, backfill });
       toast({ message: copy.shows.seasonMarked(copy.shows.season(s.n)), action: undo(s.n, fresh, false) });
       maybeFinished();
       return fresh;

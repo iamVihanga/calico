@@ -11,6 +11,7 @@ import Animated, {
 
 import { Button } from '@/components/ds/Button';
 import { Icon } from '@/components/ds/Icon';
+import { Press } from '@/components/ds/Press';
 import { Txt } from '@/components/ds/Txt';
 import type { Loan } from '@/features/books/types';
 import { copy } from '@/i18n/en';
@@ -73,6 +74,8 @@ type Props = {
   today: LocalDate;
   onRenew: () => void;
   onReturned: () => void;
+  /** Tapping the BORROWED column moves the start date (a loan added late). */
+  onEditBorrowed?: () => void;
 };
 
 /**
@@ -80,7 +83,7 @@ type Props = {
  * DUE columns of ink stamps (latest last), due line, renewal count, Renew and Returned.
  * Lent-out loans reuse it as "Lent to {name}" without Renew.
  */
-export function LoanSlip({ loan, today, onRenew, onReturned }: Props) {
+export function LoanSlip({ loan, today, onRenew, onReturned, onEditBorrowed }: Props) {
   const { t } = useTheme();
   const reduced = useReducedMotion();
   const lent = loan.direction === 'lent';
@@ -117,12 +120,22 @@ export function LoanSlip({ loan, today, onRenew, onReturned }: Props) {
       </View>
 
       <View style={{ flexDirection: 'row', padding: 16 }}>
-        <View style={{ flex: 1 }}>
-          <Txt role="label" size={10} color="textMuted" style={{ marginBottom: 10 }}>
-            {lent ? copy.loan.lent : copy.loan.borrowed}
-          </Txt>
+        <Press
+          accessibilityRole="button"
+          accessibilityLabel={onEditBorrowed ? copy.borrowedOn.edit : undefined}
+          disabled={!onEditBorrowed}
+          onPress={onEditBorrowed}
+          testID="loan-borrowed-edit"
+          style={{ flex: 1, alignItems: 'flex-start' }}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+            <Txt role="label" size={10} color="textMuted">
+              {lent ? copy.loan.lent : copy.loan.borrowed}
+            </Txt>
+            {onEditBorrowed && <Icon name="edit" size={13} color="textMuted" />}
+          </View>
           <DateStamp date={loan.borrowedOn} variant="borrowed" rotate={-2} />
-        </View>
+        </Press>
         <View style={{ width: 1, backgroundColor: t.borderSoft, marginHorizontal: 16 }} />
         <View style={{ flex: 1 }}>
           <Txt role="label" size={10} color="textMuted" style={{ marginBottom: 10 }}>

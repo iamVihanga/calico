@@ -29,6 +29,7 @@ export const toViewing = (l: Tables<'watch_logs'>): Viewing => ({
   watchedOn: l.watched_on,
   rating: l.rating,
   note: l.note,
+  backfilled: l.backfilled,
 });
 
 /** Latest viewing first (then the most recently logged, for two on the same day). */
@@ -177,6 +178,8 @@ export type NewMedia = {
   overview: string | null;
   year: number | null;
   watchedOn?: LocalDate;
+  /** Watched "a while ago": the first viewing is kept out of period stats. */
+  backfill?: boolean;
   rating?: number | null;
   upNextPosition?: string;
   // movies
@@ -236,6 +239,7 @@ export async function addTmdbItem(v: NewMedia): Promise<void> {
       backdrop_path: v.backdropPath,
       overview: v.overview,
       watched_on: v.watchedOn ?? null,
+      backfill: v.backfill ?? false,
       rating: v.rating ?? null,
       ...(v.upNextPosition ? { up_next_position: v.upNextPosition } : {}),
       ...(movie
@@ -260,7 +264,14 @@ export async function addTmdbItem(v: NewMedia): Promise<void> {
   if (error) throw error;
 }
 
-export type ViewingVars = { id: string; itemId: string; on: LocalDate; rating: number | null; note: string | null };
+export type ViewingVars = {
+  id: string;
+  itemId: string;
+  on: LocalDate;
+  rating: number | null;
+  note: string | null;
+  backfill?: boolean;
+};
 export async function logViewing(v: ViewingVars): Promise<void> {
   const { error } = await supabase.rpc('log_viewing', {
     p_id: v.id,
@@ -268,25 +279,38 @@ export async function logViewing(v: ViewingVars): Promise<void> {
     p_on: v.on,
     p_rating: v.rating as number,
     p_note: v.note as string,
+    p_backfill: v.backfill ?? false,
   });
   if (error) throw error;
 }
 
-export type MarkVars = { itemId: string; season: number; episodes: number[]; watched: boolean };
+export type MarkVars = { itemId: string; season: number; episodes: number[]; watched: boolean; backfill?: boolean };
 export async function markEpisodes(v: MarkVars): Promise<void> {
   const { error } = await supabase.rpc('mark_episodes', {
     p_item: v.itemId,
     p_season: v.season,
     p_episodes: v.episodes,
     p_watched: v.watched,
+    p_backfill: v.backfill ?? false,
   });
   if (error) throw error;
 }
 
-export type SeasonVars = { itemId: string; season: number; episodes: number[] };
+export type SeasonVars = { itemId: string; season: number; episodes: number[]; backfill?: boolean };
 /** Server marks every aired episode (`mark_season`); `episodes` is the client's copy for the optimistic update. */
 export async function markSeason(v: SeasonVars): Promise<void> {
-  const { error } = await supabase.rpc('mark_season', { p_item: v.itemId, p_season: v.season });
+  const { error } = await supabase.rpc('mark_season', {
+    p_item: v.itemId,
+    p_season: v.season,
+    p_backfill: v.backfill ?? false,
+  });
+  if (error) throw error;
+}
+
+export type ShowWatchedVars = { itemId: string; backfill: boolean };
+/** "Already watched": every aired episode; Watched if the show has ended, else Watching (`mark_show_watched`). */
+export async function markShowWatched(v: ShowWatchedVars): Promise<void> {
+  const { error } = await supabase.rpc('mark_show_watched', { p_item: v.itemId, p_backfill: v.backfill });
   if (error) throw error;
 }
 

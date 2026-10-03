@@ -48,6 +48,8 @@ export type ReadingSession = {
   finishedAt: string | null;
   outcome: 'reading' | 'read' | 'abandoned' | 'paused';
   rating: number | null;
+  /** Finished "a while ago" (not counted in period stats). */
+  backfilled?: boolean;
 };
 
 export type PageLog = { id: string; page: number; loggedAt: string };

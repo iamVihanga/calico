@@ -42,7 +42,7 @@ const mockDb = {
   movies: [] as Movie[],
   watches: new Map<string, EpisodeRef[]>(),
 };
-const mockCalls = { add: jest.fn(), collection: jest.fn(), viewing: jest.fn() };
+const mockCalls = { add: jest.fn(), collection: jest.fn(), viewing: jest.fn(), markShow: jest.fn() };
 
 jest.mock('@/lib/supabase', () => ({
   supabase: {
@@ -197,6 +197,18 @@ jest.mock('@/features/media/api', () => {
       const s = mockDb.shows.find((x) => x.id === v.itemId);
       if (s && s.status === 'watchlist') s.status = 'watching';
     },
+    // Like SQL mark_show_watched: every aired episode outside specials; a running show is Watching.
+    markShowWatched: async (v: { itemId: string; backfill: boolean }) => {
+      mockCalls.markShow(v);
+      mockDb.watches.set(
+        v.itemId,
+        mockHotdEps
+          .filter((e) => e.season > 0 && e.airDate && e.airDate <= todayFn())
+          .map((e) => ({ season: e.season, episode: e.episode })),
+      );
+      const s = mockDb.shows.find((x) => x.id === v.itemId);
+      if (s) s.status = 'watching';
+    },
     logViewing: async (v: { id: string; itemId: string; on: string; rating: number | null; note: string | null }) => {
       mockCalls.viewing(v);
       const m = mockDb.movies.find((x) => x.id === v.itemId)!;
@@ -221,24 +233,48 @@ describe('F5: add a show and watch the next episode', () => {
   beforeEach(reset);
   afterAll(cleanupAppState);
 
-  it('search → preview → already watched → mark S1 → tick S2 E1–E4 → episode sheet → Home ticks S2 E5', async () => {
+  it('already watched, a while ago: every aired episode is marked and the show is Watching', async () => {
     await renderRouter('./app', { initialUrl: '/tmdb?type=show' });
     await fireEvent.changeText(await screen.findByTestId('tmdb-query'), 'house of the dragon');
     await fireEvent.press(await screen.findByTestId('tmdb-result-94997', {}, { timeout: 3000 }));
-    const watched = await screen.findByTestId('preview-watched');
+    await fireEvent.press(await screen.findByTestId('preview-watched'));
+    expect(await screen.findByText(copy.when.watchedTitle)).toBeTruthy();
     await act(async () => {
-      await fireEvent.press(watched);
+      await fireEvent.press(screen.getByTestId('preview-when-past'));
+    });
+    await waitFor(() =>
+      expect(mockCalls.markShow).toHaveBeenCalledWith({ itemId: mockDb.shows[0]!.id, backfill: true }),
+    );
+    expect(mockCalls.add).toHaveBeenCalledWith(expect.objectContaining({ kind: 'show', status: 'watchlist' }));
+    expect(await screen.findByText(copy.tmdb.addedToast('House of the Dragon'))).toBeTruthy();
+    // No forced trip to the show: the search stays open.
+    expect(screen.queryByTestId('screen-show')).toBeNull();
+    await act(async () => router.push(`/show/${mockDb.shows[0]!.id}`));
+    await waitFor(() => expect(screen.getByTestId('episode-count')).toHaveTextContent(copy.shows.episodeCount(18, 19)));
+  });
+
+  it('search → preview → add → mark S1 → tick S2 E1–E4 → episode sheet → Home ticks S2 E5', async () => {
+    await renderRouter('./app', { initialUrl: '/tmdb?type=show' });
+    await fireEvent.changeText(await screen.findByTestId('tmdb-query'), 'house of the dragon');
+    await fireEvent.press(await screen.findByTestId('tmdb-result-94997', {}, { timeout: 3000 }));
+    const add = await screen.findByTestId('preview-add');
+    await act(async () => {
+      await fireEvent.press(add);
     });
     await waitFor(() =>
       expect(mockCalls.add).toHaveBeenCalledWith(expect.objectContaining({ kind: 'show', status: 'watchlist' })),
     );
+    await act(async () => router.push(`/show/${mockDb.shows[0]!.id}`));
     expect(await screen.findByTestId('screen-show')).toBeTruthy();
     // Nothing watched yet: the next episode's season (1) is the one open; season 2 is closed.
     expect(await screen.findByTestId('fill-1')).toBeTruthy();
     expect(screen.queryByTestId('episode-row-2-1')).toBeNull();
+    // "Mark all watched" asks when first.
+    await fireEvent.press(screen.getByTestId('fill-1'));
     await act(async () => {
-      await fireEvent.press(screen.getByTestId('fill-1'));
+      await fireEvent.press(await screen.findByTestId('fill-1-now'));
     });
+    expect(mockCalls.markShow).not.toHaveBeenCalled();
     expect(await screen.findByText(copy.shows.seasonMarked('Season 1'))).toBeTruthy();
     await waitFor(() => expect(screen.getByTestId('next-code')).toHaveTextContent('S2 E1'));
     expect(screen.getByTestId('season-count-1')).toHaveTextContent('10/10');

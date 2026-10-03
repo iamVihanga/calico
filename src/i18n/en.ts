@@ -322,6 +322,7 @@ export const en = {
     history: 'Reading history',
     historyStarted: (n: number, date: string) => `Read ${n}: started ${date}`,
     historyFinished: (n: number, date: string) => `Read ${n}: finished ${date}`,
+    historyFinishedPast: (n: number) => `Read ${n}: finished a while ago`,
     historyAbandoned: (n: number, date: string) => `Read ${n}: stopped ${date}`,
     historyPaused: (n: number, date: string) => `Read ${n}: paused ${date}`,
     notStarted: 'Not started yet.',
@@ -586,6 +587,25 @@ export const en = {
     keep: 'Keep reading',
     stop: 'Stop reading',
     toRead: 'Move to To read instead',
+  },
+  when: {
+    finishedTitle: 'When did you finish it?',
+    watchedTitle: 'When did you watch it?',
+    now: 'Just now',
+    past: 'A while ago',
+    hint: "A while ago keeps it out of this week's and this year's counts.",
+  },
+  day: {
+    other: 'Other day',
+    earlier: 'A day earlier',
+    later: 'A day later',
+    weekAgo: 'A week ago',
+  },
+  borrowedOn: {
+    title: 'When did you borrow it?',
+    save: 'Save date',
+    changed: (date: string) => `Borrowed on ${date}`,
+    edit: 'Change the borrowed date',
   },
   startDate: {
     title: 'When did you start?',

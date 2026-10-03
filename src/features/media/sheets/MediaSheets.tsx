@@ -52,6 +52,8 @@ export function TmdbPreviewSheetBody({ p, onClose }: { p: SheetParams['tmdbPrevi
   const addFromTmdb = useAddFromTmdb();
   const [expanded, setExpanded] = useState(false);
   const [busy, setBusy] = useState(false);
+  // "Already watched" asks when: "a while ago" keeps it out of this week's counts.
+  const [askWhen, setAskWhen] = useState(false);
   const details = useQuery<TmdbMovie | TmdbShow>({
     queryKey: p.kind === 'movie' ? tmdbKeys.movie(p.tmdbId) : tmdbKeys.show(p.tmdbId),
     queryFn: () => (p.kind === 'movie' ? api.tmdbMovie(p.tmdbId) : api.tmdbShow(p.tmdbId)),
@@ -74,9 +76,9 @@ export function TmdbPreviewSheetBody({ p, onClose }: { p: SheetParams['tmdbPrevi
     .join('  ·  ');
   const overview = details?.overview ?? p.overview;
 
-  const add = async (status: 'watchlist' | 'watched') => {
+  const add = async (status: 'watchlist' | 'watched', backfill = false) => {
     setBusy(true);
-    const id = await addFromTmdb(p, status);
+    const id = await addFromTmdb(p, status, backfill);
     setBusy(false);
     if (id) onClose();
   };
@@ -111,44 +113,77 @@ export function TmdbPreviewSheetBody({ p, onClose }: { p: SheetParams['tmdbPrevi
           )}
         </View>
       </View>
-      <View style={{ flexDirection: 'row', gap: 12, marginTop: 20 }}>
-        {have ? (
-          <Button
-            variant="accent"
-            block
-            style={{ flex: 1, minHeight: 52 }}
-            onPress={() => {
-              onClose();
-              router.push(mediaHref(have));
-            }}
-          >
-            {copy.tmdb.open}
-          </Button>
-        ) : (
-          <>
+      {askWhen && !have ? (
+        <View style={{ gap: 10, marginTop: 20 }}>
+          <Txt family="display" weight={700} size="md" accessibilityRole="header">
+            {copy.when.watchedTitle}
+          </Txt>
+          <View style={{ flexDirection: 'row', gap: 12 }}>
             <Button
               variant="secondary"
               block
               style={{ flex: 1, minHeight: 52 }}
               disabled={busy}
-              testID="preview-watched"
-              onPress={() => void add('watched')}
+              testID="preview-when-past"
+              onPress={() => void add('watched', true)}
             >
-              {copy.tmdb.alreadyWatched}
+              {copy.when.past}
             </Button>
             <Button
               variant="accent"
               block
               style={{ flex: 1, minHeight: 52 }}
               loading={busy}
-              testID="preview-add"
-              onPress={() => void add('watchlist')}
+              testID="preview-when-now"
+              onPress={() => void add('watched', false)}
             >
-              {copy.tmdb.addWatchlist}
+              {copy.when.now}
             </Button>
-          </>
-        )}
-      </View>
+          </View>
+          <Txt family="ui" size="xs" color="textMuted">
+            {copy.when.hint}
+          </Txt>
+        </View>
+      ) : (
+        <View style={{ flexDirection: 'row', gap: 12, marginTop: 20 }}>
+          {have ? (
+            <Button
+              variant="accent"
+              block
+              style={{ flex: 1, minHeight: 52 }}
+              onPress={() => {
+                onClose();
+                router.push(mediaHref(have));
+              }}
+            >
+              {copy.tmdb.open}
+            </Button>
+          ) : (
+            <>
+              <Button
+                variant="secondary"
+                block
+                style={{ flex: 1, minHeight: 52 }}
+                disabled={busy}
+                testID="preview-watched"
+                onPress={() => setAskWhen(true)}
+              >
+                {copy.tmdb.alreadyWatched}
+              </Button>
+              <Button
+                variant="accent"
+                block
+                style={{ flex: 1, minHeight: 52 }}
+                loading={busy}
+                testID="preview-add"
+                onPress={() => void add('watchlist')}
+              >
+                {copy.tmdb.addWatchlist}
+              </Button>
+            </>
+          )}
+        </View>
+      )}
     </View>
   );
 }

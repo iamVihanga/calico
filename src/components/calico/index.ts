@@ -1,9 +1,11 @@
 export { BilingualTitle, leadTitle, type LeadScript } from './BilingualTitle';
 export { CollectionMosaic, MediaCountDot, type MosaicItem } from './CollectionMosaic';
 export { coverFor, coverPalettes, type CoverName, type CoverPalette } from './coverPalette';
+export { DayChooser } from './DayChooser';
 export { DateStamp, stampLabel, stampRotation, type StampVariant } from './DateStamp';
 export { EpisodeSquare, type EpisodeState } from './EpisodeSquare';
 export { GeneratedCover } from './GeneratedCover';
 export { Pinki, type PinkiPose } from './Pinki';
 export { MediaShapeIcon, type MediaKind } from './MediaShapeIcon';
 export { starString, TicketStub } from './TicketStub';
+export { type When, WhenChooser } from './WhenChooser';

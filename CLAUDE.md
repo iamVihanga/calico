@@ -41,6 +41,11 @@ Expo-specific guidance: @AGENTS.md
   Returned is the `reopen_loan` RPC. Reminders are diffed against `getAllScheduledNotificationsAsync()` by
   identifier `loan:{loanId}:3d|1d` + a content signature (`features/loans/logic.ts`); never request
   notification permission outside the `notif` sheet.
+- "Just now / A while ago" (`WhenChooser`): "a while ago" sends `p_backfill` and sets `backfilled` on
+  `reading_sessions`/`page_logs`/`watch_logs`/`episode_watches`; `home_stats`, `year_stats` and
+  `pages_read_between` skip backfilled rows, history shows "a while ago". "Already watched" on a show calls
+  `mark_show_watched` (every aired episode; Watched if Ended/Canceled, else Watching). Loans can start on an
+  earlier day (`DayChooser`; due = borrowed + length); existing loans move it via `set_loan_borrowed_on`.
 - Follow-up toasts use `useToastStore.getState().enqueue()`; an action that should cancel them calls `clearQueue()`.
 - Book edits go through the `update_book` RPC (only the keys sent change). A new cover photo is uploaded as
   `covers/{uid}/{itemId}/front-{timestamp}.jpg` (covers are cached by path), then the old file is removed.

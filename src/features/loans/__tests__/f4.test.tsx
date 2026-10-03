@@ -13,6 +13,7 @@ const mockRenew = jest.fn();
 const mockReturn = jest.fn();
 const mockReopen = jest.fn();
 const mockAdd = jest.fn();
+const mockBorrowedOn = jest.fn();
 
 const today = colomboToday();
 const due = addLocalDays(today, 3);
@@ -90,6 +91,10 @@ jest.mock('@/features/loans/api', () => ({
   reopenLoan: async (v: unknown) => {
     mockReopen(v);
     mockMadol = fresh();
+  },
+  setLoanBorrowedOn: async (v: { on: string }) => {
+    mockBorrowedOn(v);
+    mockMadol = { ...mockMadol, loan: { ...mockMadol.loan!, borrowedOn: v.on } };
   },
   addLoan: async (v: { id: string; party: string; borrowedOn: string; dueOn: string | null }) => {
     mockAdd(v);
@@ -218,5 +223,45 @@ describe('F4: library due date, renew then return', () => {
     useSheetStore.getState().close();
     await act(() => maybeAskForReminders());
     expect(useSheetStore.getState().sheet).toBeNull();
+  });
+
+  it('a loan added late: the borrowed day moves the due date, and the slip can move it later', async () => {
+    mockMadol = { ...fresh(), ownership: 'owned', loan: null as never };
+    await renderRouter('./app', { initialUrl: '/book/madol' });
+    await fireEvent.press(await screen.findByTestId('book-overflow'));
+    await fireEvent.press(await screen.findByTestId('overflow-loan'));
+    await fireEvent.press(await screen.findByText(copy.loanForm.kind.friend));
+    await fireEvent.changeText(screen.getByTestId('loan-party'), 'Nimali');
+    await fireEvent.press(screen.getByTestId('loan-borrowed-2')); // 2 days ago
+    await fireEvent.press(screen.getByTestId('loan-due-21'));
+    await act(async () => {
+      await fireEvent.press(screen.getByTestId('loan-save'));
+    });
+    await waitFor(() =>
+      expect(mockAdd).toHaveBeenCalledWith(
+        expect.objectContaining({
+          party: 'Nimali',
+          borrowedOn: addLocalDays(today, -2),
+          dueOn: addLocalDays(today, 19),
+        }),
+      ),
+    );
+    await act(async () => useSheetStore.getState().close());
+
+    // Tapping BORROWED on the slip: the loan started 14 days ago, so the stepper is open; one day earlier.
+    await fireEvent.press(await screen.findByTestId('loan-borrowed-edit'));
+    expect(await screen.findByText(copy.borrowedOn.title)).toBeTruthy();
+    await fireEvent.press(screen.getByTestId('borrowed-on-earlier'));
+    await act(async () => {
+      await fireEvent.press(screen.getByTestId('borrowed-on-save'));
+    });
+    await waitFor(() =>
+      expect(mockBorrowedOn).toHaveBeenCalledWith({
+        loanId: mockAdd.mock.calls[0][0].id,
+        itemId: 'madol',
+        on: addLocalDays(today, -15),
+      }),
+    );
+    expect(await screen.findByText(copy.borrowedOn.changed(fmtShort(addLocalDays(today, -15))))).toBeTruthy();
   });
 });

@@ -170,7 +170,15 @@ function optimisticMedia(v: api.NewMedia): Movie | Show {
         collection: v.collection ?? null,
         viewings:
           v.status === 'watched'
-            ? [{ id: `new-${v.id}`, watchedOn: v.watchedOn ?? colomboToday(), rating: v.rating ?? null, note: null }]
+            ? [
+                {
+                  id: `new-${v.id}`,
+                  watchedOn: v.watchedOn ?? colomboToday(),
+                  rating: v.rating ?? null,
+                  note: null,
+                  backfilled: v.backfill ?? false,
+                },
+              ]
             : [],
       }
     : {
@@ -222,9 +230,10 @@ export function useLogViewing() {
           status: 'watched',
           finishedAt: latest ? v.on : m.finishedAt,
           rating: latest ? (v.rating ?? m.rating) : m.rating,
-          viewings: [{ id: v.id, watchedOn: v.on, rating: v.rating, note: v.note }, ...m.viewings].sort((a, b) =>
-            b.watchedOn.localeCompare(a.watchedOn),
-          ),
+          viewings: [
+            { id: v.id, watchedOn: v.on, rating: v.rating, note: v.note, backfilled: v.backfill ?? false },
+            ...m.viewings,
+          ].sort((a, b) => b.watchedOn.localeCompare(a.watchedOn)),
         };
       });
       leaveQueue(qc, v.itemId, 'watched', (e) => requeue.mutate(e));
@@ -264,6 +273,33 @@ export function useMarkSeason() {
     onMutate: async (v) => {
       const s = await snap(qc, v.itemId);
       applyWatches(qc, v.itemId, v.season, v.episodes, true);
+      return s;
+    },
+    onError: (_e, v, ctx) => {
+      restoreSnap(qc, ctx, v.itemId);
+      failed();
+    },
+    onSettled: (_d, _e, v) => settleMedia(qc, v.itemId),
+  });
+}
+
+/** "Already watched" show: the status changes at once; the episodes arrive with the refetch. */
+export function useMarkShowWatched() {
+  const qc = useQueryClient();
+  return useMutation<void, Error, api.ShowWatchedVars, Snap>({
+    mutationKey: mk.mediaMarkShow,
+    scope: MEDIA_SCOPE,
+    onMutate: async (v) => {
+      const s = await snap(qc, v.itemId);
+      const today = colomboToday();
+      patchShow(qc, v.itemId, (x) => {
+        const ended = x.tmdbStatus === 'Ended' || x.tmdbStatus === 'Canceled';
+        return {
+          status: ended ? 'watched' : 'watching',
+          startedAt: x.startedAt ?? today,
+          finishedAt: ended ? today : x.finishedAt,
+        };
+      });
       return s;
     },
     onError: (_e, v, ctx) => {
