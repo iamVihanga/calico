@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { Kiri } from '@/components/calico/Kiri';
+import { Pinki } from '@/components/calico/Pinki';
 import { ScriptToggle } from '@/components/calico/ScriptToggle';
 import { Button } from '@/components/ds/Button';
 import { QueryError } from '@/components/ds/QueryError';
@@ -231,7 +231,7 @@ export default function Library() {
         }}
         testID="library-empty"
       >
-        <Kiri pose="curled" width={214} />
+        <Pinki pose="curled" width={214} />
         <Txt family="hand" weight={400} size="xl" color="textAccent" align="center" style={{ marginTop: 10 }}>
           {isBooks
             ? copy.library.empty[filter as keyof typeof copy.library.empty]

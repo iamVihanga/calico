@@ -113,6 +113,7 @@ export function SheetHost() {
             itemId={id}
             season={sheet.params.season}
             episode={sheet.params.episode}
+            showLink={!!sheet.params.showLink}
             onClose={closer('episode')}
           />
         )}

@@ -39,8 +39,11 @@ describe('nextEpisode mirrors show_progress', () => {
     expect(nextEpisode(hotd, w(), today, false)).toMatchObject({ season: 1, episode: 1 });
   });
 
-  it('counts specials when included', () => {
-    expect(nextEpisode(hotd, w(), today, true)).toMatchObject({ season: 0, episode: 1 });
+  it('never puts a special next, even when included, but counts it', () => {
+    expect(nextEpisode(hotd, w(), today, true)).toMatchObject({ season: 1, episode: 1 });
+    expect(progressOf(hotd, w(), today, true)).toMatchObject({ aired: 4, total: 6 });
+    // Every regular episode watched: caught up, though the special is still unwatched.
+    expect(progressOf(hotd, w([1, 1], [1, 2], [2, 1]), today, true)).toMatchObject({ next: null, caughtUp: true });
   });
 
   it('never picks unaired or undated episodes; caught up when every aired one is watched', () => {

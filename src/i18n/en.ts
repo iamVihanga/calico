@@ -149,6 +149,7 @@ export const en = {
     loadingOverview: 'Getting the summary…',
     markWatched: 'Mark watched',
     markUnwatched: 'Mark unwatched',
+    goToShow: 'Go to show',
     notAired: 'Not aired yet',
   },
   episode: {
@@ -162,9 +163,9 @@ export const en = {
   ticket: {
     viewing: 'Viewing',
   },
-  kiri: {
+  pinki: {
     curled: 'A calico cat curled up asleep',
-    paw: "Kiri's paw",
+    paw: "Pinki's paw",
     stretch: 'A calico cat stretching happily',
     asleep: 'A calico cat asleep on a bookshelf',
   },
@@ -365,14 +366,14 @@ export const en = {
     queuedToday: 'queued today',
     queuedAgo: (n: number) => `queued ${n} ${n === 1 ? 'day' : 'days'} ago`,
     shuffling: 'shuffling your queue…',
-    kiriPicks: 'Kiri picks one…',
+    pinkiPicks: 'Pinki picks one…',
     again: 'Pick again',
     start: 'Start this',
     close: 'Close',
     cta: 'Pick for me',
-    ctaHand: 'let Kiri choose',
+    ctaHand: 'let Pinki choose',
     homeHand: "can't decide?",
-    empty: 'Queue a few things first, then Kiri can choose.',
+    empty: 'Queue a few things first, then Pinki can choose.',
     started: (title: string, status: string) => `${title} → ${status}`,
   },
   upNext: {

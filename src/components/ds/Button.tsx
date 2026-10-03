@@ -150,8 +150,8 @@ export function Button({
       ) : (
         <>
           {icon && <Icon name={icon} size={fontSize + 3} tint={c.fg} />}
-          <View>
-            <Txt family={hand ? 'hand' : 'ui'} weight={700} size={fontSize} leading={1.2} tint={c.fg}>
+          <View style={{ flexShrink: 1 }}>
+            <Txt family={hand ? 'hand' : 'ui'} weight={700} size={fontSize} leading={1.2} tint={c.fg} align="center">
               {children}
             </Txt>
           </View>

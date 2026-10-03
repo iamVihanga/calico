@@ -90,8 +90,8 @@ set local role authenticated;
 select is((select next_season * 100 + next_episode from show_progress('c0000000-0000-4000-8000-0000000000d1')), 101,
   'next episode skips specials by default');
 update profiles set include_specials = true;
-select is((select next_season * 100 + next_episode from show_progress('c0000000-0000-4000-8000-0000000000d1')), 1,
-  'specials count when included');
+select is((select next_season * 100 + next_episode from show_progress('c0000000-0000-4000-8000-0000000000d1')), 101,
+  'a special is never next, even when included');
 update profiles set include_specials = false;
 
 select mark_season('c0000000-0000-4000-8000-0000000000d1', 1);

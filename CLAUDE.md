@@ -85,11 +85,11 @@ Expo-specific guidance: @AGENTS.md
 - Match `design/v2/Calico Prototype.dc.html` for layout and copy.
 - Illustrations: `npm run illustrations` turns `design/v2/assets` into WebP under `assets/illustrations/` and
   regenerates `illustrations.generated.ts`; show them with `<Illustration name width>` (decorative unless labelled,
-  `float` for the prototype's bob). Kiri poses map to the cat illustrations (the paw stays vector for Pick).
+  `float` for the prototype's bob). Pinki poses map to the cat illustrations (the paw stays vector for Pick).
 - Density variants (`name@2x.png`, `name@3x.png`) are required by the base name (`require('…/name.png')`) and need
   the 1x file too: Metro picks the density, Jest needs the base file. `npx expo export --platform android` catches
   Metro-only resolution errors that Jest misses.
-- Launch: native splash (static Kiri on `splash.native`) hands off to `AnimatedSplash` in `app/_layout.tsx`,
+- Launch: native splash (static Pinki on `splash.native`) hands off to `AnimatedSplash` in `app/_layout.tsx`,
   which covers the app only until fonts, cache and session are ready.
 
 ## Status

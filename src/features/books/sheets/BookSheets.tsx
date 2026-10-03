@@ -2,7 +2,7 @@ import { router, usePathname } from 'expo-router';
 import { useState } from 'react';
 import { Share, View } from 'react-native';
 
-import { Kiri } from '@/components/calico/Kiri';
+import { Pinki } from '@/components/calico/Pinki';
 import { RatingStars } from '@/components/calico/RatingStars';
 import { Button } from '@/components/ds/Button';
 import { Checkbox } from '@/components/ds/Checkbox';
@@ -53,7 +53,7 @@ export function FinishSheetBody({ itemId, onClose }: Props) {
   return (
     <View style={{ gap: 10 }}>
       <View style={{ alignItems: 'center', paddingVertical: 6 }}>
-        <Kiri pose="stretch" width={218} />
+        <Pinki pose="stretch" width={218} />
       </View>
       <Txt family="hand" weight={400} size={22} leading={1} color="textAccent">
         {copy.finish.hand}

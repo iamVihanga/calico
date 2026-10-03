@@ -260,7 +260,7 @@ describe('F8: reorder Up next and pick', () => {
     await act(async () => {
       jest.advanceTimersByTime(1000);
     });
-    expect(screen.getByText(copy.pick.kiriPicks)).toBeTruthy();
+    expect(screen.getByText(copy.pick.pinkiPicks)).toBeTruthy();
     await act(async () => {
       jest.advanceTimersByTime(600);
     });

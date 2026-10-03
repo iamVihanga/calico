@@ -1,6 +1,5 @@
 import { tmdbImage } from '@shared/tmdb.ts';
 import { Image } from 'expo-image';
-import { router } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 
 import { Icon } from '@/components/ds/Icon';
@@ -11,6 +10,7 @@ import { epCode } from '@/features/media/logic';
 import type { Show, ShowProgress } from '@/features/media/types';
 import { useShowMarker } from '@/features/media/useShowMarker';
 import { copy } from '@/i18n/en';
+import { openSheet } from '@/lib/stores/sheet';
 import { colomboToday, fmtDay } from '@/lib/dates';
 import { alpha, layout, motion, palette, radius, shadow, size, tracking, useTheme } from '@/theme';
 
@@ -25,7 +25,9 @@ function WatchCard({ show, row }: { show: Show; row: ShowProgress }) {
   // The next episode's still when TMDB has one, else the show's backdrop.
   const still = tmdbImage(next.stillPath, 'original');
   const image = still ?? tmdbImage(show.backdropPath, 'w780');
-  const open = () => router.push(`/show/${show.id}`);
+  // The episode's sheet (overview, Mark watched, Go to show): instant, unlike opening show detail.
+  const open = () =>
+    openSheet('episode', { itemId: show.id, season: next.season, episode: next.episode, showLink: true });
 
   return (
     <View
@@ -34,7 +36,9 @@ function WatchCard({ show, row }: { show: Show; row: ShowProgress }) {
     >
       <Press
         accessibilityRole="button"
-        accessibilityLabel={show.title}
+        accessibilityLabel={`${show.title}, ${code}`}
+        accessibilityHint={copy.episodeSheet.openHint}
+        testID={`watching-open-${show.id}`}
         onPress={open}
         scaleTo={1}
         style={{

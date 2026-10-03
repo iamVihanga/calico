@@ -28,7 +28,8 @@ export type SheetParams = {
   franchise: { itemId: string; tmdbId: number; collectionId: number };
   watchAgain: { itemId: string };
   mediaOverflow: { itemId: string };
-  episode: { itemId: string; season: number; episode: number };
+  /** `showLink`: opened from outside show detail (Home), so offer a way to the show. */
+  episode: { itemId: string; season: number; episode: number; showLink?: boolean };
   tray: { itemId: string; title: string };
   addToCollection: { itemId: string; title: string };
   newCollection: { itemId?: string };

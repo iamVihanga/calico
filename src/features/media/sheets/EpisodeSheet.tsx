@@ -1,5 +1,6 @@
 import { tmdbImage } from '@shared/tmdb.ts';
 import { Image } from 'expo-image';
+import { router } from 'expo-router';
 import { View } from 'react-native';
 
 import { Button } from '@/components/ds/Button';
@@ -12,14 +13,23 @@ import { useProgress, useShow } from '../hooks';
 import { epKey } from '../logic';
 import { useShowMarker } from '../useShowMarker';
 
-type Props = { itemId: string; season: number; episode: number; onClose: () => void };
+type Props = { itemId: string; season: number; episode: number; showLink?: boolean; onClose: () => void };
 
 /** One episode from show detail: still, name, date, runtime, rating, overview, and Mark watched. */
-export function EpisodeSheetBody({ itemId, season, episode, onClose }: Props) {
+export function EpisodeSheetBody({ itemId, season, episode, showLink = false, onClose }: Props) {
   const show = useShow(itemId).data;
   const progress = useProgress(show);
   if (!show || !progress) return null;
-  return <EpisodeDetail show={show} progress={progress} season={season} episode={episode} onClose={onClose} />;
+  return (
+    <EpisodeDetail
+      show={show}
+      progress={progress}
+      season={season}
+      episode={episode}
+      showLink={showLink}
+      onClose={onClose}
+    />
+  );
 }
 
 function EpisodeDetail({
@@ -27,12 +37,14 @@ function EpisodeDetail({
   progress,
   season,
   episode,
+  showLink,
   onClose,
 }: {
   show: NonNullable<ReturnType<typeof useShow>['data']>;
   progress: NonNullable<ReturnType<typeof useProgress>>;
   season: number;
   episode: number;
+  showLink: boolean;
   onClose: () => void;
 }) {
   const { t } = useTheme();
@@ -101,6 +113,19 @@ function EpisodeDetail({
             ? copy.episodeSheet.markUnwatched
             : copy.episodeSheet.markWatched}
       </Button>
+      {showLink && (
+        <Button
+          variant="secondary"
+          block
+          testID="episode-go-to-show"
+          onPress={() => {
+            onClose();
+            router.push(`/show/${show.id}`);
+          }}
+        >
+          {copy.episodeSheet.goToShow}
+        </Button>
+      )}
     </View>
   );
 }

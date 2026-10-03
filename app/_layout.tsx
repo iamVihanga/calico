@@ -25,7 +25,7 @@ function RootStack({ fontsReady, restored }: { fontsReady: boolean; restored: bo
   const done = fontsReady && restored && status !== 'loading';
   const [splashGone, setSplashGone] = useState(false);
 
-  // The native splash (static Kiri) hands over to the animated one as soon as fonts are in (the
+  // The native splash (static Pinki) hands over to the animated one as soon as fonts are in (the
   // wordmark needs them). The animated splash covers the app until the cache is restored and the
   // session is known, then fades out. No minimum time.
   useEffect(() => {

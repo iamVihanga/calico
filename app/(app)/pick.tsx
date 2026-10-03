@@ -17,7 +17,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { coverFor } from '@/components/calico/coverPalette';
 import { ItemCover } from '@/components/calico/ItemCover';
 import { Illustration } from '@/components/calico/Illustration';
-import { Kiri } from '@/components/calico/Kiri';
+import { Pinki } from '@/components/calico/Pinki';
 import { Button } from '@/components/ds/Button';
 import { Press } from '@/components/ds/Press';
 import { Txt } from '@/components/ds/Txt';
@@ -42,7 +42,7 @@ const DECK = 5;
 const closePick = () => (router.canGoBack() ? router.back() : router.replace('/'));
 
 /**
- * Pick for me (plan §11.8): the top ten riffle, Kiri's paw bats one out, it flips over with the
+ * Pick for me (plan §11.8): the top ten riffle, Pinki's paw bats one out, it flips over with the
  * reason. Pick again skips what was already picked this session. Reduced motion: straight to the card.
  */
 export default function Pick() {
@@ -147,7 +147,7 @@ export default function Pick() {
             ))}
           </View>
           <Txt family="hand" weight={400} size={22} tint={t.accentSecondary} style={{ marginTop: 30 }}>
-            {phase === 'paw' ? copy.pick.kiriPicks : copy.pick.shuffling}
+            {phase === 'paw' ? copy.pick.pinkiPicks : copy.pick.shuffling}
           </Txt>
           {phase === 'paw' && <Paw />}
         </View>
@@ -212,7 +212,7 @@ function DeckCard({ i, phase, tone }: { i: number; phase: Phase; tone: string })
   );
 }
 
-/** Kiri's paw slides up from the bottom edge. */
+/** Pinki's paw slides up from the bottom edge. */
 function Paw() {
   const y = useSharedValue(220);
   useEffect(() => {
@@ -221,7 +221,7 @@ function Paw() {
   const style = useAnimatedStyle(() => ({ transform: [{ translateY: y.value }] }));
   return (
     <Animated.View style={[{ position: 'absolute', bottom: -160 }, style]} pointerEvents="none">
-      <Kiri pose="paw" width={120} />
+      <Pinki pose="paw" width={120} />
     </Animated.View>
   );
 }

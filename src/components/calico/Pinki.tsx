@@ -5,27 +5,27 @@ import { palette, useTheme } from '@/theme';
 
 import { Illustration, type IllustrationName } from './Illustration';
 
-export type KiriPose = 'curled' | 'paw' | 'stretch' | 'asleep';
+export type PinkiPose = 'curled' | 'paw' | 'stretch' | 'asleep';
 
 type Props = {
-  pose: KiriPose;
+  pose: PinkiPose;
   /** Rendered width; height follows the art. */
   width?: number;
 };
 
-const ART: Record<Exclude<KiriPose, 'paw'>, IllustrationName> = {
+const ART: Record<Exclude<PinkiPose, 'paw'>, IllustrationName> = {
   curled: 'cat-loaf',
   asleep: 'cat-shelf-sleep',
   stretch: 'cat-stretch',
 };
 
 /**
- * Kiri, the house cat: the design/v2 illustrations. The paw stays a vector drawing, because Pick for
+ * Pinki, the house cat: the design/v2 illustrations. The paw stays a vector drawing, because Pick for
  * me animates it batting a card out and there is no illustrated paw.
  */
-export function Kiri({ pose, width = 140 }: Props) {
+export function Pinki({ pose, width = 140 }: Props) {
   const { t } = useTheme();
-  if (pose !== 'paw') return <Illustration name={ART[pose]} width={width} accessibilityLabel={copy.kiri[pose]} />;
+  if (pose !== 'paw') return <Illustration name={ART[pose]} width={width} accessibilityLabel={copy.pinki[pose]} />;
   const line = t.textPrimary;
   const coat = t.surfaceCard;
   const stroke = {
@@ -38,14 +38,14 @@ export function Kiri({ pose, width = 140 }: Props) {
 
   const h = (width * 100) / 80;
   return (
-    <Svg width={width} height={h} viewBox="0 0 80 100" accessibilityRole="image" accessibilityLabel={copy.kiri.paw}>
+    <Svg width={width} height={h} viewBox="0 0 80 100" accessibilityRole="image" accessibilityLabel={copy.pinki.paw}>
       <Defs>
-        <ClipPath id="kiri-arm">
+        <ClipPath id="pinki-arm">
           <Path d="M22 100 V52 C22 34 58 34 58 52 V100 Z" />
         </ClipPath>
       </Defs>
       <Path d="M22 100 V52 C22 34 58 34 58 52 V100 Z" fill={coat} />
-      <G clipPath="url(#kiri-arm)">
+      <G clipPath="url(#pinki-arm)">
         <Path d="M10 70 C30 62 50 78 70 68 V86 C50 94 30 80 10 88 Z" fill={palette.marmalade} />
         <Path d="M10 92 C30 86 50 98 70 92 V100 H10 Z" fill={palette.ink} />
       </G>

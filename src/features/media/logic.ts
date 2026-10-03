@@ -22,8 +22,9 @@ const byOrder = (a: EpisodeRef, b: EpisodeRef) => a.season - b.season || a.episo
 
 /**
  * The earliest aired episode not yet watched: the same rule as SQL `show_progress` (plan §11.5), so
- * optimistic updates can move "Next up" before the server answers. Specials (season 0) only count
- * when included; episodes without an air date, or airing after today, never come next.
+ * optimistic updates can move "Next up" before the server answers. Specials (season 0) are never
+ * "next" — they'd sort before season 1 — even when included in the counts; episodes without an air
+ * date, or airing after today, never come next either.
  */
 export function nextEpisode(
   episodes: Episode[],
@@ -33,7 +34,10 @@ export function nextEpisode(
 ): Episode | null {
   return (
     episodes
-      .filter((e) => counted(e, includeSpecials) && aired(e, today) && !watched.has(epKey(e.season, e.episode)))
+      .filter(
+        (e) =>
+          e.season > 0 && counted(e, includeSpecials) && aired(e, today) && !watched.has(epKey(e.season, e.episode)),
+      )
       .sort(byOrder)[0] ?? null
   );
 }

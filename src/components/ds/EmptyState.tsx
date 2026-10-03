@@ -9,7 +9,7 @@ type Props = {
   hand?: string;
   title?: string;
   body?: string;
-  /** Usually a <Kiri pose=... /> */
+  /** Usually a <Pinki pose=... /> */
   art?: ReactNode;
   action?: ReactNode;
   style?: StyleProp<ViewStyle>;

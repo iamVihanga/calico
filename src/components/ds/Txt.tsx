@@ -110,7 +110,15 @@ export function Txt({
   }
 
   return (
-    <Text allowFontScaling={allowFontScaling} maxFontSizeMultiplier={MAX_FONT_SCALE} style={merged} {...rest}>
+    <Text
+      allowFontScaling={allowFontScaling}
+      maxFontSizeMultiplier={MAX_FONT_SCALE}
+      // Android's default "highQuality" breaking measures Nunito/Caveat a hair narrow, so a label's last
+      // word wrapped onto a clipped second line ("Add to ~~watchlist~~"). "simple" measures what it draws.
+      textBreakStrategy="simple"
+      style={merged}
+      {...rest}
+    >
       {content}
     </Text>
   );

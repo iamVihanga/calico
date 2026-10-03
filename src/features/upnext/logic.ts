@@ -38,7 +38,7 @@ const effort = (x: QueueItem) =>
       ? (x.runtimeMin ?? 120)
       : (x.episodesLeft ?? 8) * 45;
 
-/** Why Kiri picked it: a due date, the shortest thing, progress, or how long it has waited. */
+/** Why Pinki picked it: a due date, the shortest thing, progress, or how long it has waited. */
 export function pickReason(item: QueueItem, top10: QueueItem[], loan: OpenLoan | undefined, today: LocalDate): string {
   if (loan?.direction === 'borrowed' && loan.dueOn && daysBetween(today, loan.dueOn) <= 14) {
     return copy.pick.dueBack(loan.party, fmtDay(loan.dueOn));

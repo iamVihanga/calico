@@ -11,7 +11,7 @@ import {
   EpisodeSquare,
   type EpisodeState,
   GeneratedCover,
-  Kiri,
+  Pinki,
   MediaCountDot,
   MediaShapeIcon,
   TicketStub,
@@ -236,7 +236,7 @@ function Gallery({ name, setName }: { name: ThemeName; setName: (n: ThemeName) =
             {"can't decide? Pick for me"}
           </Button>
           <Button hand size="lg" variant="accent" block>
-            let Kiri choose
+            let Pinki choose
           </Button>
         </Section>
 
@@ -492,7 +492,7 @@ function Gallery({ name, setName }: { name: ThemeName; setName: (n: ThemeName) =
           </Sheet>
           <Card tone="warm" pad="none" shadow="none">
             <EmptyState
-              art={<Kiri pose="curled" width={150} />}
+              art={<Pinki pose="curled" width={150} />}
               hand="nothing on the shelf yet"
               title="Your shelf is empty"
               body="Add the book you're reading right now."
@@ -598,14 +598,14 @@ function Gallery({ name, setName }: { name: ThemeName; setName: (n: ThemeName) =
           />
         </Section>
 
-        <Section title="Kiri (placeholder art)">
+        <Section title="Pinki (placeholder art)">
           <Row>
-            <Kiri pose="curled" width={140} />
-            <Kiri pose="asleep" width={140} />
+            <Pinki pose="curled" width={140} />
+            <Pinki pose="asleep" width={140} />
           </Row>
           <Row>
-            <Kiri pose="stretch" width={160} />
-            <Kiri pose="paw" width={70} />
+            <Pinki pose="stretch" width={160} />
+            <Pinki pose="paw" width={70} />
           </Row>
         </Section>
       </View>

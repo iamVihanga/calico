@@ -1,7 +1,7 @@
 import { router } from 'expo-router';
 import { View } from 'react-native';
 
-import { Kiri } from '@/components/calico/Kiri';
+import { Pinki } from '@/components/calico/Pinki';
 import { Button } from '@/components/ds/Button';
 import { Press } from '@/components/ds/Press';
 import { Txt } from '@/components/ds/Txt';
@@ -9,7 +9,7 @@ import { copy } from '@/i18n/en';
 import { openSheet } from '@/lib/stores/sheet';
 import { layout, radius, useTheme } from '@/theme';
 
-/** New user: Kiri asleep on the empty shelf, one line, one button (design/v2 homeEmpty). */
+/** New user: Pinki asleep on the empty shelf, one line, one button (design/v2 homeEmpty). */
 export function HomeEmpty() {
   const { t } = useTheme();
   return (
@@ -26,7 +26,7 @@ export function HomeEmpty() {
         gap: 14,
       }}
     >
-      <Kiri pose="asleep" width={280} />
+      <Pinki pose="asleep" width={280} />
       <Txt family="hand" weight={400} size="xl" leading={1} color="textAccent" align="center">
         {copy.homeShelf.emptyHand}
       </Txt>

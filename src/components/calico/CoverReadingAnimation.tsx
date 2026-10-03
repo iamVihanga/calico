@@ -21,7 +21,7 @@ type Props = {
 };
 
 /**
- * "Reading the cover" (design/v2 `reading`): Kiri with her magnifying glass, dots bobbing beside her,
+ * "Reading the cover" (design/v2 `reading`): Pinki with her magnifying glass, dots bobbing beside her,
  * the status line cycles, then the fields fill one at a time (120ms stagger), lifting into place.
  */
 export function CoverReadingAnimation({ fields, done }: Props) {

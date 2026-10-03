@@ -4,6 +4,6 @@ export { coverFor, coverPalettes, type CoverName, type CoverPalette } from './co
 export { DateStamp, stampLabel, stampRotation, type StampVariant } from './DateStamp';
 export { EpisodeSquare, type EpisodeState } from './EpisodeSquare';
 export { GeneratedCover } from './GeneratedCover';
-export { Kiri, type KiriPose } from './Kiri';
+export { Pinki, type PinkiPose } from './Pinki';
 export { MediaShapeIcon, type MediaKind } from './MediaShapeIcon';
 export { starString, TicketStub } from './TicketStub';

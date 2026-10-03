@@ -297,6 +297,14 @@ describe('F5: add a show and watch the next episode', () => {
     });
     await waitFor(() => expect(screen.getByTestId(`watching-ep-${id}`)).toHaveTextContent('S2 E6  Smallfolk'));
     expect(screen.getByText(copy.shows.marked('S2 E5'))).toBeTruthy();
+
+    // Tapping the card opens that episode's sheet (fast), with a way to the show.
+    await fireEvent.press(screen.getByTestId(`watching-open-${id}`));
+    expect(await screen.findByTestId('episode-overview')).toHaveTextContent('What happens in S2 E6.');
+    await act(async () => {
+      await fireEvent.press(screen.getByTestId('episode-go-to-show'));
+    });
+    expect(await screen.findByTestId('screen-show')).toBeTruthy();
   });
 });
 
@@ -306,7 +314,7 @@ describe('F6: movie rewatch, and the franchise offer', () => {
 
   it('shows a loading state while TMDB is searched, then the results', async () => {
     await renderRouter('./app', { initialUrl: '/tmdb?type=movie' });
-    // design/v2: Kiri with her magnifying glass over "type at least two characters".
+    // design/v2: Pinki with her magnifying glass over "type at least two characters".
     expect(await screen.findByLabelText(copy.art.magnifier)).toBeTruthy();
     await fireEvent.changeText(await screen.findByTestId('tmdb-query'), 'it');
     expect(screen.getByLabelText(copy.tmdb.searching)).toBeTruthy();

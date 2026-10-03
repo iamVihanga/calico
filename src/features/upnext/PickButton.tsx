@@ -15,9 +15,12 @@ export function PickButton({ hand, onPress }: { hand: string; onPress: () => voi
       style={{
         minHeight: 56,
         flexDirection: 'row',
+        flexWrap: 'wrap',
         alignItems: 'center',
         justifyContent: 'center',
-        gap: 10,
+        columnGap: 10,
+        paddingHorizontal: 20,
+        paddingVertical: 8,
         backgroundColor: t.ctaBg,
         borderRadius: radius.pill,
         boxShadow: shadow.lg,

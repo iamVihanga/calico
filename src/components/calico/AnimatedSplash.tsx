@@ -29,7 +29,7 @@ const cozy = Easing.bezier(...motion.easing.cozy);
 const purr = Easing.bezier(...motion.easing.purr);
 
 /**
- * The design/v2 splash (prototype `splash`): Kiri asleep on the forest gradient with her moon, the
+ * The design/v2 splash (prototype `splash`): Pinki asleep on the forest gradient with her moon, the
  * wordmark and three covers. Its first frame is the native splash (same background, cat at the
  * same size), so the hand-off doesn't jump; it shows only while the app is loading and fades out
  * as soon as `done`, then calls `onHidden`.
@@ -124,7 +124,7 @@ export function AnimatedSplash({ done, onHidden }: { done: boolean; onHidden: ()
           />
         </Animated.View>
         <Animated.View style={catStyle}>
-          <Illustration name="cat-loaf" width={CAT} accessibilityLabel={copy.kiri.curled} />
+          <Illustration name="cat-loaf" width={CAT} accessibilityLabel={copy.pinki.curled} />
         </Animated.View>
         <Animated.View style={[StyleSheet.absoluteFill, revealStyle]} pointerEvents="none">
           <Illustration name="moon" width={54} float={5000} style={{ position: 'absolute', right: 0, top: 0 }} />
