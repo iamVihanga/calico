@@ -145,7 +145,7 @@ Calico's behalf, which Play doesn't count as sharing.
 | Personal info → User IDs                                                                | Yes       | Required  | Account management, Analytics (crash grouping) |
 | Personal info → Other info (lender/friend names on loans)                               | Yes       | Optional  | App functionality                              |
 | Photos and videos → Photos                                                              | Yes       | Optional  | App functionality                              |
-| App activity → Other user-generated content (library, notes, ratings, Ask Calico chats) | Yes       | Required  | App functionality                              |
+| App activity → Other user-generated content (library, notes, ratings, Ask Pinki chats) | Yes       | Required  | App functionality                              |
 | App info and performance → Crash logs                                                   | Yes       | Required  | Analytics (app stability)                      |
 | App info and performance → Diagnostics                                                  | Yes       | Required  | Analytics (performance traces, 10% sample)     |
 

@@ -1,7 +1,7 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ScrollView, View } from 'react-native';
+import { Keyboard, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Illustration } from '@/components/calico/Illustration';
@@ -75,6 +75,7 @@ export default function Search() {
   }, [q, filter, hits.data, hits.isError, online, lib.items, lib.byId]);
 
   const open = (i: LibItem) => {
+    Keyboard.dismiss();
     if (q) remember(q);
     router.push(itemHref(i) as never);
   };
@@ -85,7 +86,10 @@ export default function Search() {
     <Press
       accessibilityRole="button"
       testID={testID}
-      onPress={run}
+      onPress={() => {
+        Keyboard.dismiss();
+        run();
+      }}
       style={{
         flexDirection: 'row',
         alignItems: 'center',

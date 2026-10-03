@@ -34,7 +34,7 @@ has a "Dev: sign in as the seed user" link (`dilan@calico.test` / `calico-dev`) 
 ### Edge functions
 
 `isbn-lookup` (Open Library, then Google Books), `extract-book` (Gemini reads the cover photos), `media-chat`
-(Ask Calico: Gemini overviews and chat per movie/show, conversation saved as memory), `tmdb` (TMDB search and
+(Ask Pinki: Gemini overviews and chat per movie/show, conversation saved as memory), `tmdb` (TMDB search and
 details; fills the shared episode cache) and `refresh-shows` (nightly cron) live in
 `supabase/functions/`. Pure helpers shared with the app are in `supabase/functions/_shared/` and
 imported in the app as `@shared/*`.
@@ -49,7 +49,7 @@ supabase secrets set GEMINI_API_KEY=… CONTACT_EMAIL=… TMDB_READ_TOKEN=… CR
 | ---------------------- | ---------------------------- | ------------------------------------------------ |
 | `GEMINI_API_KEY`       | `extract-book`, `media-chat` | required                                         |
 | `GEMINI_MODEL`         | `extract-book`, `media-chat` | default `gemini-flash-latest` (Google's alias)   |
-| `AI_CHAT_DAILY_LIMIT`  | `media-chat`                 | Ask Calico messages per user per day, default 50 |
+| `AI_CHAT_DAILY_LIMIT`  | `media-chat`                 | Ask Pinki messages per user per day, default 50 |
 | `AI_DAILY_LIMIT`       | `extract-book`               | cover reads per user per Colombo day, default 30 |
 | `GOOGLE_BOOKS_API_KEY` | `isbn-lookup`                | optional (higher quota)                          |
 | `CONTACT_EMAIL`        | `isbn-lookup`                | sent in the Open Library `User-Agent`            |

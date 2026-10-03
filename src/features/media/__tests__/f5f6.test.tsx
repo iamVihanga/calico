@@ -1,5 +1,6 @@
 import { act, fireEvent, renderRouter, screen, waitFor } from 'expo-router/testing-library';
 import { router } from 'expo-router';
+import { Keyboard } from 'react-native';
 
 import { copy } from '@/i18n/en';
 import { addLocalDays, colomboToday } from '@/lib/dates';
@@ -236,7 +237,10 @@ describe('F5: add a show and watch the next episode', () => {
   it('already watched, a while ago: every aired episode is marked and the show is Watching', async () => {
     await renderRouter('./app', { initialUrl: '/tmdb?type=show' });
     await fireEvent.changeText(await screen.findByTestId('tmdb-query'), 'house of the dragon');
+    const dismiss = jest.spyOn(Keyboard, 'dismiss');
     await fireEvent.press(await screen.findByTestId('tmdb-result-94997', {}, { timeout: 3000 }));
+    // The keyboard goes away so the preview sheet isn't hidden behind it.
+    expect(dismiss).toHaveBeenCalled();
     await fireEvent.press(await screen.findByTestId('preview-watched'));
     expect(await screen.findByText(copy.when.watchedTitle)).toBeTruthy();
     await act(async () => {

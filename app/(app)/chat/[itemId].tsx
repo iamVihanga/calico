@@ -20,7 +20,7 @@ import { fontFamily, layout, radius, shadow, useTheme } from '@/theme';
 const LANGUAGES = (['en', 'si'] as const).map((id) => ({ id, label: copy.chat.languages[id] }));
 
 /**
- * Ask Calico about a movie or show: an AI overview and chat (media-chat edge function), with the
+ * Ask Pinki about a movie or show: an AI overview and chat (media-chat edge function), with the
  * conversation as memory, English or Sinhala replies and spoiler-safe answers unless switched off.
  */
 export default function Chat() {
@@ -242,7 +242,7 @@ function Bubble({ m }: { m: ChatMessage }) {
     >
       {!mine && (
         <Txt family="hand" weight={400} size={16} color="textAccent" style={{ marginBottom: 2 }}>
-          {copy.chat.calico}
+          {copy.chat.pinki}
         </Txt>
       )}
       <Txt family="ui" size={15} leading={1.5} tint={mine ? t.inkOnWarm : t.textPrimary} selectable>

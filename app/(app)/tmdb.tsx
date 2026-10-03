@@ -2,7 +2,7 @@ import type { TmdbSearchResult } from '@shared/tmdb.ts';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ActivityIndicator, ScrollView, View } from 'react-native';
+import { ActivityIndicator, Keyboard, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Poster } from '@/components/calico/Poster';
@@ -79,12 +79,15 @@ export default function TmdbSearch() {
     typed.length < MIN_CHARS ? copy.tmdb.typeMore : !searching && search.isFetched ? copy.tmdb.nothing(q) : null;
 
   const quickAdd = async (r: TmdbSearchResult) => {
+    Keyboard.dismiss();
     setAdding(r.tmdbId);
     remember(q);
     await addFromTmdb(r, 'watchlist');
     setAdding(null);
   };
+  // The keyboard would cover the preview sheet: put it away first.
   const preview = (r: TmdbSearchResult) => {
+    Keyboard.dismiss();
     remember(q);
     openSheet('tmdbPreview', {
       tmdbId: r.tmdbId,
@@ -224,7 +227,11 @@ export default function TmdbSearch() {
                 accessibilityRole="button"
                 accessibilityLabel={`${r.title}, ${r.kind === 'movie' ? copy.tmdb.metaMovie(r.year) : copy.tmdb.metaShow(r.year)}`}
                 testID={`tmdb-result-${r.tmdbId}`}
-                onPress={() => (have ? router.push(mediaHref(have)) : preview(r))}
+                onPress={() => {
+                  if (!have) return preview(r);
+                  Keyboard.dismiss();
+                  router.push(mediaHref(have));
+                }}
                 scaleTo={0.99}
                 style={{
                   flexDirection: 'row',

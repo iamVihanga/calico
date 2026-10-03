@@ -62,8 +62,8 @@ jest.mock('@/features/media/chat/api', () => ({
   clearChat: (v: unknown) => mockClear(v),
 }));
 
-/** Ask Calico: overview, memory, language and spoilers, limits. */
-describe('Ask Calico chat', () => {
+/** Ask Pinki: overview, memory, language and spoilers, limits. */
+describe('Ask Pinki chat', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     queryClient.clear();
