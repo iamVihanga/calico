@@ -6,6 +6,7 @@ import { View } from 'react-native';
 import { OfflineBanner } from '@/components/calico/OfflineBanner';
 import { Paper } from '@/components/calico/Paper';
 import { CrashScreen } from '@/components/ds/CrashScreen';
+import { CropHost } from '@/components/hosts/CropHost';
 import { SheetHost } from '@/components/hosts/SheetHost';
 import { ToastHost } from '@/components/hosts/ToastHost';
 import { processDrafts } from '@/features/capture/drafts';
@@ -55,6 +56,7 @@ export default function AppLayout() {
       <OfflineBanner />
       <ToastHost />
       <SheetHost />
+      <CropHost />
       <DragLayer />
     </View>
   );

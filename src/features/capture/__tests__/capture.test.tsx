@@ -1,6 +1,8 @@
 import type { NormalizedExtraction } from '@shared/extraction.ts';
 import { onlineManager } from '@tanstack/react-query';
-import { fireEvent, renderRouter, screen, waitFor } from 'expo-router/testing-library';
+import { act, fireEvent, renderRouter, screen, waitFor } from 'expo-router/testing-library';
+import { State } from 'react-native-gesture-handler';
+import { fireGestureHandler, getByGestureTestId } from 'react-native-gesture-handler/jest-utils';
 
 import { copy } from '@/i18n/en';
 import { cleanupAppState } from '@/test/cleanup';
@@ -93,6 +95,13 @@ jest.mock('@/lib/images', () => ({
   ...jest.requireActual('@/lib/images'),
   processCover: async () => ({ uri: 'file:///cropped.jpg', width: 1000, height: 1500 }),
 }));
+const mockStraighten = jest.fn();
+jest.mock('@/lib/straighten', () => ({
+  straightenCover: (...a: unknown[]) => {
+    mockStraighten(...a);
+    return Promise.resolve({ uri: 'file:///cropped.jpg', width: 1000, height: 1500 });
+  },
+}));
 jest.mock('@/features/capture/drafts', () => ({
   ...jest.requireActual('@/features/capture/drafts'),
   saveDraft: (...a: unknown[]) => mockSaveDraft(...a),
@@ -140,8 +149,20 @@ describe('F1: snap the cover', () => {
     await fireEvent(await screen.findByTestId('crop-area'), 'layout', {
       nativeEvent: { layout: { x: 0, y: 0, width: 360, height: 540 } },
     });
+    // Drag the top-left corner in: the quad is no longer a rectangle, so it's straightened.
+    await act(async () => {
+      fireGestureHandler(getByGestureTestId('crop-drag-tl'), [
+        { state: State.BEGAN, translationX: 0, translationY: 0 },
+        { state: State.ACTIVE, translationX: 0, translationY: 0 },
+        { state: State.ACTIVE, translationX: 30, translationY: 12 },
+        { state: State.END, translationX: 30, translationY: 12 },
+      ]);
+    });
     await fireEvent.press(screen.getByTestId('crop-use'));
     await waitFor(() => expect(mockUpload).toHaveBeenCalledWith(id, 'front', 'file:///cropped.jpg'));
+    const [uri, rotation, quad, size] = mockStraighten.mock.calls[0]!;
+    expect([uri, rotation, size]).toEqual(['file:///raw.jpg', 0, { width: 3000, height: 4000 }]);
+    expect(quad[0].x).toBeGreaterThan(quad[3].x); // top-left moved right of bottom-left
     expect(await screen.findByTestId('screen-review', {}, { timeout: 5000 })).toBeTruthy();
     expect(screen.queryByTestId('screen-camera')).toBeNull();
   });

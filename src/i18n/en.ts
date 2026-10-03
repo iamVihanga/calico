@@ -9,6 +9,7 @@ export const en = {
     close: 'Close',
     undo: 'Undo',
     dismiss: 'Dismiss',
+    cancel: 'Cancel',
   },
   search: {
     placeholder: 'Search titles, authors, moods…',
@@ -721,6 +722,10 @@ export const en = {
     retake: 'Retake',
     usePhoto: 'Use photo',
     cropHandle: (which: string) => `Crop ${which}`,
+    cropHint: "Drag the corners to the cover's corners",
+    resetCorners: 'Reset corners',
+    straightening: 'Straightening…',
+    cropCrossed: 'The corners cross over. Drag each one to its own corner of the cover.',
     readingHand: 'hold on…',
     readingSteps: [
       'Reading the cover',

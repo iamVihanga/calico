@@ -369,7 +369,7 @@ export function CollectionArtSheetBody({ collectionId, onClose }: { collectionId
       <Txt role="label" size={10} color="textMuted">
         {copy.collections.art.photo}
       </Txt>
-      <CoverSourceRows onPicked={(uri) => void photo(uri)} busy={busy} aspect={[1, 1]} />
+      <CoverSourceRows onPicked={(uri) => void photo(uri)} busy={busy} />
       {(c.coverItemId || c.coverPath) && (
         <Button variant="secondary" block testID="art-reset" disabled={busy} onPress={() => choose(null, null)}>
           {copy.collections.art.reset}

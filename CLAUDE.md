@@ -33,6 +33,10 @@ Expo-specific guidance: @AGENTS.md
 - Tests that render the app (`renderRouter`) call `cleanupAppState` in `afterAll` so Jest can exit.
 - Edge functions: `handler.ts` (dependency-injected, Deno-tested via `npm run fn:test`) + `index.ts` (`Deno.serve`).
   Pure code shared with the app lives in `supabase/functions/_shared/` and is imported as `@shared/*.ts`.
+- Cropping is four free corners (`QuadCropView`, magnifier while dragging) straightened by `straightenCover`
+  (`src/lib/straighten.ts`): an upright rectangle is a native crop; otherwise jpeg-js decodes ≤1280 px, the
+  quad is warped in JS (`warpPerspective`) and handed back as a BMP for the native JPEG encode. The capture
+  route uses it directly; picked photos (`pickCover`) go through `cropPhoto()` → `CropHost` (a `Modal`).
 - The capture flow keeps one draft in `useCaptureStore` (`src/features/capture/store.ts`); covers upload to
   `covers/{uid}/{itemId}/front|back.jpg`. Offline captures go to `useDrafts` and are read by `processDrafts()`.
   Review can attach a photo in any mode (`CoverSourceRows`): it's uploaded as `front.jpg` on save, and if the upload

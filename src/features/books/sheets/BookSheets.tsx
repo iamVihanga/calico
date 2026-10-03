@@ -292,20 +292,12 @@ export function MenuRows({ items }: { items: MenuItem[] }) {
   );
 }
 
-/** Take a photo / Choose from gallery → a cropped (2:3, or `aspect`), resized local photo for `onPicked`. */
-export function CoverSourceRows({
-  onPicked,
-  busy,
-  aspect,
-}: {
-  onPicked: (uri: string) => void;
-  busy?: boolean;
-  aspect?: [number, number];
-}) {
+/** Take a photo / Choose from gallery → a cropped (four corners, straightened) local photo for `onPicked`. */
+export function CoverSourceRows({ onPicked, busy }: { onPicked: (uri: string) => void; busy?: boolean }) {
   const go = async (source: 'camera' | 'gallery') => {
     let uri: string | null;
     try {
-      uri = await pickCover(source, aspect);
+      uri = await pickCover(source);
     } catch (e) {
       toast({ message: e instanceof CameraDenied ? copy.edit.cameraDenied : copy.edit.coverFailed });
       return;

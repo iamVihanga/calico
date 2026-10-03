@@ -1,7 +1,7 @@
 import { File } from 'expo-file-system';
 import * as ImagePicker from 'expo-image-picker';
 
-import { processCover } from '@/lib/images';
+import { cropPhoto } from '@/lib/stores/crop';
 import { currentUserId, supabase } from '@/lib/supabase';
 
 export class CameraDenied extends Error {}
@@ -12,17 +12,9 @@ export class CameraDenied extends Error {}
  */
 export const replacementPath = (uid: string, itemId: string, at: number) => `${uid}/${itemId}/front-${at}.jpg`;
 
-/** Camera or gallery, cropped to the cover shape (or `aspect`) by the system picker, then resized like a capture. */
-export async function pickCover(
-  source: 'camera' | 'gallery',
-  aspect: [number, number] = [2, 3],
-): Promise<string | null> {
-  const opts: ImagePicker.ImagePickerOptions = {
-    mediaTypes: ['images'],
-    allowsEditing: true,
-    aspect,
-    quality: 0.9,
-  };
+/** Camera or gallery, then the four-corner crop (straightened, resized like a capture). Null if cancelled. */
+export async function pickCover(source: 'camera' | 'gallery'): Promise<string | null> {
+  const opts: ImagePicker.ImagePickerOptions = { mediaTypes: ['images'], quality: 0.9 };
   if (source === 'camera') {
     const perm = await ImagePicker.requestCameraPermissionsAsync();
     if (!perm.granted) throw new CameraDenied();
@@ -31,8 +23,7 @@ export async function pickCover(
     source === 'camera' ? await ImagePicker.launchCameraAsync(opts) : await ImagePicker.launchImageLibraryAsync(opts);
   const a = res.assets?.[0];
   if (res.canceled || !a) return null;
-  const out = await processCover(a.uri, 0, { x: 0, y: 0, width: a.width, height: a.height });
-  return out.uri;
+  return (await cropPhoto({ uri: a.uri, width: a.width, height: a.height }))?.uri ?? null;
 }
 
 /** Upload the new photo; the old one (if it was a photo of ours) is removed afterwards. */

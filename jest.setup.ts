@@ -6,6 +6,9 @@ const reanimatedMock = require('react-native-reanimated/mock');
 reanimatedMock.useReducedMotion = () => false;
 // Not in the mock; layout animations are no-ops in tests anyway.
 reanimatedMock.LayoutAnimationConfig ??= ({ children }: { children: unknown }) => children;
+// The mock makes a new shared value on every render; the real one lives as long as the component.
+const mockSharedValue = reanimatedMock.useSharedValue;
+reanimatedMock.useSharedValue = <T>(init: T) => require('react').useState(() => mockSharedValue(init))[0];
 jest.mock('react-native-reanimated', () => require('react-native-reanimated/mock'));
 
 // MMKV needs the Nitro native module; tests get an in-memory store.
