@@ -2,7 +2,7 @@ import { tmdbImage } from '@shared/tmdb.ts';
 import { Image } from 'expo-image';
 import { memo } from 'react';
 import { StyleSheet, View } from 'react-native';
-import Animated, { FadeIn, LinearTransition, useReducedMotion } from 'react-native-reanimated';
+import Animated, { FadeIn, useReducedMotion } from 'react-native-reanimated';
 
 import { Icon } from '@/components/ds/Icon';
 import { Press } from '@/components/ds/Press';
@@ -52,8 +52,9 @@ function SeasonBlockView({
   const seenCount = eps.filter((e) => watched.has(epKey(e.season, e.episode))).length;
 
   return (
-    <Animated.View
-      layout={reduced ? undefined : LinearTransition.duration(motion.duration.base)}
+    // No layout transition here: on Android (Fabric) it can leave the panel at its collapsed height when
+    // it opens, so the episode list never shows. The list fades in instead.
+    <View
       style={{ backgroundColor: t.surfaceCard, borderRadius: radius.lg, boxShadow: shadow.sm, overflow: 'hidden' }}
       testID={`season-${season.n}`}
     >
@@ -120,7 +121,7 @@ function SeasonBlockView({
           ))}
         </Animated.View>
       )}
-    </Animated.View>
+    </View>
   );
 }
 

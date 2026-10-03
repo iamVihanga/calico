@@ -260,6 +260,16 @@ describe('F5: add a show and watch the next episode', () => {
     expect(await screen.findByTestId('episode-overview')).toHaveTextContent('What happens in S2 E5.');
     expect(screen.getByTestId('episode-mark')).toHaveTextContent(copy.episodeSheet.markWatched);
     await act(async () => useSheetStore.getState().close());
+
+    // Switching seasons back and forth, and closing the open one.
+    await fireEvent.press(screen.getByTestId('season-toggle-1'));
+    expect(await screen.findByTestId('episode-row-1-1')).toBeTruthy();
+    expect(screen.queryByTestId('episode-row-2-1')).toBeNull();
+    await fireEvent.press(screen.getByTestId('season-toggle-2'));
+    expect(await screen.findByTestId('episode-row-2-1')).toBeTruthy();
+    expect(screen.queryByTestId('episode-row-1-1')).toBeNull();
+    await fireEvent.press(screen.getByTestId('season-toggle-2'));
+    await waitFor(() => expect(screen.queryByTestId('episode-row-2-1')).toBeNull());
     expect(screen.getByTestId('episode-count')).toHaveTextContent(copy.shows.episodeCount(14, 19));
 
     await act(async () => router.navigate('/'));
