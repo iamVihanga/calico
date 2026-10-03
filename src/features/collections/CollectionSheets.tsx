@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query';
 import { router } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { View } from 'react-native';
+import { ScrollView, View } from 'react-native';
 import Animated, {
   useAnimatedStyle,
   useReducedMotion,
@@ -10,11 +10,14 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated';
 
+import { ItemCover } from '@/components/calico/ItemCover';
 import { Button } from '@/components/ds/Button';
 import { Checkbox } from '@/components/ds/Checkbox';
 import { Input } from '@/components/ds/Input';
 import { Press } from '@/components/ds/Press';
 import { Txt } from '@/components/ds/Txt';
+import { CoverSourceRows, MenuRows } from '@/features/books/sheets/BookSheets';
+import { useLibraryItems } from '@/features/library/items';
 import { copy } from '@/i18n/en';
 import { qk } from '@/lib/queryKeys';
 import { useDragStore } from '@/lib/stores/drag';
@@ -22,13 +25,15 @@ import { openSheet, type SheetParams } from '@/lib/stores/sheet';
 import { toast } from '@/lib/stores/toast';
 import { layout, motion, radius, useTheme } from '@/theme';
 
-import type { Collection } from './api';
+import { type Collection, uploadCollectionPhoto } from './api';
 import {
   useAddToCollection,
+  useCollection,
   useCollections,
   useDeleteCollection,
   useNewCollection,
   useRemoveFromCollection,
+  useSetCollectionArt,
 } from './hooks';
 
 function Title({ children }: { children: string }) {
@@ -247,8 +252,29 @@ export function NewCollectionSheetBody({ p, onClose }: { p: SheetParams['newColl
 export function CollectionMenuSheetBody({ collectionId, onClose }: { collectionId: string; onClose: () => void }) {
   const qc = useQueryClient();
   const del = useDeleteCollection();
+  const [confirm, setConfirm] = useState(false);
   const c = qc.getQueryData<Collection[]>(qk.collections)?.find((x) => x.id === collectionId);
   if (!c) return null;
+  if (!confirm) {
+    return (
+      <MenuRows
+        items={[
+          {
+            icon: 'image',
+            label: copy.collections.art.change,
+            testID: 'collection-art',
+            run: () => openSheet('collectionArt', { collectionId }),
+          },
+          {
+            icon: 'delete',
+            label: copy.collections.delete,
+            testID: 'collection-delete-ask',
+            run: () => setConfirm(true),
+          },
+        ]}
+      />
+    );
+  }
   return (
     <View style={{ gap: 12 }}>
       <Title>{copy.collections.delete}</Title>
@@ -274,6 +300,81 @@ export function CollectionMenuSheetBody({ collectionId, onClose }: { collectionI
           {copy.overflow.delete}
         </Button>
       </View>
+    </View>
+  );
+}
+
+/** Collection art: one of its covers, a photo (square, uploaded), or back to the 2×2 grid. */
+export function CollectionArtSheetBody({ collectionId, onClose }: { collectionId: string; onClose: () => void }) {
+  const { t } = useTheme();
+  const c = useCollection(collectionId).data;
+  const lib = useLibraryItems();
+  const setArt = useSetCollectionArt();
+  const [busy, setBusy] = useState(false);
+  if (!c) return null;
+  const members = c.items.flatMap((e) => {
+    const i = lib.byId.get(e.itemId);
+    return i ? [i] : [];
+  });
+  const choose = (coverItemId: string | null, coverPath: string | null) => {
+    setArt.mutate({ id: c.id, coverItemId, coverPath });
+    onClose();
+    toast({ message: copy.collections.art.changed });
+  };
+  const photo = async (uri: string) => {
+    setBusy(true);
+    try {
+      choose(null, await uploadCollectionPhoto(c.id, uri));
+    } catch {
+      setBusy(false);
+      toast({ message: copy.collections.art.uploadFailed });
+    }
+  };
+  return (
+    <View style={{ gap: 14 }}>
+      <Title>{copy.collections.art.title}</Title>
+      <Txt role="label" size={10} color="textMuted">
+        {copy.collections.art.useCover}
+      </Txt>
+      {members.length === 0 ? (
+        <Txt family="ui" size="xs" color="textMuted">
+          {copy.collections.art.empty}
+        </Txt>
+      ) : (
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ gap: 10 }}>
+          {members.map((m) => {
+            const selected = c.coverItemId === m.id;
+            return (
+              <Press
+                key={m.id}
+                accessibilityRole="button"
+                accessibilityLabel={m.title}
+                accessibilityState={{ selected }}
+                testID={`art-item-${m.id}`}
+                disabled={busy}
+                onPress={() => choose(m.id, null)}
+                style={{
+                  padding: 3,
+                  borderRadius: radius.md,
+                  borderWidth: 2,
+                  borderColor: selected ? t.accentPrimary : 'transparent',
+                }}
+              >
+                <ItemCover item={m} width={64} />
+              </Press>
+            );
+          })}
+        </ScrollView>
+      )}
+      <Txt role="label" size={10} color="textMuted">
+        {copy.collections.art.photo}
+      </Txt>
+      <CoverSourceRows onPicked={(uri) => void photo(uri)} busy={busy} aspect={[1, 1]} />
+      {(c.coverItemId || c.coverPath) && (
+        <Button variant="secondary" block testID="art-reset" disabled={busy} onPress={() => choose(null, null)}>
+          {copy.collections.art.reset}
+        </Button>
+      )}
     </View>
   );
 }

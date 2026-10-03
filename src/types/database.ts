@@ -139,6 +139,8 @@ export type Database = {
       };
       collections: {
         Row: {
+          cover_item_id: string | null;
+          cover_path: string | null;
           created_at: string;
           description: string | null;
           id: string;
@@ -150,6 +152,8 @@ export type Database = {
           user_id: string;
         };
         Insert: {
+          cover_item_id?: string | null;
+          cover_path?: string | null;
           created_at?: string;
           description?: string | null;
           id?: string;
@@ -161,6 +165,8 @@ export type Database = {
           user_id?: string;
         };
         Update: {
+          cover_item_id?: string | null;
+          cover_path?: string | null;
           created_at?: string;
           description?: string | null;
           id?: string;
@@ -171,7 +177,15 @@ export type Database = {
           updated_at?: string;
           user_id?: string;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: 'collections_cover_item_fk';
+            columns: ['cover_item_id', 'user_id'];
+            isOneToOne: false;
+            referencedRelation: 'items';
+            referencedColumns: ['id', 'user_id'];
+          },
+        ];
       };
       episode_watches: {
         Row: {

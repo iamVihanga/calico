@@ -12,6 +12,7 @@ import { ExportSheetBody, SettingSheetBody } from '@/features/account/SettingShe
 import { RulerSheetBody } from '@/features/books/sheets/RulerSheet';
 import {
   AddToCollectionSheetBody,
+  CollectionArtSheetBody,
   CollectionMenuSheetBody,
   NewCollectionSheetBody,
   TraySheetBody,
@@ -147,6 +148,11 @@ export function SheetHost() {
       <Sheet open={sheet?.name === 'collectionMenu'} onClose={closer('collectionMenu')} testID="sheet-collection-menu">
         {sheet?.name === 'collectionMenu' && (
           <CollectionMenuSheetBody collectionId={sheet.params.collectionId} onClose={closer('collectionMenu')} />
+        )}
+      </Sheet>
+      <Sheet open={sheet?.name === 'collectionArt'} onClose={closer('collectionArt')} testID="sheet-collection-art">
+        {sheet?.name === 'collectionArt' && (
+          <CollectionArtSheetBody collectionId={sheet.params.collectionId} onClose={closer('collectionArt')} />
         )}
       </Sheet>
       <Sheet open={sheet?.name === 'setting'} onClose={closer('setting')} testID="sheet-setting">

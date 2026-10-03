@@ -83,7 +83,11 @@ export default function Collections() {
               onPress={() => router.push(`/collection/${c.id}`)}
               style={{ width: '47%', flexGrow: 1 }}
             >
-              <CollectionMosaic items={items.slice(0, 4).map((i) => ({ id: i.id, title: i.title }))} />
+              <CollectionMosaic
+                items={items.slice(0, 4)}
+                art={{ item: c.coverItemId ? byId.get(c.coverItemId) : null, photoPath: c.coverPath }}
+                testID={`mosaic-${c.id}`}
+              />
               <Txt family="display" weight={700} size={16} numberOfLines={1} style={{ marginTop: 10 }}>
                 {c.name}
               </Txt>

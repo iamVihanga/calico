@@ -572,18 +572,48 @@ function Gallery({ name, setName }: { name: ThemeName; setName: (n: ThemeName) =
             <View style={{ flex: 1 }}>
               <CollectionMosaic
                 items={[
-                  { id: 'it', title: 'IT' },
-                  { id: 'shining', title: 'The Shining' },
-                  { id: 'it2017', title: 'IT' },
-                  { id: 'it2', title: 'IT Chapter Two' },
+                  {
+                    id: 'it',
+                    kind: 'movie',
+                    title: 'IT',
+                    cover: { coverPath: null, coverUrl: null, posterPath: null },
+                  },
+                  {
+                    id: 'shining',
+                    kind: 'movie',
+                    title: 'The Shining',
+                    cover: { coverPath: null, coverUrl: null, posterPath: null },
+                  },
+                  {
+                    id: 'it2017',
+                    kind: 'movie',
+                    title: 'IT',
+                    cover: { coverPath: null, coverUrl: null, posterPath: null },
+                  },
+                  {
+                    id: 'it2',
+                    kind: 'movie',
+                    title: 'IT Chapter Two',
+                    cover: { coverPath: null, coverUrl: null, posterPath: null },
+                  },
                 ]}
               />
             </View>
             <View style={{ flex: 1 }}>
               <CollectionMosaic
                 items={[
-                  { id: 'fireblood', title: 'Fire & Blood' },
-                  { id: 'got', title: 'Game of Thrones' },
+                  {
+                    id: 'fireblood',
+                    kind: 'book',
+                    title: 'Fire & Blood',
+                    cover: { coverPath: null, coverUrl: null, posterPath: null },
+                  },
+                  {
+                    id: 'got',
+                    kind: 'show',
+                    title: 'Game of Thrones',
+                    cover: { coverPath: null, coverUrl: null, posterPath: null },
+                  },
                 ]}
               />
             </View>
@@ -591,9 +621,24 @@ function Gallery({ name, setName }: { name: ThemeName; setName: (n: ThemeName) =
           <CollectionMosaic
             variant="strip"
             items={[
-              { id: 'madol', title: 'මඩොල් දූව' },
-              { id: 'gamperaliya', title: 'ගම්පෙරළිය' },
-              { id: 'hathpana', title: 'හත් පණ' },
+              {
+                id: 'madol',
+                kind: 'book',
+                title: 'මඩොල් දූව',
+                cover: { coverPath: null, coverUrl: null, posterPath: null },
+              },
+              {
+                id: 'gamperaliya',
+                kind: 'book',
+                title: 'ගම්පෙරළිය',
+                cover: { coverPath: null, coverUrl: null, posterPath: null },
+              },
+              {
+                id: 'hathpana',
+                kind: 'book',
+                title: 'හත් පණ',
+                cover: { coverPath: null, coverUrl: null, posterPath: null },
+              },
             ]}
           />
         </Section>

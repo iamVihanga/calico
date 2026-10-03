@@ -42,6 +42,7 @@ export const mk = {
   collectionAdd: ['collections', 'add'] as const,
   collectionRemove: ['collections', 'remove'] as const,
   collectionDelete: ['collections', 'delete'] as const,
+  collectionArt: ['collections', 'art'] as const,
   chatSend: ['chat', 'send'] as const,
   chatClear: ['chat', 'clear'] as const,
 };
@@ -104,6 +105,10 @@ export function registerMutations(qc: QueryClient) {
   qc.setMutationDefaults(mk.collectionDelete, {
     scope: MEDIA_SCOPE,
     mutationFn: (v: { id: string }) => collections.deleteCollection(v),
+  });
+  qc.setMutationDefaults(mk.collectionArt, {
+    scope: MEDIA_SCOPE,
+    mutationFn: (v: collections.ArtVars) => collections.setCollectionArt(v),
   });
   qc.setMutationDefaults(mk.collectionCreate, {
     scope: MEDIA_SCOPE,

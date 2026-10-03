@@ -64,6 +64,8 @@ export function useNewCollection() {
       description: v.description ?? null,
       position: v.position,
       createdAt: new Date().toISOString(),
+      coverItemId: null,
+      coverPath: null,
       items: v.items.map((itemId, i) => ({ itemId, position: v.positions[i]! })),
     },
   ]);
@@ -135,6 +137,12 @@ export function useRemoveFromCollection() {
 
 export const useDeleteCollection = () =>
   useCollectionMutation<{ id: string }>(mk.collectionDelete, (l, v) => l.filter((c) => c.id !== v.id));
+
+/** Collection art: a cover (`coverItemId`), a photo (`coverPath`), or neither (the grid). */
+export const useSetCollectionArt = () =>
+  useCollectionMutation<api.ArtVars>(mk.collectionArt, (l, v) =>
+    l.map((c) => (c.id !== v.id ? c : { ...c, coverItemId: v.coverItemId, coverPath: v.coverPath })),
+  );
 
 /** Series parts missing from the library, for the movies in this collection (TMDB, cached a day). */
 export function useSeriesSuggestions(members: LibItem[], library: LibItem[]): SeriesPart[] {

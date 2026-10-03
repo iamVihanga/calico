@@ -73,6 +73,9 @@ Expo-specific guidance: @AGENTS.md
   (`keyForMove` on the current order), never from a render-time index.
 - Screen `presentation` (modals) is declared in the parent layout's `<Stack.Screen>`, not from inside the
   screen: changing it later remounts the screen.
+- Collection art (`collections.cover_item_id` / `cover_path`): `CollectionMosaic` shows the first four covers
+  (`ItemCover`, cropped) unless the user chose one cover or a square photo (`covers/{uid}/collections/{id}-{ts}.jpg`,
+  old photo removed in `setCollectionArt` / `deleteCollection`). Chosen in the `collectionArt` sheet.
 - Drag to collect: `useCollectDrag(item)` on covers, `useDragStore` for the lifted card and chip rects
   (`TargetChip` registers via `measureInWindow`), `DragLayer` in the app layout; tray chips are also tappable.
 - Loading/error: lists show `SkeletonGrid`/`SkeletonRows`, detail screens use `DetailLoadState` (skeleton →

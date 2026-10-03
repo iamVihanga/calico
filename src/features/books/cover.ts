@@ -12,12 +12,15 @@ export class CameraDenied extends Error {}
  */
 export const replacementPath = (uid: string, itemId: string, at: number) => `${uid}/${itemId}/front-${at}.jpg`;
 
-/** Camera or gallery, cropped to the cover shape by the system picker, then resized like a capture. */
-export async function pickCover(source: 'camera' | 'gallery'): Promise<string | null> {
+/** Camera or gallery, cropped to the cover shape (or `aspect`) by the system picker, then resized like a capture. */
+export async function pickCover(
+  source: 'camera' | 'gallery',
+  aspect: [number, number] = [2, 3],
+): Promise<string | null> {
   const opts: ImagePicker.ImagePickerOptions = {
     mediaTypes: ['images'],
     allowsEditing: true,
-    aspect: [2, 3],
+    aspect,
     quality: 0.9,
   };
   if (source === 'camera') {

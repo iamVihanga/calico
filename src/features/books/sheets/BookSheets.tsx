@@ -257,9 +257,9 @@ export function OverflowSheetBody({ itemId, onClose }: Props) {
   return <MenuRows items={items} />;
 }
 
-type MenuItem = { icon: IconName; label: string; run: () => void; testID?: string; disabled?: boolean };
+export type MenuItem = { icon: IconName; label: string; run: () => void; testID?: string; disabled?: boolean };
 
-function MenuRows({ items }: { items: MenuItem[] }) {
+export function MenuRows({ items }: { items: MenuItem[] }) {
   const { t } = useTheme();
   return (
     <View style={{ marginHorizontal: -layout.gutterScreen }}>
@@ -291,12 +291,20 @@ function MenuRows({ items }: { items: MenuItem[] }) {
   );
 }
 
-/** Take a photo / Choose from gallery → a cropped (2:3), resized local photo for `onPicked`. */
-export function CoverSourceRows({ onPicked, busy }: { onPicked: (uri: string) => void; busy?: boolean }) {
+/** Take a photo / Choose from gallery → a cropped (2:3, or `aspect`), resized local photo for `onPicked`. */
+export function CoverSourceRows({
+  onPicked,
+  busy,
+  aspect,
+}: {
+  onPicked: (uri: string) => void;
+  busy?: boolean;
+  aspect?: [number, number];
+}) {
   const go = async (source: 'camera' | 'gallery') => {
     let uri: string | null;
     try {
-      uri = await pickCover(source);
+      uri = await pickCover(source, aspect);
     } catch (e) {
       toast({ message: e instanceof CameraDenied ? copy.edit.cameraDenied : copy.edit.coverFailed });
       return;

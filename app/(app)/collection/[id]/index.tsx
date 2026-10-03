@@ -72,7 +72,12 @@ export default function CollectionDetail() {
         />
       </View>
       <View style={{ paddingTop: 16, paddingHorizontal: layout.gutterScreen }}>
-        <CollectionMosaic variant="strip" items={members.slice(0, 4).map((m) => ({ id: m.id, title: m.title }))} />
+        <CollectionMosaic
+          variant="strip"
+          items={members.slice(0, 4)}
+          art={{ item: c.coverItemId ? lib.byId.get(c.coverItemId) : null, photoPath: c.coverPath }}
+          testID="collection-mosaic"
+        />
         <Txt
           family="display"
           weight={700}

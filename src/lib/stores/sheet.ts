@@ -35,6 +35,7 @@ export type SheetParams = {
   addToCollection: { itemId: string; title: string };
   newCollection: { itemId?: string };
   collectionMenu: { collectionId: string };
+  collectionArt: { collectionId: string };
   setting: { field: 'goal' | 'loanDays' | 'library' | 'time' };
   export: undefined;
 };
