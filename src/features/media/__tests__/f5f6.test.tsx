@@ -270,6 +270,19 @@ describe('F5: add a show and watch the next episode', () => {
     expect(screen.queryByTestId('episode-row-1-1')).toBeNull();
     await fireEvent.press(screen.getByTestId('season-toggle-2'));
     await waitFor(() => expect(screen.queryByTestId('episode-row-2-1')).toBeNull());
+
+    // Mark all of season 1 unwatched, then Undo.
+    await fireEvent.press(screen.getByTestId('season-toggle-1'));
+    await act(async () => {
+      await fireEvent.press(await screen.findByTestId('clear-1'));
+    });
+    expect(await screen.findByText(copy.shows.seasonUnmarked('Season 1'))).toBeTruthy();
+    await waitFor(() => expect(screen.getByTestId('season-count-1')).toHaveTextContent('0/10'));
+    expect(screen.queryByTestId('clear-1')).toBeNull();
+    await act(async () => {
+      await fireEvent.press(screen.getByText(copy.common.undo));
+    });
+    await waitFor(() => expect(screen.getByTestId('season-count-1')).toHaveTextContent('10/10'));
     expect(screen.getByTestId('episode-count')).toHaveTextContent(copy.shows.episodeCount(14, 19));
 
     await act(async () => router.navigate('/'));

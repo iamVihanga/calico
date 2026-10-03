@@ -531,6 +531,7 @@ export const en = {
     marked: (code: string) => `Marked ${code} watched`,
     unmarked: (code: string) => `${code} unmarked`,
     seasonMarked: (label: string) => `${label} marked watched`,
+    seasonUnmarked: (label: string) => `${label} marked unwatched`,
     lastEpisode: (title: string) => `That was the last episode of ${title}. Mark the show as watched?`,
     markWatched: 'Mark watched',
     specialCode: (e: number) => `Special ${e}`,
@@ -539,6 +540,7 @@ export const en = {
     square: (season: number, episode: number, name: string | null, state: string) =>
       `${season === 0 ? 'Special' : `Season ${season}`}, episode ${episode}${name ? `, ${name}` : ''}, ${state}`,
     fillSeason: (label: string) => `Mark all of ${label} watched`,
+    clearSeason: (label: string) => `Mark all of ${label} unwatched`,
     seasonA11y: (label: string, seen: number, total: number) => `${label}, ${seen} of ${total} watched`,
     continueWatching: 'Continue watching',
     tickHint: "tap the tick when you're done",

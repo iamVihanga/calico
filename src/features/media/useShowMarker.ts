@@ -83,5 +83,18 @@ export function useShowMarker(show: Pick<Show, 'id' | 'tmdbId' | 'title' | 'tmdb
     [id, watched, markSeason, undo, maybeFinished],
   );
 
-  return useMemo(() => ({ toggle, fillSeason }), [toggle, fillSeason]);
+  /** Every watched episode of a season back to unwatched, in one write, with Undo. */
+  const clearSeason = useCallback(
+    (s: Season): number[] => {
+      const have = watched();
+      const seen = s.episodes.filter((e) => have.has(epKey(s.n, e.episode))).map((e) => e.episode);
+      if (!seen.length) return [];
+      markEpisodes({ itemId: id, season: s.n, episodes: seen, watched: false });
+      toast({ message: copy.shows.seasonUnmarked(copy.shows.season(s.n)), action: undo(s.n, seen, true) });
+      return seen;
+    },
+    [id, watched, markEpisodes, undo],
+  );
+
+  return useMemo(() => ({ toggle, fillSeason, clearSeason }), [toggle, fillSeason, clearSeason]);
 }

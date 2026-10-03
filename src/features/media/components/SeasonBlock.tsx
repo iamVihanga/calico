@@ -25,6 +25,7 @@ type Props = {
   onToggleEpisode: (e: Episode) => void;
   onOpenEpisode: (e: Episode) => void;
   onFillSeason: (s: Season) => void;
+  onClearSeason: (s: Season) => void;
 };
 
 const isAired = (e: Episode, today: LocalDate) => !!e.airDate && e.airDate <= today;
@@ -43,6 +44,7 @@ function SeasonBlockView({
   onToggleEpisode,
   onOpenEpisode,
   onFillSeason,
+  onClearSeason,
 }: Props) {
   const { t } = useTheme();
   const reduced = useReducedMotion();
@@ -97,17 +99,33 @@ function SeasonBlockView({
           entering={reduced ? undefined : FadeIn.duration(motion.duration.base)}
           style={{ paddingHorizontal: 16, paddingBottom: 6 }}
         >
-          {airedCount > seenCount && (
-            <Press
-              accessibilityRole="button"
-              onPress={() => onFillSeason(season)}
-              style={{ minHeight: 44, justifyContent: 'center', alignSelf: 'flex-start' }}
-              testID={`fill-${season.n}`}
-            >
-              <Txt family="ui" weight={700} size="xs" color="textAccent">
-                {copy.shows.fillSeason(label)}
-              </Txt>
-            </Press>
+          {(airedCount > seenCount || seenCount > 0) && (
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', columnGap: 18 }}>
+              {airedCount > seenCount && (
+                <Press
+                  accessibilityRole="button"
+                  onPress={() => onFillSeason(season)}
+                  style={{ minHeight: 44, justifyContent: 'center' }}
+                  testID={`fill-${season.n}`}
+                >
+                  <Txt family="ui" weight={700} size="xs" color="textAccent">
+                    {copy.shows.fillSeason(label)}
+                  </Txt>
+                </Press>
+              )}
+              {seenCount > 0 && (
+                <Press
+                  accessibilityRole="button"
+                  onPress={() => onClearSeason(season)}
+                  style={{ minHeight: 44, justifyContent: 'center' }}
+                  testID={`clear-${season.n}`}
+                >
+                  <Txt family="ui" weight={700} size="xs" color="textSecondary">
+                    {copy.shows.clearSeason(label)}
+                  </Txt>
+                </Press>
+              )}
+            </View>
           )}
           {eps.map((e) => (
             <EpisodeListRow
@@ -136,7 +154,8 @@ export const SeasonBlock = memo(
     a.onToggleExpand === b.onToggleExpand &&
     a.onToggleEpisode === b.onToggleEpisode &&
     a.onOpenEpisode === b.onOpenEpisode &&
-    a.onFillSeason === b.onFillSeason,
+    a.onFillSeason === b.onFillSeason &&
+    a.onClearSeason === b.onClearSeason,
 );
 
 const STILL_TINTS = ['surfaceSunk', 'surfaceAccentSoft', 'statusInfoSoft', 'statusSuccessSoft'] as const;
