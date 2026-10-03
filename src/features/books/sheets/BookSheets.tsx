@@ -11,8 +11,10 @@ import { Input } from '@/components/ds/Input';
 import { Press } from '@/components/ds/Press';
 import { Tag } from '@/components/ds/Tag';
 import { Txt } from '@/components/ds/Txt';
+import { WhenChooser } from '@/components/calico/WhenChooser';
 import { copy } from '@/i18n/en';
-import { addLocalDays, colomboToday, daysBetween, fmtShort } from '@/lib/dates';
+import { JUST_NOW, type When, whenVars } from '@/lib/when';
+import { addLocalDays, colomboToday, daysBetween } from '@/lib/dates';
 import { openSheet } from '@/lib/stores/sheet';
 import { toast } from '@/lib/stores/toast';
 import { layout, useTheme } from '@/theme';
@@ -43,6 +45,7 @@ export function FinishSheetBody({ itemId, onClose }: Props) {
   const [rating, setRating] = useState(0);
   const [note, setNote] = useState('');
   const [returnLoan, setReturnLoan] = useState(true);
+  const [when, setWhen] = useState<When>(JUST_NOW);
   const [prompt] = useState(() => copy.finish.prompts[promptIndex++ % copy.finish.prompts.length]);
   if (!book) return null;
 
@@ -68,13 +71,11 @@ export function FinishSheetBody({ itemId, onClose }: Props) {
         <RatingStars value={rating} onChange={setRating} />
       </View>
       <Input multiline rows={2} value={note} onChange={setNote} placeholder={prompt} accessibilityLabel={prompt} />
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', minHeight: 52 }}>
+      <View style={{ gap: 8, paddingVertical: 6 }}>
         <Txt family="ui" weight={600} size={14}>
-          {copy.finish.finished}
+          {copy.when.finishedTitle}
         </Txt>
-        <Txt family="ui" weight={600} size={14} color="textAccent">
-          {copy.finish.today(fmtShort(today))}
-        </Txt>
+        <WhenChooser value={when} onChange={setWhen} testID="finish-when" />
       </View>
       {book.loan && (
         <Checkbox label={copy.finish.returnToo(book.loan.party)} checked={returnLoan} onChange={setReturnLoan} />
@@ -87,10 +88,10 @@ export function FinishSheetBody({ itemId, onClose }: Props) {
         onPress={() => {
           finish.mutate({
             itemId,
-            on: today,
             rating: rating || null,
             note: note.trim() || null,
             returnLoan: !!book.loan && returnLoan,
+            ...whenVars(when, today),
           });
           onClose();
           toast({

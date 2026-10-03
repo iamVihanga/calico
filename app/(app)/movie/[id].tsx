@@ -16,6 +16,7 @@ import { useMovie, useSetMediaStatus } from '@/features/media/hooks';
 import { fmtRuntime, MOVIE_STOPS } from '@/features/media/logic';
 import type { MovieStatus } from '@/features/media/types';
 import { copy } from '@/i18n/en';
+import { partialLabel } from '@/lib/when';
 import { fmtDay, fmtLong } from '@/lib/dates';
 import { openSheet } from '@/lib/stores/sheet';
 import { toast } from '@/lib/stores/toast';
@@ -155,12 +156,12 @@ export default function MovieDetail() {
           ref={stack}
           viewings={movie.viewings.map((v) => ({
             id: v.id,
-            // Added "a while ago": the save date isn't when it was watched.
-            date: v.backfilled
-              ? copy.when.past
-              : v.watchedOn.slice(0, 4) === new Date().getFullYear().toString()
+            // Watched "a while ago": only what's known ("A while ago", "2024", "Mar 2024").
+            date:
+              partialLabel(v.watchedOn, v.backfilled ? v.precision : 'day', copy.when.past) ??
+              (v.watchedOn.slice(0, 4) === new Date().getFullYear().toString()
                 ? fmtDay(v.watchedOn)
-                : fmtLong(v.watchedOn),
+                : fmtLong(v.watchedOn)),
             rating: v.rating,
             note: v.note,
           }))}

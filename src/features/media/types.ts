@@ -1,5 +1,7 @@
 import type { TmdbEpisode } from '@shared/tmdb.ts';
 
+import type { Precision } from '@/lib/when';
+
 export type MovieStatus = 'watchlist' | 'watched' | 'dropped';
 export type ShowStatus = 'watchlist' | 'watching' | 'watched' | 'dropped';
 export type MediaStatus = MovieStatus | ShowStatus;
@@ -11,6 +13,8 @@ export type Viewing = {
   note: string | null;
   /** Watched "a while ago" (not counted in period stats). */
   backfilled?: boolean;
+  /** How well `watchedOn` is known ('day' for live viewings; null = "a while ago", no date). */
+  precision?: Precision | null;
 };
 
 type MediaBase = {

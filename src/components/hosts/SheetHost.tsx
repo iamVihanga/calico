@@ -9,6 +9,7 @@ import {
   StopSheetBody,
 } from '@/features/books/sheets/BookSheets';
 import { ExportSheetBody, SettingSheetBody } from '@/features/account/SettingSheets';
+import { WatchedWhenSheetBody } from '@/features/media/sheets/WatchedWhenSheet';
 import { RulerSheetBody } from '@/features/books/sheets/RulerSheet';
 import {
   AddToCollectionSheetBody,
@@ -148,6 +149,15 @@ export function SheetHost() {
       <Sheet open={sheet?.name === 'collectionMenu'} onClose={closer('collectionMenu')} testID="sheet-collection-menu">
         {sheet?.name === 'collectionMenu' && (
           <CollectionMenuSheetBody collectionId={sheet.params.collectionId} onClose={closer('collectionMenu')} />
+        )}
+      </Sheet>
+      <Sheet open={sheet?.name === 'watchedWhen'} onClose={closer('watchedWhen')} testID="sheet-watched-when">
+        {sheet?.name === 'watchedWhen' && (
+          <WatchedWhenSheetBody
+            itemId={sheet.params.itemId}
+            season={sheet.params.season}
+            onClose={closer('watchedWhen')}
+          />
         )}
       </Sheet>
       <Sheet open={sheet?.name === 'collectionArt'} onClose={closer('collectionArt')} testID="sheet-collection-art">

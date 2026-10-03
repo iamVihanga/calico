@@ -8,7 +8,7 @@ import { MEDIA_SCOPE, mk } from '@/lib/mutations';
 import { qk } from '@/lib/queryKeys';
 
 import * as api from './api';
-import { epKey, progressOf, watchSet } from './logic';
+import { airedIn, epKey, progressOf, seasonsOf, watchSet } from './logic';
 import type { Episode, EpisodeRef, Movie, Show, ShowProgress } from './types';
 
 export const MOVIES = qk.items('movie', 'all');
@@ -177,6 +177,7 @@ function optimisticMedia(v: api.NewMedia): Movie | Show {
                   rating: v.rating ?? null,
                   note: null,
                   backfilled: v.backfill ?? false,
+                  precision: v.backfill ? (v.precision ?? null) : 'day',
                 },
               ]
             : [],
@@ -231,7 +232,14 @@ export function useLogViewing() {
           finishedAt: latest ? v.on : m.finishedAt,
           rating: latest ? (v.rating ?? m.rating) : m.rating,
           viewings: [
-            { id: v.id, watchedOn: v.on, rating: v.rating, note: v.note, backfilled: v.backfill ?? false },
+            {
+              id: v.id,
+              watchedOn: v.on,
+              rating: v.rating,
+              note: v.note,
+              backfilled: v.backfill ?? false,
+              precision: v.backfill ? (v.precision ?? null) : 'day',
+            },
             ...m.viewings,
           ].sort((a, b) => b.watchedOn.localeCompare(a.watchedOn)),
         };
@@ -292,12 +300,22 @@ export function useMarkShowWatched() {
     onMutate: async (v) => {
       const s = await snap(qc, v.itemId);
       const today = colomboToday();
+      const on = v.backfill && v.precision && v.on ? v.on : today;
+      // Tick every aired episode at once when the episode list is cached (show detail).
+      const show = qc.getQueryData<Show[]>(SHOWS)?.find((x) => x.id === v.itemId);
+      const eps = show ? qc.getQueryData<Episode[]>(qk.episodes(show.tmdbId)) : undefined;
+      if (eps) {
+        const specials =
+          (qc.getQueryData(qk.profile) as { include_specials?: boolean } | undefined)?.include_specials ?? false;
+        for (const season of seasonsOf(eps, specials))
+          applyWatches(qc, v.itemId, season.n, airedIn(season, today), true);
+      }
       patchShow(qc, v.itemId, (x) => {
-        const ended = x.tmdbStatus === 'Ended' || x.tmdbStatus === 'Canceled';
+        const watched = v.forceWatched || x.tmdbStatus === 'Ended' || x.tmdbStatus === 'Canceled';
         return {
-          status: ended ? 'watched' : 'watching',
-          startedAt: x.startedAt ?? today,
-          finishedAt: ended ? today : x.finishedAt,
+          status: watched ? 'watched' : 'watching',
+          startedAt: x.startedAt && x.startedAt < on ? x.startedAt : on,
+          finishedAt: v.forceWatched ? on : watched ? (x.finishedAt ?? on) : x.finishedAt,
         };
       });
       return s;

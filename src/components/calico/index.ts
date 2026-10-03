@@ -8,4 +8,4 @@ export { GeneratedCover } from './GeneratedCover';
 export { Pinki, type PinkiPose } from './Pinki';
 export { MediaShapeIcon, type MediaKind } from './MediaShapeIcon';
 export { starString, TicketStub } from './TicketStub';
-export { type When, WhenChooser } from './WhenChooser';
+export { WhenChooser } from './WhenChooser';

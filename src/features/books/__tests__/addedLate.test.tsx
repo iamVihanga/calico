@@ -1,5 +1,6 @@
 import { act, fireEvent, renderRouter, screen, waitFor } from 'expo-router/testing-library';
 
+import { copy } from '@/i18n/en';
 import { addLocalDays, colomboToday, fmtShort } from '@/lib/dates';
 import { cleanupAppState } from '@/test/cleanup';
 
@@ -54,13 +55,19 @@ describe('adding a book late', () => {
     await fireEvent.changeText(await screen.findByTestId('review-title'), 'Gamperaliya');
     await fireEvent.press(screen.getByTestId('status-read'));
     await fireEvent.press(await screen.findByTestId('review-when-past'));
+    expect(screen.getByTestId('review-when-hint')).toHaveTextContent(copy.when.hintNone);
+    // Only the year is remembered: it counts in that year's stats.
+    await fireEvent.press(await screen.findByTestId('review-when-year-2024'));
+    expect(screen.getByTestId('review-when-hint')).toHaveTextContent(copy.when.hintPeriod('2024'));
     await act(async () => {
       await fireEvent.press(screen.getByTestId('review-add'));
     });
     await waitFor(() => expect(mockFinish).toHaveBeenCalled());
     const book = mockCreate.mock.calls[0]![0] as { id: string; status: string };
     expect(book.status).toBe('to_read');
-    expect(mockFinish).toHaveBeenCalledWith(expect.objectContaining({ itemId: book.id, backfill: true }));
+    expect(mockFinish).toHaveBeenCalledWith(
+      expect.objectContaining({ itemId: book.id, backfill: true, on: '2024-01-01', precision: 'year' }),
+    );
   });
 
   it('a library book borrowed a week ago is due a week sooner', async () => {

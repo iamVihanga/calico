@@ -1,4 +1,5 @@
 import type { Enums } from '@/types/db';
+import type { Precision } from '@/lib/when';
 
 export type ItemStatus = Enums<'item_status'>;
 export type BookStatus = Extract<ItemStatus, 'wishlist' | 'to_read' | 'reading' | 'read' | 'abandoned'>;
@@ -50,6 +51,8 @@ export type ReadingSession = {
   rating: number | null;
   /** Finished "a while ago" (not counted in period stats). */
   backfilled?: boolean;
+  /** How well `finishedAt` is known ('day' for live reads; null = "a while ago", no date). */
+  precision?: Precision | null;
 };
 
 export type PageLog = { id: string; page: number; loggedAt: string };

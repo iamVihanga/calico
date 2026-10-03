@@ -2,6 +2,7 @@ import { randomUUID } from 'expo-crypto';
 
 import { colomboToday, type LocalDate } from '@/lib/dates';
 import { currentUserId, supabase } from '@/lib/supabase';
+import type { Precision } from '@/lib/when';
 import type { Tables } from '@/types/db';
 
 import type { Book, BookDetail, BookFormat, BookStatus, Loan, Ownership, PageLog } from './types';
@@ -85,6 +86,7 @@ export async function fetchBook(id: string): Promise<BookDetail | null> {
         outcome: s.outcome as BookDetail['sessions'][number]['outcome'],
         rating: s.rating,
         backfilled: s.backfilled,
+        precision: s.date_precision as Precision | null,
       }))
       .sort((a, b) => (a.startedAt < b.startedAt ? -1 : 1)),
     collections: row.collection_items.flatMap((c) => (c.collections ? [c.collections] : [])),
@@ -204,8 +206,9 @@ export type FinishVars = {
   rating: number | null;
   note: string | null;
   returnLoan: boolean;
-  /** Finished "a while ago": kept out of the week/month/year stats. */
+  /** Finished "a while ago": counted only where `precision` places it (null = nowhere). */
   backfill?: boolean;
+  precision?: Precision | null;
 };
 export async function finishBook(v: FinishVars): Promise<void> {
   const { error } = await supabase.rpc('finish_book', {
@@ -215,6 +218,7 @@ export async function finishBook(v: FinishVars): Promise<void> {
     p_note: v.note as string,
     p_return_loan: v.returnLoan,
     p_backfill: v.backfill ?? false,
+    ...(v.backfill && v.precision ? { p_precision: v.precision } : {}),
   });
   if (error) throw error;
 }

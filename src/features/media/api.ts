@@ -3,6 +3,7 @@ import { fromEpisodeRow } from '@shared/tmdb.ts';
 
 import { colomboToday, type LocalDate } from '@/lib/dates';
 import { supabase } from '@/lib/supabase';
+import type { Precision } from '@/lib/when';
 import type { Tables } from '@/types/db';
 
 import type { Episode, EpisodeRef, MediaStatus, Movie, Show, ShowProgress, Viewing } from './types';
@@ -30,6 +31,7 @@ export const toViewing = (l: Tables<'watch_logs'>): Viewing => ({
   rating: l.rating,
   note: l.note,
   backfilled: l.backfilled,
+  precision: l.date_precision as Precision | null,
 });
 
 /** Latest viewing first (then the most recently logged, for two on the same day). */
@@ -180,6 +182,7 @@ export type NewMedia = {
   watchedOn?: LocalDate;
   /** Watched "a while ago": the first viewing is kept out of period stats. */
   backfill?: boolean;
+  precision?: Precision | null;
   rating?: number | null;
   upNextPosition?: string;
   // movies
@@ -240,6 +243,7 @@ export async function addTmdbItem(v: NewMedia): Promise<void> {
       overview: v.overview,
       watched_on: v.watchedOn ?? null,
       backfill: v.backfill ?? false,
+      precision: v.precision ?? null,
       rating: v.rating ?? null,
       ...(v.upNextPosition ? { up_next_position: v.upNextPosition } : {}),
       ...(movie
@@ -271,6 +275,7 @@ export type ViewingVars = {
   rating: number | null;
   note: string | null;
   backfill?: boolean;
+  precision?: Precision | null;
 };
 export async function logViewing(v: ViewingVars): Promise<void> {
   const { error } = await supabase.rpc('log_viewing', {
@@ -280,11 +285,17 @@ export async function logViewing(v: ViewingVars): Promise<void> {
     p_rating: v.rating as number,
     p_note: v.note as string,
     p_backfill: v.backfill ?? false,
+    ...dated(v),
   });
   if (error) throw error;
 }
 
-export type MarkVars = { itemId: string; season: number; episodes: number[]; watched: boolean; backfill?: boolean };
+/** "A while ago" with a date: when it happened and how well that's known. */
+export type Dated = { backfill?: boolean; on?: LocalDate; precision?: Precision | null };
+const dated = (v: Dated) =>
+  v.backfill && v.precision ? { p_precision: v.precision, ...(v.on ? { p_on: v.on } : {}) } : {};
+
+export type MarkVars = { itemId: string; season: number; episodes: number[]; watched: boolean } & Dated;
 export async function markEpisodes(v: MarkVars): Promise<void> {
   const { error } = await supabase.rpc('mark_episodes', {
     p_item: v.itemId,
@@ -292,25 +303,33 @@ export async function markEpisodes(v: MarkVars): Promise<void> {
     p_episodes: v.episodes,
     p_watched: v.watched,
     p_backfill: v.backfill ?? false,
+    ...dated(v),
   });
   if (error) throw error;
 }
 
-export type SeasonVars = { itemId: string; season: number; episodes: number[]; backfill?: boolean };
+export type SeasonVars = { itemId: string; season: number; episodes: number[] } & Dated;
 /** Server marks every aired episode (`mark_season`); `episodes` is the client's copy for the optimistic update. */
 export async function markSeason(v: SeasonVars): Promise<void> {
   const { error } = await supabase.rpc('mark_season', {
     p_item: v.itemId,
     p_season: v.season,
     p_backfill: v.backfill ?? false,
+    ...dated(v),
   });
   if (error) throw error;
 }
 
-export type ShowWatchedVars = { itemId: string; backfill: boolean };
+/** `forceWatched`: switched to Watched by hand, so it's Watched even while the show still airs. */
+export type ShowWatchedVars = { itemId: string; backfill: boolean; forceWatched?: boolean } & Dated;
 /** "Already watched": every aired episode; Watched if the show has ended, else Watching (`mark_show_watched`). */
 export async function markShowWatched(v: ShowWatchedVars): Promise<void> {
-  const { error } = await supabase.rpc('mark_show_watched', { p_item: v.itemId, p_backfill: v.backfill });
+  const { error } = await supabase.rpc('mark_show_watched', {
+    p_item: v.itemId,
+    p_backfill: v.backfill,
+    ...(v.forceWatched ? { p_force_watched: true } : {}),
+    ...dated(v),
+  });
   if (error) throw error;
 }
 

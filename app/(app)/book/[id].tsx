@@ -38,6 +38,7 @@ import type { BookDetail, ReadingSession } from '@/features/books/types';
 import { useBookStatusChange } from '@/features/books/useBookStatusChange';
 import { useReturn } from '@/features/loans/hooks';
 import { copy } from '@/i18n/en';
+import { partialLabel } from '@/lib/when';
 import { colomboToday, fmtLong, fmtShort } from '@/lib/dates';
 import { openSheet } from '@/lib/stores/sheet';
 import { alpha, fontFamily, layout, motion, palette, radius, shadow, size, tracking, useTheme } from '@/theme';
@@ -64,8 +65,11 @@ const ARRIVAL_SHEETS: string[] = ['ruler', 'finish', 'stop', 'renew', 'loanQuick
 type ArrivalSheet = 'ruler' | 'finish' | 'stop' | 'renew' | 'loanQuick';
 
 function historyLine(s: ReadingSession, n: number): string {
-  // Added as Read "a while ago": the save date isn't when it was read.
-  if (s.outcome === 'read' && s.backfilled) return copy.books.historyFinishedPast(n);
+  // Read "a while ago": show only what's known ("2024", "Mar 2024"), or no date at all.
+  if (s.outcome === 'read' && s.finishedAt && s.precision !== 'day' && s.precision !== undefined) {
+    const known = partialLabel(s.finishedAt, s.precision, '');
+    return known ? copy.books.historyFinished(n, known) : copy.books.historyFinishedPast(n);
+  }
   if (s.outcome === 'read' && s.finishedAt) return copy.books.historyFinished(n, fmtLong(s.finishedAt));
   if (s.outcome === 'abandoned' && s.finishedAt) return copy.books.historyAbandoned(n, fmtLong(s.finishedAt));
   if (s.outcome === 'paused' && s.finishedAt) return copy.books.historyPaused(n, fmtLong(s.finishedAt));

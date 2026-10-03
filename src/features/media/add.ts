@@ -5,6 +5,7 @@ import { router } from 'expo-router';
 import { newId } from '@/features/books/api';
 import { copy } from '@/i18n/en';
 import { colomboToday } from '@/lib/dates';
+import type { WhenVars } from '@/lib/when';
 import { openSheet } from '@/lib/stores/sheet';
 import { toast } from '@/lib/stores/toast';
 
@@ -34,14 +35,14 @@ export type AddTarget = { tmdbId: number; kind: TmdbKind; title: string };
 /**
  * Add from TMDB (plan §11.11): fetch the details (a show's also fill the episode cache), then a
  * replayable `add_tmdb_item`. "Already watched" on a show marks every aired episode
- * (`mark_show_watched`, queued after the add); `backfill` ("a while ago") keeps it out of period
- * stats. A movie from a series offers the rest of the series.
+ * (`mark_show_watched`, queued after the add); `when` ("a while ago", maybe dated) decides which
+ * stats it counts in. A movie from a series offers the rest of the series.
  */
 export function useAddFromTmdb() {
   const qc = useQueryClient();
   const add = useAddMedia();
   const markShow = useMarkShowWatched();
-  return async (r: AddTarget, status: 'watchlist' | 'watched', backfill = false): Promise<string | null> => {
+  return async (r: AddTarget, status: 'watchlist' | 'watched', when?: WhenVars): Promise<string | null> => {
     let d: TmdbMovie | TmdbShow;
     try {
       d = r.kind === 'movie' ? await fetchMovieDetails(qc, r.tmdbId) : await fetchShowDetails(qc, r.tmdbId);
@@ -56,10 +57,19 @@ export function useAddFromTmdb() {
         d,
         id,
         asWatched ? 'watched' : 'watchlist',
-        asWatched ? { watchedOn: colomboToday(), backfill } : {},
+        asWatched
+          ? { watchedOn: when?.on ?? colomboToday(), backfill: when?.backfill ?? false, precision: when?.precision }
+          : {},
       ),
     );
-    if (d.kind === 'show' && status === 'watched') markShow.mutate({ itemId: id, backfill });
+    if (d.kind === 'show' && status === 'watched') {
+      markShow.mutate({
+        itemId: id,
+        backfill: when?.backfill ?? false,
+        on: when?.on,
+        precision: when?.precision,
+      });
+    }
     const href = d.kind === 'movie' ? `/movie/${id}` : `/show/${id}`;
     toast({
       message: copy.tmdb.addedToast(d.title),

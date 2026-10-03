@@ -9,7 +9,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { type Confidence, ConfidenceField } from '@/components/calico/ConfidenceField';
 import { DayChooser } from '@/components/calico/DayChooser';
 import { coverRadius, GeneratedCover } from '@/components/calico/GeneratedCover';
-import { type When, WhenChooser } from '@/components/calico/WhenChooser';
+import { WhenChooser } from '@/components/calico/WhenChooser';
 import { Button } from '@/components/ds/Button';
 import { IconButton } from '@/components/ds/IconButton';
 import { Press } from '@/components/ds/Press';
@@ -36,6 +36,7 @@ import { capture, type Draft } from '@/features/capture/store';
 import { maybeAskForReminders } from '@/features/loans/sheets/LoanSheets';
 import { useProfile, useUpdateProfile } from '@/features/profile/hooks';
 import { copy } from '@/i18n/en';
+import { JUST_NOW, type When, whenVars } from '@/lib/when';
 import { addLocalDays, colomboToday, fmtShort } from '@/lib/dates';
 import { toast, useToastStore } from '@/lib/stores/toast';
 import { layout, radius, shadow, useTheme } from '@/theme';
@@ -74,7 +75,7 @@ export default function Review() {
   const today = colomboToday();
   // Added late: the loan can start on an earlier day, and a Read book can be "a while ago".
   const [borrowedOn, setBorrowedOn] = useState(today);
-  const [readWhen, setReadWhen] = useState<When>('now');
+  const [readWhen, setReadWhen] = useState<When>(JUST_NOW);
   const defaultDue = (DUE_CHOICES as readonly number[]).includes(profile?.default_loan_days ?? 0)
     ? (profile!.default_loan_days as ReviewForm['dueDays'])
     : 14;
@@ -172,14 +173,7 @@ export default function Review() {
       void maybeAskForReminders();
     }
     if (finalStatus === 'read') {
-      finish.mutate({
-        itemId,
-        on: today,
-        rating: null,
-        note: null,
-        returnLoan: false,
-        backfill: readWhen === 'past',
-      });
+      finish.mutate({ itemId, rating: null, note: null, returnLoan: false, ...whenVars(readWhen, today) });
     }
     const shown = v.titleNative && profile?.lead_script === 'si' ? v.titleNative : book.title;
     if (draft) {

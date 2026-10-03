@@ -6,6 +6,7 @@ import { copy } from '@/i18n/en';
 import { colomboToday } from '@/lib/dates';
 import { qk } from '@/lib/queryKeys';
 import { toast, useToastStore } from '@/lib/stores/toast';
+import type { WhenVars } from '@/lib/when';
 
 import { SHOWS, useIncludeSpecials, useMarkEpisodes, useMarkSeason, useSetMediaStatus } from './hooks';
 import { airedIn, epCode, epKey, finishedShow, progressOf, type Season, watchSet } from './logic';
@@ -69,13 +70,13 @@ export function useShowMarker(show: Pick<Show, 'id' | 'tmdbId' | 'title' | 'tmdb
     [id, watched, markEpisodes, undo, maybeFinished],
   );
 
-  /** Every aired episode of a season (like SQL `mark_season`); `backfill` = watched "a while ago". */
+  /** Every aired episode of a season (like SQL `mark_season`); `when` = "a while ago", maybe dated. */
   const fillSeason = useCallback(
-    (s: Season, backfill = false): number[] => {
+    (s: Season, when?: WhenVars): number[] => {
       const have = watched();
       const fresh = airedIn(s, colomboToday()).filter((n) => !have.has(epKey(s.n, n)));
       if (!fresh.length) return [];
-      markSeason({ itemId: id, season: s.n, episodes: fresh, backfill });
+      markSeason({ itemId: id, season: s.n, episodes: fresh, ...when });
       toast({ message: copy.shows.seasonMarked(copy.shows.season(s.n)), action: undo(s.n, fresh, false) });
       maybeFinished();
       return fresh;

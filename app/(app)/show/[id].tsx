@@ -79,7 +79,10 @@ function ShowBody({ show }: { show: Show }) {
     [expanded],
   );
   const onToggleEpisode = useCallback((e: Episode) => marker.toggle(e), [marker]);
-  const onFillSeason = useCallback((s: Season, backfill: boolean) => void marker.fillSeason(s, backfill), [marker]);
+  const onFillSeason = useCallback(
+    (s: Season) => openSheet('watchedWhen', { itemId: show.id, season: s.n }),
+    [show.id],
+  );
   const onClearSeason = useCallback((s: Season) => void marker.clearSeason(s), [marker]);
   const onOpenEpisode = useCallback(
     (e: Episode) => openSheet('episode', { itemId: show.id, season: e.season, episode: e.episode }),
@@ -101,6 +104,11 @@ function ShowBody({ show }: { show: Show }) {
   const meta = [show.year, show.network, show.tmdbStatus].filter(Boolean).join(' · ');
 
   const onStatus = (s: ShowStatus) => {
+    // Watched by hand with episodes still unticked: ask when, then tick them all.
+    if (s === 'watched' && progress && progress.watched < progress.aired) {
+      openSheet('watchedWhen', { itemId: show.id });
+      return;
+    }
     setStatus.mutate({ itemId: show.id, status: s });
     toast({ message: copy.books.statusChanged(show.title, copy.mediaStatus[s]) });
   };

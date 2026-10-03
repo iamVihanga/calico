@@ -16,8 +16,10 @@ import { Txt } from '@/components/ds/Txt';
 import { newId } from '@/features/books/api';
 import { useQueueBook } from '@/features/books/hooks';
 import { byPosition } from '@/features/upnext/logic';
+import { WhenChooser } from '@/components/calico/WhenChooser';
 import { copy } from '@/i18n/en';
-import { colomboToday, fmtShort } from '@/lib/dates';
+import { JUST_NOW, type When, type WhenVars, whenVars } from '@/lib/when';
+import { colomboToday } from '@/lib/dates';
 import { openSheet, type SheetParams } from '@/lib/stores/sheet';
 import { toast } from '@/lib/stores/toast';
 import { layout, useTheme } from '@/theme';
@@ -54,6 +56,7 @@ export function TmdbPreviewSheetBody({ p, onClose }: { p: SheetParams['tmdbPrevi
   const [busy, setBusy] = useState(false);
   // "Already watched" asks when: "a while ago" keeps it out of this week's counts.
   const [askWhen, setAskWhen] = useState(false);
+  const [when, setWhen] = useState<When>(JUST_NOW);
   const details = useQuery<TmdbMovie | TmdbShow>({
     queryKey: p.kind === 'movie' ? tmdbKeys.movie(p.tmdbId) : tmdbKeys.show(p.tmdbId),
     queryFn: () => (p.kind === 'movie' ? api.tmdbMovie(p.tmdbId) : api.tmdbShow(p.tmdbId)),
@@ -76,9 +79,9 @@ export function TmdbPreviewSheetBody({ p, onClose }: { p: SheetParams['tmdbPrevi
     .join('  ·  ');
   const overview = details?.overview ?? p.overview;
 
-  const add = async (status: 'watchlist' | 'watched', backfill = false) => {
+  const add = async (status: 'watchlist' | 'watched', w?: WhenVars) => {
     setBusy(true);
-    const id = await addFromTmdb(p, status, backfill);
+    const id = await addFromTmdb(p, status, w);
     setBusy(false);
     if (id) onClose();
   };
@@ -118,31 +121,17 @@ export function TmdbPreviewSheetBody({ p, onClose }: { p: SheetParams['tmdbPrevi
           <Txt family="display" weight={700} size="md" accessibilityRole="header">
             {copy.when.watchedTitle}
           </Txt>
-          <View style={{ flexDirection: 'row', gap: 12 }}>
-            <Button
-              variant="secondary"
-              block
-              style={{ flex: 1, minHeight: 52 }}
-              disabled={busy}
-              testID="preview-when-past"
-              onPress={() => void add('watched', true)}
-            >
-              {copy.when.past}
-            </Button>
-            <Button
-              variant="accent"
-              block
-              style={{ flex: 1, minHeight: 52 }}
-              loading={busy}
-              testID="preview-when-now"
-              onPress={() => void add('watched', false)}
-            >
-              {copy.when.now}
-            </Button>
-          </View>
-          <Txt family="ui" size="xs" color="textMuted">
-            {copy.when.hint}
-          </Txt>
+          <WhenChooser value={when} onChange={setWhen} testID="preview-when" />
+          <Button
+            variant="accent"
+            size="lg"
+            block
+            loading={busy}
+            testID="preview-when-add"
+            onPress={() => void add('watched', whenVars(when, colomboToday()))}
+          >
+            {copy.when.save}
+          </Button>
         </View>
       ) : (
         <View style={{ flexDirection: 'row', gap: 12, marginTop: 20 }}>
@@ -265,18 +254,17 @@ export function WatchAgainSheetBody({ itemId, onClose }: { itemId: string; onClo
   const log = useLogViewing();
   const [rating, setRating] = useState(0);
   const [note, setNote] = useState('');
+  const [when, setWhen] = useState<When>(JUST_NOW);
   if (!movie) return null;
   const today = colomboToday();
   return (
     <View style={{ gap: 8 }}>
       <Title>{movie.viewings.length ? copy.movies.watchAgain : copy.movies.watchFirst}</Title>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', minHeight: 52 }}>
+      <View style={{ gap: 8, paddingVertical: 6 }}>
         <Txt family="ui" size={14}>
-          {copy.movies.date}
+          {copy.when.watchedTitle}
         </Txt>
-        <Txt family="ui" size={14} color="textMuted">
-          {copy.finish.today(fmtShort(today))}
-        </Txt>
+        <WhenChooser value={when} onChange={setWhen} testID="viewing-when" />
       </View>
       <RatingStars value={rating} onChange={setRating} />
       <Input
@@ -295,7 +283,13 @@ export function WatchAgainSheetBody({ itemId, onClose }: { itemId: string; onClo
         style={{ marginTop: 8 }}
         testID="viewing-save"
         onPress={() => {
-          log.mutate({ id: newId(), itemId, on: today, rating: rating || null, note: note.trim() || null });
+          log.mutate({
+            id: newId(),
+            itemId,
+            rating: rating || null,
+            note: note.trim() || null,
+            ...whenVars(when, today),
+          });
           onClose();
           toast({ message: copy.movies.saved });
         }}

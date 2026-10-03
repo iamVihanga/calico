@@ -31,6 +31,8 @@ export type SheetParams = {
   mediaOverflow: { itemId: string };
   /** `showLink`: opened from outside show detail (Home), so offer a way to the show. */
   episode: { itemId: string; season: number; episode: number; showLink?: boolean };
+  /** "When did you watch it?": a whole season (`season`), or the whole show switched to Watched. */
+  watchedWhen: { itemId: string; season?: number };
   tray: { itemId: string; title: string };
   addToCollection: { itemId: string; title: string };
   newCollection: { itemId?: string };

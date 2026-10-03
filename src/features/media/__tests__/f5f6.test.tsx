@@ -243,11 +243,18 @@ describe('F5: add a show and watch the next episode', () => {
     expect(dismiss).toHaveBeenCalled();
     await fireEvent.press(await screen.findByTestId('preview-watched'));
     expect(await screen.findByText(copy.when.watchedTitle)).toBeTruthy();
+    // A while ago, in March 2024: it counts in that month and year.
+    await fireEvent.press(screen.getByTestId('preview-when-past'));
+    await fireEvent.press(await screen.findByTestId('preview-when-year-2024'));
+    await fireEvent.press(await screen.findByTestId('preview-when-month-3'));
+    expect(screen.getByTestId('preview-when-hint')).toHaveTextContent(copy.when.hintPeriod('Mar 2024'));
     await act(async () => {
-      await fireEvent.press(screen.getByTestId('preview-when-past'));
+      await fireEvent.press(screen.getByTestId('preview-when-add'));
     });
     await waitFor(() =>
-      expect(mockCalls.markShow).toHaveBeenCalledWith({ itemId: mockDb.shows[0]!.id, backfill: true }),
+      expect(mockCalls.markShow).toHaveBeenCalledWith(
+        expect.objectContaining({ itemId: mockDb.shows[0]!.id, backfill: true, on: '2024-03-01', precision: 'month' }),
+      ),
     );
     expect(mockCalls.add).toHaveBeenCalledWith(expect.objectContaining({ kind: 'show', status: 'watchlist' }));
     expect(await screen.findByText(copy.tmdb.addedToast('House of the Dragon'))).toBeTruthy();
@@ -273,10 +280,11 @@ describe('F5: add a show and watch the next episode', () => {
     // Nothing watched yet: the next episode's season (1) is the one open; season 2 is closed.
     expect(await screen.findByTestId('fill-1')).toBeTruthy();
     expect(screen.queryByTestId('episode-row-2-1')).toBeNull();
-    // "Mark all watched" asks when first.
+    // "Mark all watched" asks when first (Just now is the default).
     await fireEvent.press(screen.getByTestId('fill-1'));
+    const save = await screen.findByTestId('watched-when-save');
     await act(async () => {
-      await fireEvent.press(await screen.findByTestId('fill-1-now'));
+      await fireEvent.press(save);
     });
     expect(mockCalls.markShow).not.toHaveBeenCalled();
     expect(await screen.findByText(copy.shows.seasonMarked('Season 1'))).toBeTruthy();
@@ -345,6 +353,26 @@ describe('F5: add a show and watch the next episode', () => {
       await fireEvent.press(screen.getByTestId('episode-go-to-show'));
     });
     expect(await screen.findByTestId('screen-show')).toBeTruthy();
+
+    // Watched by hand with S2 E6–E8 unticked: asks when, then ticks every aired episode.
+    await fireEvent.press(await screen.findByTestId('rail-watched'));
+    await fireEvent.press(await screen.findByTestId('watched-when-past'));
+    await fireEvent.press(await screen.findByTestId('watched-when-year-2025'));
+    await act(async () => {
+      await fireEvent.press(screen.getByTestId('watched-when-save'));
+    });
+    await waitFor(() =>
+      expect(mockCalls.markShow).toHaveBeenCalledWith(
+        expect.objectContaining({
+          itemId: id,
+          forceWatched: true,
+          backfill: true,
+          on: '2025-01-01',
+          precision: 'year',
+        }),
+      ),
+    );
+    await waitFor(() => expect(screen.getByTestId('episode-count')).toHaveTextContent(copy.shows.episodeCount(18, 19)));
   });
 });
 

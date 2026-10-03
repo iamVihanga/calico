@@ -190,6 +190,7 @@ export type Database = {
       episode_watches: {
         Row: {
           backfilled: boolean;
+          date_precision: string | null;
           episode: number;
           item_id: string;
           season: number;
@@ -198,6 +199,7 @@ export type Database = {
         };
         Insert: {
           backfilled?: boolean;
+          date_precision?: string | null;
           episode: number;
           item_id: string;
           season: number;
@@ -206,6 +208,7 @@ export type Database = {
         };
         Update: {
           backfilled?: boolean;
+          date_precision?: string | null;
           episode?: number;
           item_id?: string;
           season?: number;
@@ -417,6 +420,7 @@ export type Database = {
       page_logs: {
         Row: {
           backfilled: boolean;
+          date_precision: string | null;
           id: string;
           item_id: string;
           logged_at: string;
@@ -425,6 +429,7 @@ export type Database = {
         };
         Insert: {
           backfilled?: boolean;
+          date_precision?: string | null;
           id?: string;
           item_id: string;
           logged_at?: string;
@@ -433,6 +438,7 @@ export type Database = {
         };
         Update: {
           backfilled?: boolean;
+          date_precision?: string | null;
           id?: string;
           item_id?: string;
           logged_at?: string;
@@ -503,6 +509,7 @@ export type Database = {
       reading_sessions: {
         Row: {
           backfilled: boolean;
+          date_precision: string | null;
           created_at: string;
           finished_at: string | null;
           id: string;
@@ -515,6 +522,7 @@ export type Database = {
         };
         Insert: {
           backfilled?: boolean;
+          date_precision?: string | null;
           created_at?: string;
           finished_at?: string | null;
           id?: string;
@@ -527,6 +535,7 @@ export type Database = {
         };
         Update: {
           backfilled?: boolean;
+          date_precision?: string | null;
           created_at?: string;
           finished_at?: string | null;
           id?: string;
@@ -671,6 +680,7 @@ export type Database = {
       watch_logs: {
         Row: {
           backfilled: boolean;
+          date_precision: string | null;
           created_at: string;
           id: string;
           item_id: string;
@@ -681,6 +691,7 @@ export type Database = {
         };
         Insert: {
           backfilled?: boolean;
+          date_precision?: string | null;
           created_at?: string;
           id?: string;
           item_id: string;
@@ -691,6 +702,7 @@ export type Database = {
         };
         Update: {
           backfilled?: boolean;
+          date_precision?: string | null;
           created_at?: string;
           id?: string;
           item_id?: string;
@@ -739,6 +751,7 @@ export type Database = {
           p_item: string;
           p_note: string;
           p_on: string;
+          p_precision?: string;
           p_rating: number;
           p_return_loan: boolean;
         };
@@ -757,6 +770,7 @@ export type Database = {
           p_item: string;
           p_note: string;
           p_on: string;
+          p_precision?: string;
           p_rating: number;
         };
         Returns: undefined;
@@ -766,21 +780,29 @@ export type Database = {
           p_backfill?: boolean;
           p_episodes: number[];
           p_item: string;
+          p_on?: string;
+          p_precision?: string;
           p_season: number;
           p_watched: boolean;
         };
         Returns: undefined;
       };
       mark_show_watched: {
-        Args: { p_backfill?: boolean; p_item: string };
+        Args: {
+          p_backfill?: boolean;
+          p_force_watched?: boolean;
+          p_item: string;
+          p_on?: string;
+          p_precision?: string;
+        };
         Returns: undefined;
       };
       mark_season: {
-        Args: { p_backfill?: boolean; p_item: string; p_season: number };
+        Args: { p_backfill?: boolean; p_item: string; p_on?: string; p_precision?: string; p_season: number };
         Returns: undefined;
       };
       pages_read_between: {
-        Args: { p_from: string; p_to: string };
+        Args: { p_from: string; p_grain: string; p_to: string };
         Returns: number;
       };
       renew_loan: {
