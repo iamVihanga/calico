@@ -149,7 +149,9 @@ export default function Home() {
         </Press>
       </View>
 
-      <CollectionPills />
+      {/* Collections Pill navigation on Home */}
+      {/* <CollectionPills /> */}
+
       <PendingCapturesCard />
 
       {books.isError && !books.data && <QueryError onRetry={() => void books.refetch()} />}
