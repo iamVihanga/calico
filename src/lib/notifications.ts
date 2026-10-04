@@ -10,6 +10,8 @@ import { storage, storageKeys } from './storage';
  * only ever requested from the "Reminders for library books" sheet.
  */
 export const LOAN_CHANNEL = 'loans';
+/** Watch-time nudges get their own channel, so they can be silenced apart from loan reminders. */
+export const NUDGE_CHANNEL = 'watch-nudges';
 export const ACTIONS = { renew: 'renew', open: 'open', returned: 'returned' } as const;
 
 let setup: Promise<void> | null = null;
@@ -29,6 +31,10 @@ export function setupNotifications(): Promise<void> {
       await Notifications.setNotificationChannelAsync(LOAN_CHANNEL, {
         name: copy.reminders.channel,
         importance: Notifications.AndroidImportance.HIGH,
+      });
+      await Notifications.setNotificationChannelAsync(NUDGE_CHANNEL, {
+        name: copy.nudges.channel,
+        importance: Notifications.AndroidImportance.DEFAULT,
       });
     }
     const action = (identifier: string, buttonTitle: string) => ({

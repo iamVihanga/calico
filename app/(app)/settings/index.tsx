@@ -16,6 +16,7 @@ import { fmtTime } from '@/features/account/logic';
 import { useProfile, useSetTheme, useUpdateProfile } from '@/features/profile/hooks';
 import { copy } from '@/i18n/en';
 import { env } from '@/lib/env';
+import { remindersAllowed } from '@/lib/notifications';
 import { openSheet } from '@/lib/stores/sheet';
 import { radius, shadow, type ThemePreference, useTheme } from '@/theme';
 
@@ -159,6 +160,19 @@ export default function Settings() {
           () => update.mutate({ remind_1d: !(p?.remind_1d ?? true) }),
           'setting-1d',
           p?.remind_1d ?? true,
+        ),
+        row(
+          copy.nudges.setting,
+          onOff(p?.watch_nudges ?? false),
+          () =>
+            void (async () => {
+              const on = !(p?.watch_nudges ?? false);
+              // Turning on needs notifications: the explainer first when Android hasn't allowed them.
+              if (on && !(await remindersAllowed())) openSheet('notifNudges');
+              else update.mutate({ watch_nudges: on });
+            })(),
+          'setting-nudges',
+          p?.watch_nudges ?? false,
         ),
       ])}
 

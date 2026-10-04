@@ -2,14 +2,16 @@ import { type QueryClient, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 
 import type { Book } from '@/features/books/types';
+import type { WatchSession } from '@/features/media/api';
 import type { Show, ShowProgress } from '@/features/media/types';
 import { colomboToday } from '@/lib/dates';
 import { qk } from '@/lib/queryKeys';
+import { useHourNow } from '@/lib/useHourNow';
 
 import { buildSnapshot, WIDGETS, type WidgetSnapshot } from './logic';
 import { readSnapshot, saveSnapshot, themePreference, widgetsAvailable } from './store';
 
-const WATCHED = new Set(['items', 'showProgress', 'profile', 'signedUrl']);
+const WATCHED = new Set(['items', 'showProgress', 'profile', 'signedUrl', 'watchSessions']);
 
 /** Redraw every placed widget from `s` (no-op without the widget module). */
 export function redrawWidgets(s: WidgetSnapshot) {
@@ -42,6 +44,7 @@ function snapshotFrom(qc: QueryClient): WidgetSnapshot | null {
       progress,
       lead,
       coverUri: (b) => (b.coverPath ? (qc.getQueryData<string>(qk.signedUrl(b.coverPath)) ?? null) : null),
+      sessions: qc.getQueryData<WatchSession[]>(qk.watchSessions) ?? [],
     },
     colomboToday(),
   );
@@ -53,6 +56,8 @@ function snapshotFrom(qc: QueryClient): WidgetSnapshot | null {
  */
 export function useWidgetSync() {
   const qc = useQueryClient();
+  // Redraw on the hour too: the Next episode widget follows the time of day.
+  const now = useHourNow();
   useEffect(() => {
     if (!widgetsAvailable()) return;
     let timer: ReturnType<typeof setTimeout> | undefined;
@@ -78,5 +83,5 @@ export function useWidgetSync() {
       unsubscribe();
       clearTimeout(timer);
     };
-  }, [qc]);
+  }, [qc, now]);
 }

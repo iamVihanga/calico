@@ -17,6 +17,7 @@ export type ProfilePatch = Partial<
     | 'default_library'
     | 'reading_goal'
     | 'include_specials'
+    | 'watch_nudges'
   >
 >;
 

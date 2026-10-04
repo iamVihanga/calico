@@ -137,6 +137,30 @@ export const en = {
     you: (text: string) => `You: ${text}`,
     them: (text: string) => `Pinki: ${text}`,
   },
+  habits: {
+    /** "8 pm", "7:30 am" (to the nearest half hour). */
+    time: (hour: number) => {
+      const half = Math.round(hour * 2) / 2;
+      const h = Math.floor(half) % 24;
+      const m = half % 1 ? ':30' : '';
+      return `${h % 12 || 12}${m} ${h < 12 ? 'am' : 'pm'}`;
+    },
+    usual: (title: string, time: string) => `your usual ${time} ${title}`,
+  },
+  nudges: {
+    channel: 'Watch-time nudges',
+    title: (show: string) => `${show} time?`,
+    body: (code: string, name: string | null) => (name ? `${code} · ${name} is next.` : `${code} is next.`),
+    offer: (show: string, time: string) => `You often watch ${show} around ${time}. Want a nudge then?`,
+    offerYes: 'Yes, nudge me',
+    offerNo: 'No thanks',
+    on: "Nudges on. You'll get at most one a day.",
+    askTitle: 'Nudges at your watching time',
+    askBody:
+      'Calico notices when you usually watch a show and can nudge you about the next episode then. At most one a day; never late at night.',
+    setting: 'Watch-time nudges',
+    settingHint: 'At most one a day, at the time you usually watch',
+  },
   widgets: {
     reading: 'Continue reading',
     next: 'Up next',

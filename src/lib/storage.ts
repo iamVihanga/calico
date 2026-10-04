@@ -14,6 +14,8 @@ export const storageKeys = {
   chatPrefs: 'chat-prefs',
   /** What the home-screen widgets show (`WidgetSnapshot`), so they can draw while the app is closed. */
   widgets: 'widgets',
+  /** The one-time "Want a nudge?" card was answered. */
+  nudgeOffer: 'nudge-offer',
 } as const;
 
 /** Wipe everything except the theme (sign-out keeps the paper colour for the welcome screen). */

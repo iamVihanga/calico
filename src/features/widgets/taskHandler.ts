@@ -17,7 +17,14 @@ type Tick = { itemId: string; season: number; episode: number };
 export async function tickFromWidget(s: WidgetSnapshot, v: Tick): Promise<WidgetSnapshot> {
   if (!s.next) return s;
   try {
-    await markEpisodes({ itemId: v.itemId, season: v.season, episodes: [v.episode], watched: true });
+    await markEpisodes({
+      itemId: v.itemId,
+      season: v.season,
+      episodes: [v.episode],
+      watched: true,
+      at: new Date().toISOString(),
+      source: 'widget',
+    });
     const row = (await fetchShowProgress()).find((r) => r.itemId === v.itemId);
     const n = row?.next;
     return {

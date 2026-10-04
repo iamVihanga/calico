@@ -56,7 +56,13 @@ export function useShowMarker(show: Pick<Show, 'id' | 'tmdbId' | 'title' | 'tmdb
   const toggle = useCallback(
     (e: Pick<Episode, 'season' | 'episode'>, { announce = false } = {}) => {
       const was = watched().has(epKey(e.season, e.episode));
-      markEpisodes({ itemId: id, season: e.season, episodes: [e.episode], watched: !was });
+      markEpisodes({
+        itemId: id,
+        season: e.season,
+        episodes: [e.episode],
+        watched: !was,
+        at: new Date().toISOString(),
+      });
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
       if (announce) {
         const code = epCode(e.season, e.episode);

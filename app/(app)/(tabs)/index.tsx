@@ -14,6 +14,7 @@ import { ContinueReadingCard } from '@/features/home/components/ContinueReadingC
 import { ContinueWatching } from '@/features/home/components/ContinueWatching';
 import { useMovies, useShows } from '@/features/media/hooks';
 import { DueSoonRow } from '@/features/home/components/DueSoonRow';
+import { NudgeOfferCard } from '@/features/home/components/NudgeOfferCard';
 import { HomeEmpty } from '@/features/home/components/HomeEmpty';
 import { PendingCapturesCard } from '@/features/home/components/PendingCapturesCard';
 import { StatsLine } from '@/features/home/components/StatsLine';
@@ -179,6 +180,7 @@ export default function Home() {
         </View>
       )}
 
+      <NudgeOfferCard />
       <ContinueWatching />
       <UpNextPreview />
       {!empty && <StatsLine />}

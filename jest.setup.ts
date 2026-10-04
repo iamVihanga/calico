@@ -54,7 +54,7 @@ jest.mock('@gorhom/bottom-sheet', () => ({ __esModule: true, ...require('@gorhom
 
 // Local notifications: a quiet fake (no permission yet, nothing scheduled). Tests override per file.
 jest.mock('expo-notifications', () => ({
-  AndroidImportance: { HIGH: 6 },
+  AndroidImportance: { HIGH: 6, DEFAULT: 3 },
   SchedulableTriggerInputTypes: { DATE: 'date', TIME_INTERVAL: 'timeInterval' },
   DEFAULT_ACTION_IDENTIFIER: 'expo.modules.notifications.actions.DEFAULT',
   setNotificationHandler: jest.fn(),

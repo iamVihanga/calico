@@ -295,7 +295,18 @@ export type Dated = { backfill?: boolean; on?: LocalDate; precision?: Precision 
 const dated = (v: Dated) =>
   v.backfill && v.precision ? { p_precision: v.precision, ...(v.on ? { p_on: v.on } : {}) } : {};
 
-export type MarkVars = { itemId: string; season: number; episodes: number[]; watched: boolean } & Dated;
+/**
+ * `at`: when the tick was made (sent with the mutation, so an offline tick replayed later keeps its
+ * time; watch-time habits come from these). `source`: 'widget' from the home screen.
+ */
+export type MarkVars = {
+  itemId: string;
+  season: number;
+  episodes: number[];
+  watched: boolean;
+  at?: string;
+  source?: 'tick' | 'widget';
+} & Dated;
 export async function markEpisodes(v: MarkVars): Promise<void> {
   const { error } = await supabase.rpc('mark_episodes', {
     p_item: v.itemId,
@@ -304,8 +315,18 @@ export async function markEpisodes(v: MarkVars): Promise<void> {
     p_watched: v.watched,
     p_backfill: v.backfill ?? false,
     ...dated(v),
+    ...(v.at ? { p_at: v.at } : {}),
+    ...(v.source ? { p_source: v.source } : {}),
   });
   if (error) throw error;
+}
+
+/** Single episode ticks of the last 8 weeks, one per show per hour (`watch_sessions`): when you watch. */
+export type WatchSession = { itemId: string; at: string };
+export async function fetchWatchSessions(): Promise<WatchSession[]> {
+  const { data, error } = await supabase.rpc('watch_sessions', {});
+  if (error) throw error;
+  return data.map((r) => ({ itemId: r.item_id, at: r.at }));
 }
 
 export type SeasonVars = { itemId: string; season: number; episodes: number[] } & Dated;

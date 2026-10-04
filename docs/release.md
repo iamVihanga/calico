@@ -150,6 +150,7 @@ Calico's behalf, which Play doesn't count as sharing.
 | Personal info → Other info (lender/friend names on loans)                              | Yes       | Optional  | App functionality                              |
 | Photos and videos → Photos                                                             | Yes       | Optional  | App functionality                              |
 | App activity → Other user-generated content (library, notes, ratings, Ask Pinki chats) | Yes       | Required  | App functionality                              |
+| App activity → App interactions (when episodes are marked watched)                     | Yes       | Required  | App functionality, Personalization             |
 | App info and performance → Crash logs                                                  | Yes       | Required  | Analytics (app stability)                      |
 | App info and performance → Diagnostics                                                 | Yes       | Required  | Analytics (performance traces, 10% sample)     |
 

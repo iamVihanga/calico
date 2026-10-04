@@ -13,6 +13,7 @@ import { processDrafts } from '@/features/capture/drafts';
 import { DragLayer } from '@/features/collections/DragLayer';
 import { startReminderSync } from '@/features/loans/reminders';
 import { useReminderResponses } from '@/features/loans/responses';
+import { startNudgeSync } from '@/features/media/nudges';
 import { useProfileThemeSync } from '@/features/profile/hooks';
 import { useWidgetSync } from '@/features/widgets/sync';
 import { setupNotifications } from '@/lib/notifications';
@@ -37,7 +38,12 @@ export default function AppLayout() {
   // Reminders are resynced on every sign-in / launch (so they survive a reinstall) and hourly on foreground.
   useEffect(() => {
     void setupNotifications().catch(() => undefined);
-    return startReminderSync();
+    const stopReminders = startReminderSync();
+    const stopNudges = startNudgeSync();
+    return () => {
+      stopReminders();
+      stopNudges();
+    };
   }, []);
 
   // Offline captures are read as soon as the phone is back online (and on start).

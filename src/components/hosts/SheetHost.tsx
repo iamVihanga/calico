@@ -176,6 +176,9 @@ export function SheetHost() {
       <Sheet open={sheet?.name === 'notif'} onClose={closer('notif')} testID="sheet-notif">
         {sheet?.name === 'notif' && <NotifSheetBody onClose={closer('notif')} />}
       </Sheet>
+      <Sheet open={sheet?.name === 'notifNudges'} onClose={closer('notifNudges')} testID="sheet-notif-nudges">
+        {sheet?.name === 'notifNudges' && <NotifSheetBody purpose="nudges" onClose={closer('notifNudges')} />}
+      </Sheet>
     </>
   );
 }

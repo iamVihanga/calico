@@ -18,6 +18,8 @@ export type SheetParams = {
   loanForm: { itemId: string };
   borrowedOn: { itemId: string };
   notif: undefined;
+  /** The same explainer, for watch-time nudges (then the Android prompt). */
+  notifNudges: undefined;
   tmdbPreview: {
     tmdbId: number;
     kind: 'movie' | 'show';

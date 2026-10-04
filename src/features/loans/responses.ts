@@ -4,9 +4,10 @@ import { useEffect } from 'react';
 
 import { ACTIONS } from '@/lib/notifications';
 
-/** Where a reminder tap or action button goes (plan §9.5). */
+/** Where a reminder tap or action button goes (plan §9.5); a watch-time nudge opens its episode. */
 export function reminderRoute(r: Pick<Notifications.NotificationResponse, 'actionIdentifier' | 'notification'>) {
-  const data = r.notification.request.content.data as { itemId?: unknown } | undefined;
+  const data = r.notification.request.content.data as { itemId?: unknown; kind?: unknown; url?: unknown } | undefined;
+  if (data?.kind === 'habit') return typeof data.url === 'string' && data.url.startsWith('/show/') ? data.url : null;
   if (typeof data?.itemId !== 'string') return null;
   const sheet =
     r.actionIdentifier === ACTIONS.renew ? 'renew' : r.actionIdentifier === ACTIONS.returned ? 'loanQuick' : null;

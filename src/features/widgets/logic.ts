@@ -3,6 +3,7 @@ import { tmdbImage } from '@shared/tmdb.ts';
 import { leadAuthor, leadTitle } from '@/features/books/logic';
 import type { Book, LeadScript } from '@/features/books/types';
 import { dueSoon } from '@/features/loans/logic';
+import { orderWatching, type Session } from '@/features/media/habits';
 import type { Show, ShowProgress } from '@/features/media/types';
 import { daysBetween, type LocalDate } from '@/lib/dates';
 
@@ -37,17 +38,28 @@ type Inputs = {
   lead: LeadScript;
   /** Signed URL of a cover photo, when the app has one cached. */
   coverUri: (b: Book) => string | null;
+  /** Episode ticks (habits): the show usually watched at this time comes first, as on Home. */
+  sessions?: Session[];
+  now?: Date;
 };
 
 /**
  * Home's choices, for the widgets: the most recently touched book being read, the next episode of the
- * most recently touched show being watched (never a special: `show_progress`), and the first book due.
+ * show you usually watch at this time (else the most recently touched one; never a special:
+ * `show_progress`), and the first book due.
  * Lists arrive newest-updated first (as the app fetches them).
  */
-export function buildSnapshot({ books, shows, progress, lead, coverUri }: Inputs, today: LocalDate): WidgetSnapshot {
+export function buildSnapshot(
+  { books, shows, progress, lead, coverUri, sessions = [], now = new Date() }: Inputs,
+  today: LocalDate,
+): WidgetSnapshot {
   const book = books.find((b) => b.status === 'reading');
   const byId = new Map(progress.map((p) => [p.itemId, p]));
-  const show = shows.find((s) => s.status === 'watching' && byId.get(s.id)?.next);
+  const [show] = orderWatching(
+    shows.filter((s) => s.status === 'watching' && byId.get(s.id)?.next),
+    sessions,
+    now,
+  );
   const next = show ? byId.get(show.id)!.next! : null;
   const due = dueSoon(books, today)[0];
   return {

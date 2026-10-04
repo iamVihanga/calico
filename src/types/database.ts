@@ -194,6 +194,7 @@ export type Database = {
           episode: number;
           item_id: string;
           season: number;
+          source: string;
           user_id: string;
           watched_at: string;
         };
@@ -203,6 +204,7 @@ export type Database = {
           episode: number;
           item_id: string;
           season: number;
+          source?: string;
           user_id?: string;
           watched_at?: string;
         };
@@ -212,6 +214,7 @@ export type Database = {
           episode?: number;
           item_id?: string;
           season?: number;
+          source?: string;
           user_id?: string;
           watched_at?: string;
         };
@@ -470,6 +473,7 @@ export type Database = {
           remind_3d: boolean;
           reminder_time: string;
           theme: string;
+          watch_nudges: boolean;
           updated_at: string;
         };
         Insert: {
@@ -486,6 +490,7 @@ export type Database = {
           remind_3d?: boolean;
           reminder_time?: string;
           theme?: string;
+          watch_nudges?: boolean;
           updated_at?: string;
         };
         Update: {
@@ -502,6 +507,7 @@ export type Database = {
           remind_3d?: boolean;
           reminder_time?: string;
           theme?: string;
+          watch_nudges?: boolean;
           updated_at?: string;
         };
         Relationships: [];
@@ -779,10 +785,12 @@ export type Database = {
         Args: {
           p_backfill?: boolean;
           p_episodes: number[];
+          p_at?: string;
           p_item: string;
           p_on?: string;
           p_precision?: string;
           p_season: number;
+          p_source?: string;
           p_watched: boolean;
         };
         Returns: undefined;
@@ -872,6 +880,10 @@ export type Database = {
       update_book: {
         Args: { p_item: string; p: Json };
         Returns: undefined;
+      };
+      watch_sessions: {
+        Args: { p_days?: number };
+        Returns: { at: string; item_id: string }[];
       };
       year_stats: { Args: { p_year: number }; Returns: Json };
     };

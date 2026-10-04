@@ -66,6 +66,13 @@ Expo-specific guidance: @AGENTS.md
   `show_progress` for optimistic updates. Media writes share `MEDIA_SCOPE`, so they run in order (add before
   collection or episode marks). TMDB is only reached through the `tmdb` edge function; DTO types live in
   `@shared/tmdb.ts`; images load straight from `image.tmdb.org`.
+- Watch-time habits (`src/features/media/habits.ts`, pure): episode ticks send their tap time (`p_at`, so offline
+  replays keep it) and `source` ('tick' | 'widget'; 'season'/'show' for Mark all and Already watched never count).
+  `watch_sessions()` returns single ticks, one per show per Colombo hour; on the phone `scoreAt`/`habitOf` (hour
+  kernel, 21-day half-life, weekday vs weekend) order Continue watching and the Next episode widget
+  (`orderWatching`, clock from `useHourNow`). Nudges (`nudges.ts`, opt-in via `profiles.watch_nudges`, offered once
+  by `NudgeOfferCard`, Settings toggle): at most one a day, 10 min before the strongest habit, `habit:{date}`
+  identifiers diffed like loan reminders, own channel, permission only through the notif sheet (`notifNudges`).
 - Show detail seasons are an accordion (`SeasonBlock`, one open; default = latest watched episode's season,
   `defaultOpenSeason`); rows open the `episode` sheet, the right-hand circle ticks. Episode overviews live in
   `tmdb_episodes.overview` ('' = TMDB has none, null = cached before the column; the `season` action refetches).

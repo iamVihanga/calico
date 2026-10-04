@@ -19,6 +19,9 @@ const HOUR = 60 * 60 * 1000;
 export const useMovies = () => useQuery({ queryKey: MOVIES, queryFn: api.fetchMovies });
 export const useShows = () => useQuery({ queryKey: SHOWS, queryFn: api.fetchShows });
 export const useShowProgress = () => useQuery({ queryKey: PROGRESS, queryFn: api.fetchShowProgress });
+/** When episodes get ticked (habits): refetched after every mark (`settleMedia`). */
+export const useWatchSessions = () =>
+  useQuery({ queryKey: qk.watchSessions, queryFn: api.fetchWatchSessions, staleTime: 5 * 60 * 1000 });
 
 export function useMovie(id: string) {
   const q = useMovies();
@@ -89,6 +92,7 @@ function settleMedia(qc: QueryClient, itemId?: string) {
   void qc.invalidateQueries({ queryKey: PROGRESS });
   void qc.invalidateQueries({ queryKey: qk.upNext });
   void qc.invalidateQueries({ queryKey: qk.homeStats });
+  void qc.invalidateQueries({ queryKey: qk.watchSessions });
   if (itemId) void qc.invalidateQueries({ queryKey: qk.watches(itemId) });
 }
 

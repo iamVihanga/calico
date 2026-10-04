@@ -290,13 +290,18 @@ export function BorrowedOnSheetBody({ itemId, onClose }: Props) {
   );
 }
 
-/** "Reminders for library books" (prototype sheetNotif): the only path to the system prompt. */
-export function NotifSheetBody({ onClose }: { onClose: () => void }) {
+/**
+ * "Reminders for library books" (prototype sheetNotif), or the same for watch-time nudges: the only path to
+ * the system prompt.
+ */
+export function NotifSheetBody({ onClose, purpose = 'loans' }: { onClose: () => void; purpose?: 'loans' | 'nudges' }) {
+  const updateProfile = useUpdateProfile();
+  const nudges = purpose === 'nudges';
   return (
     <View>
-      <Title>{copy.reminders.askTitle}</Title>
+      <Title>{nudges ? copy.nudges.askTitle : copy.reminders.askTitle}</Title>
       <Txt family="ui" size={14} color="textMuted" style={{ marginTop: 8 }}>
-        {copy.reminders.askBody}
+        {nudges ? copy.nudges.askBody : copy.reminders.askBody}
       </Txt>
       <View style={{ flexDirection: 'row', gap: 12, marginTop: 20 }}>
         <Button
@@ -305,7 +310,7 @@ export function NotifSheetBody({ onClose }: { onClose: () => void }) {
           style={{ flex: 1, minHeight: 52 }}
           testID="notif-skip"
           onPress={() => {
-            declineReminders();
+            if (!nudges) declineReminders();
             onClose();
           }}
         >
@@ -320,7 +325,8 @@ export function NotifSheetBody({ onClose }: { onClose: () => void }) {
             onClose();
             const granted = await askForReminders();
             if (granted) requestReminderSync();
-            toast({ message: granted ? copy.reminders.on : copy.reminders.denied });
+            if (granted && nudges) updateProfile.mutate({ watch_nudges: true });
+            toast({ message: !granted ? copy.reminders.denied : nudges ? copy.nudges.on : copy.reminders.on });
           }}
         >
           {copy.reminders.allow}

@@ -60,7 +60,15 @@ describe('widget task handler', () => {
       { itemId: 'hotd', next: { season: 2, episode: 7, name: 'The Red Sowing', stillPath: '/s2e7.jpg' } },
     ]);
     const drawn = await run(tick);
-    expect(mockMark).toHaveBeenCalledWith({ itemId: 'hotd', season: 2, episodes: [6], watched: true });
+    // The tap time and source go along, so the tick counts towards watch-time habits.
+    expect(mockMark).toHaveBeenCalledWith({
+      itemId: 'hotd',
+      season: 2,
+      episodes: [6],
+      watched: true,
+      at: expect.any(String),
+      source: 'widget',
+    });
     expect(drawn.props.data).toEqual({
       showId: 'hotd',
       title: 'House of the Dragon',

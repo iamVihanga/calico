@@ -5,13 +5,15 @@ import { StyleSheet, View } from 'react-native';
 import { Icon } from '@/components/ds/Icon';
 import { Press } from '@/components/ds/Press';
 import { Txt } from '@/components/ds/Txt';
-import { useProgress, useShowProgress, useShows } from '@/features/media/hooks';
+import { habitOf, inHabitWindow, orderWatching, sessionsByShow } from '@/features/media/habits';
+import { useProgress, useShowProgress, useShows, useWatchSessions } from '@/features/media/hooks';
 import { epCode } from '@/features/media/logic';
 import type { Show, ShowProgress } from '@/features/media/types';
 import { useShowMarker } from '@/features/media/useShowMarker';
 import { copy } from '@/i18n/en';
 import { openSheet } from '@/lib/stores/sheet';
 import { colomboToday, fmtDay } from '@/lib/dates';
+import { useHourNow } from '@/lib/useHourNow';
 import { alpha, layout, motion, palette, radius, shadow, size, tracking, useTheme } from '@/theme';
 
 /** One Watching show with an episode to watch (prototype homeV `watchTitle` / `markWatched`). */
@@ -154,9 +156,20 @@ export function ContinueWatching() {
   const today = colomboToday();
   const byId = new Map(rows.map((r) => [r.itemId, r]));
   const watching = shows.filter((s) => s.status === 'watching' && byId.has(s.id));
-  const withNext = watching.filter((s) => byId.get(s.id)!.next);
+  const sessions = useWatchSessions().data ?? [];
+  const now = useHourNow();
+  // What you usually watch around this time comes first (habits from your episode ticks).
+  const withNext = orderWatching(
+    watching.filter((s) => byId.get(s.id)!.next),
+    sessions,
+    now,
+  );
   const caughtUp = watching.filter((s) => !byId.get(s.id)!.next);
   if (watching.length === 0) return null;
+  const first = withNext[0];
+  const habit = first ? habitOf(sessionsByShow(sessions).get(first.id) ?? [], now) : null;
+  const usual =
+    first && habit && inHabitWindow(habit, now) ? copy.habits.usual(first.title, copy.habits.time(habit.hour)) : null;
 
   return (
     <View style={{ paddingBottom: 26 }} testID="continue-watching">
@@ -169,6 +182,18 @@ export function ContinueWatching() {
       >
         {copy.shows.continueWatching}
       </Txt>
+      {usual && (
+        <Txt
+          family="hand"
+          weight={400}
+          size="md"
+          color="textAccent"
+          testID="watching-usual"
+          style={{ paddingHorizontal: layout.gutterScreen, marginTop: -8, paddingBottom: 10 }}
+        >
+          {usual}
+        </Txt>
+      )}
       <View style={{ gap: 14, paddingHorizontal: layout.gutterScreen }}>
         {withNext.map((s) => (
           <WatchCard key={s.id} show={s} row={byId.get(s.id)!} />

@@ -20,4 +20,5 @@ export const qk = {
   homeStats: ['homeStats'] as const,
   signedUrl: (path: string) => ['signedUrl', path] as const,
   watches: (itemId: string) => ['watches', itemId] as const,
+  watchSessions: ['watchSessions'] as const, // when episodes get ticked (habits)
 };
