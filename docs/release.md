@@ -82,6 +82,10 @@ npx eas-cli@latest build -p android --profile production   # AAB, versionCode au
 Before the production build, finish the device passes still open from earlier phases (listed in the
 README under "Status"). The preview profile talks to the production Supabase project; use a test account.
 
+Native changes need a new build **and** a new `version` in `app.config.ts` (the runtime is the app version,
+so older builds never receive an update they can't run). 1.1.0 added the home-screen widgets: install a new
+development and preview build after it.
+
 ## 5. Play Console
 
 1. **Create the app**: name Calico, app (not game), free, default language English (United Kingdom or
@@ -193,6 +197,9 @@ Calico's behalf, which Play doesn't count as sharing.
 > UP NEXT AND COLLECTIONS
 > • Keep one queue for everything you want to read or watch, and let "Pick for me" choose.
 > • Group anything into collections.
+>
+> HOME-SCREEN WIDGETS
+> • See the book you're reading, the next episode (tick it from the home screen) and what's due back.
 >
 > Works offline, has a night reading theme, and exports your data any time. No ads.
 >

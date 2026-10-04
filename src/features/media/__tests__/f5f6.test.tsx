@@ -373,6 +373,11 @@ describe('F5: add a show and watch the next episode', () => {
       ),
     );
     await waitFor(() => expect(screen.getByTestId('episode-count')).toHaveTextContent(copy.shows.episodeCount(18, 19)));
+
+    // The Next episode widget's link opens that episode's sheet on the show.
+    await act(async () => useSheetStore.getState().close());
+    await act(async () => router.push(`/show/${id}?episode=2-7`));
+    expect(await screen.findByTestId('episode-overview')).toHaveTextContent('What happens in S2 E7.');
   });
 });
 

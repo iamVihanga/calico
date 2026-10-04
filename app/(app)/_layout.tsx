@@ -14,6 +14,7 @@ import { DragLayer } from '@/features/collections/DragLayer';
 import { startReminderSync } from '@/features/loans/reminders';
 import { useReminderResponses } from '@/features/loans/responses';
 import { useProfileThemeSync } from '@/features/profile/hooks';
+import { useWidgetSync } from '@/features/widgets/sync';
 import { setupNotifications } from '@/lib/notifications';
 import { useTheme } from '@/theme';
 
@@ -31,6 +32,7 @@ export default function AppLayout() {
   const { t } = useTheme();
   useProfileThemeSync();
   useReminderResponses();
+  useWidgetSync();
 
   // Reminders are resynced on every sign-in / launch (so they survive a reinstall) and hourly on foreground.
   useEffect(() => {

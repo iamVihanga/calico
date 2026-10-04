@@ -1,4 +1,56 @@
 import type { ExpoConfig } from 'expo/config';
+import type { WithAndroidWidgetsParams } from 'react-native-android-widget';
+
+/**
+ * Home-screen widgets (src/features/widgets). Names match `WIDGETS`; previews from `npm run widget-previews`.
+ * Labels and descriptions show in the launcher's widget picker (the config can't import src/i18n).
+ */
+const widgets: WithAndroidWidgetsParams = {
+  fonts: [
+    './node_modules/@expo-google-fonts/nunito/400Regular/Nunito_400Regular.ttf',
+    './node_modules/@expo-google-fonts/nunito/700Bold/Nunito_700Bold.ttf',
+    './node_modules/@expo-google-fonts/playfair-display/700Bold/PlayfairDisplay_700Bold.ttf',
+  ],
+  widgets: [
+    {
+      name: 'ContinueReading',
+      label: 'Continue reading',
+      description: 'The book you are reading, with your page and a quick way to log one.',
+      minWidth: '250dp',
+      minHeight: '110dp',
+      targetCellWidth: 4,
+      targetCellHeight: 2,
+      resizeMode: 'horizontal|vertical',
+      previewImage: './assets/widgets/continue-reading.png',
+      updatePeriodMillis: 1800000,
+    },
+    {
+      name: 'NextEpisode',
+      label: 'Next episode',
+      description: 'The next episode to watch. Tick it without opening the app.',
+      minWidth: '250dp',
+      minHeight: '100dp',
+      targetCellWidth: 4,
+      targetCellHeight: 2,
+      resizeMode: 'horizontal|vertical',
+      previewImage: './assets/widgets/next-episode.png',
+      updatePeriodMillis: 1800000,
+    },
+    {
+      name: 'DueSoon',
+      label: 'Due soon',
+      description: 'The next library book due back.',
+      minWidth: '110dp',
+      minHeight: '110dp',
+      targetCellWidth: 2,
+      targetCellHeight: 2,
+      resizeMode: 'horizontal|vertical',
+      previewImage: './assets/widgets/due-soon.png',
+      // "Due in N days" changes at midnight; Android redraws at most every 30 minutes.
+      updatePeriodMillis: 1800000,
+    },
+  ],
+};
 
 /** The Play package name can never change after the first upload; Google sign-in is tied to it too. */
 const ANDROID_PACKAGE = 'com.codeville.calico';
@@ -7,7 +59,8 @@ const config: ExpoConfig = {
   name: 'Calico',
   slug: 'calico',
   scheme: 'calico',
-  version: '1.0.0',
+  // 1.1.0: home-screen widgets (react-native-android-widget, native code).
+  version: '1.1.0',
   // Android only: keeps `eas update` / `expo export` from also bundling web (react-native-web isn't installed).
   platforms: ['android'],
   orientation: 'portrait',
@@ -36,11 +89,12 @@ const config: ExpoConfig = {
     ],
     ['expo-image-picker', { photosPermission: 'Calico lets you pick a book cover photo from your gallery.' }],
     ['expo-notifications', { icon: './assets/images/notification-icon.png', color: '#EC6426' }],
-    // Kiri on the splash gradient's midpoint; AnimatedSplash takes over from this frame (app/_layout.tsx).
+    // Pinki on the splash gradient's midpoint; AnimatedSplash takes over from this frame (app/_layout.tsx).
     ['expo-splash-screen', { backgroundColor: '#203830', image: './assets/images/splash.png', imageWidth: 148 }],
     '@react-native-google-signin/google-signin',
     // Source maps upload during EAS builds when SENTRY_ORG, SENTRY_PROJECT and SENTRY_AUTH_TOKEN are set.
     '@sentry/react-native/expo',
+    ['react-native-android-widget', widgets],
   ],
   experiments: { typedRoutes: true },
   extra: { eas: { projectId: '139d5856-a401-4de1-bc3d-334305a0ad50' } },

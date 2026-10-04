@@ -12,6 +12,8 @@ export const storageKeys = {
   recentSearches: 'recent-searches',
   /** { [itemId]: { language, spoilers } } for the AI chat about each title. */
   chatPrefs: 'chat-prefs',
+  /** What the home-screen widgets show (`WidgetSnapshot`), so they can draw while the app is closed. */
+  widgets: 'widgets',
 } as const;
 
 /** Wipe everything except the theme (sign-out keeps the paper colour for the welcome screen). */

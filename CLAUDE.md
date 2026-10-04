@@ -103,6 +103,14 @@ Expo-specific guidance: @AGENTS.md
 - Density variants (`name@2x.png`, `name@3x.png`) are required by the base name (`require('…/name.png')`) and need
   the 1x file too: Metro picks the density, Jest needs the base file. `npx expo export --platform android` catches
   Metro-only resolution errors that Jest misses.
+- Home-screen widgets (`src/features/widgets`, react-native-android-widget): Continue reading, Next episode, Due
+  soon. `useWidgetSync()` (app layout) rebuilds a `WidgetSnapshot` from the query cache (`buildSnapshot`, Home's
+  choices), saves it in MMKV and redraws; the headless `widgetTaskHandler` (registered in `index.ts`) draws from
+  it while the app is closed and handles the episode tick (`mark_episodes`, then `show_progress`). Widgets are
+  primitives with no hooks (theme/data as props). Never import `react-native-android-widget` at the top of code
+  that also runs without it: check `widgetsAvailable()` and `require` it lazily. Taps use `calico://` links
+  (`?sheet=` on books, `?episode=S-E` on shows). Previews: `npm run widget-previews`. Any native change also
+  bumps `version` in app.config.ts (runtime = app version).
 - Launch: Android always shows the native splash (static Pinki on `splash.native`) until the first frame;
   `AnimatedSplash` starts on that same frame and hides it on first layout (`SplashScreen.hide()`). On every
   cold start the intro plays in full (`INTRO_MS`), then it fades once fonts, cache and session are ready

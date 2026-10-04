@@ -30,6 +30,7 @@ import {
 import type { Episode, Show, ShowStatus } from '@/features/media/types';
 import { useShowMarker } from '@/features/media/useShowMarker';
 import { useUpdateProfile } from '@/features/profile/hooks';
+import { parseEpisodeParam } from '@/features/widgets/logic';
 import { copy } from '@/i18n/en';
 import { colomboToday, fmtDay } from '@/lib/dates';
 import { qk } from '@/lib/queryKeys';
@@ -39,11 +40,17 @@ import { alpha, layout, palette, radius, shadow, size, tracking, useTheme } from
 
 /** Show detail (prototype `showDetail`): hero, status rail, Next up, seasons as an accordion. */
 export default function ShowDetail() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, episode } = useLocalSearchParams<{ id: string; episode?: string }>();
   const { t } = useTheme();
   const insets = useSafeAreaInsets();
   const q = useShow(id);
   const show = q.data;
+
+  // The Next episode widget links here with ?episode=2-6: open that episode's sheet on arrival.
+  useEffect(() => {
+    const e = parseEpisodeParam(episode);
+    if (e) openSheet('episode', { itemId: id, season: e.season, episode: e.episode });
+  }, [episode, id]);
 
   if (!show) {
     return (
