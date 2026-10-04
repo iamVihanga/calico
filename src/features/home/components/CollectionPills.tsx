@@ -2,7 +2,6 @@ import { router } from 'expo-router';
 import { ScrollView, View } from 'react-native';
 
 import { Tag } from '@/components/ds/Tag';
-import { Txt } from '@/components/ds/Txt';
 import { useCollections } from '@/features/collections/hooks';
 import { copy } from '@/i18n/en';
 import { layout } from '@/theme';
@@ -11,25 +10,18 @@ import { layout } from '@/theme';
 const SHOWN = 6;
 
 /**
- * Home's collections as a row of pills (in the user's order, with how many things are in each) and a
- * "See all" pill to the Collections tab. Hidden when there are no collections.
+ * Under Home's search: the collections as a row of pills (in the user's order, with how many things are
+ * in each) and a "See all" pill to the Collections tab. Hidden when there are no collections.
  */
 export function CollectionPills() {
   const list = useCollections().data ?? [];
   if (list.length === 0) return null;
   return (
-    <View style={{ paddingBottom: 26 }} testID="home-collections">
-      <Txt
-        family="display"
-        weight={700}
-        size={22}
-        accessibilityRole="header"
-        style={{ paddingHorizontal: layout.gutterScreen, paddingBottom: 12, letterSpacing: -0.02 * 22 }}
-      >
-        {copy.homeShelf.collections}
-      </Txt>
+    // Sits just under the search pill (which keeps 22dp below it), so pull up to 12dp.
+    <View style={{ marginTop: -10, paddingBottom: 22 }} testID="home-collections">
       <ScrollView
         horizontal
+        accessibilityLabel={copy.homeShelf.collections}
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={{ gap: 8, paddingHorizontal: layout.gutterScreen }}
       >

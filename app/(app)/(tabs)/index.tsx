@@ -149,6 +149,7 @@ export default function Home() {
         </Press>
       </View>
 
+      <CollectionPills />
       <PendingCapturesCard />
 
       {books.isError && !books.data && <QueryError onRetry={() => void books.refetch()} />}
@@ -184,7 +185,6 @@ export default function Home() {
       <NudgeOfferCard />
       <ContinueWatching />
       <UpNextPreview />
-      <CollectionPills />
       {!empty && <StatsLine />}
     </TabScreen>
   );
