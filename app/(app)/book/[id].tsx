@@ -413,6 +413,7 @@ function LoanSection({ book }: { book: BookDetail }) {
         onRenew={() => openSheet('renew', { itemId: book.id })}
         onReturned={() => doReturn(book, lead)}
         onEditBorrowed={() => openSheet('borrowedOn', { itemId: book.id })}
+        onEditDue={() => openSheet('dueOn', { itemId: book.id })}
       />
     </Animated.View>
   );

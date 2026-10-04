@@ -20,6 +20,7 @@ import {
 } from '@/features/collections/CollectionSheets';
 import {
   BorrowedOnSheetBody,
+  DueOnSheetBody,
   LoanFormSheetBody,
   LoanQuickSheetBody,
   NotifSheetBody,
@@ -97,6 +98,9 @@ export function SheetHost() {
       </Sheet>
       <Sheet open={sheet?.name === 'loanForm'} onClose={closer('loanForm')} testID="sheet-loan-form">
         {sheet?.name === 'loanForm' && <LoanFormSheetBody key={id} itemId={id} onClose={closer('loanForm')} />}
+      </Sheet>
+      <Sheet open={sheet?.name === 'dueOn'} onClose={closer('dueOn')} testID="sheet-due-on">
+        {sheet?.name === 'dueOn' && <DueOnSheetBody key={id} itemId={id} onClose={closer('dueOn')} />}
       </Sheet>
       <Sheet open={sheet?.name === 'borrowedOn'} onClose={closer('borrowedOn')} testID="sheet-borrowed-on">
         {sheet?.name === 'borrowedOn' && <BorrowedOnSheetBody key={id} itemId={id} onClose={closer('borrowedOn')} />}

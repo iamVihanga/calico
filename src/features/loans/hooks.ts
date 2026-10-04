@@ -84,6 +84,20 @@ export const useSetBorrowedOn = () =>
     b.loan ? { loan: { ...b.loan, borrowedOn: v.on } } : {},
   );
 
+/** A corrected due date replaces the current stamp (like `set_loan_due_on`); reminders resync. */
+export const useSetDueOn = () =>
+  useLoanMutation<api.DueOnVars>(mk.loanDueOn, (v, b) =>
+    b.loan
+      ? {
+          loan: {
+            ...b.loan,
+            dueOn: v.on,
+            dueStamps: [...b.loan.dueStamps.slice(0, -1), ...(v.on ? [v.on] : [])],
+          },
+        }
+      : {},
+  );
+
 /** Renew with the stamp "thunk" and "Renewed until 21 Oct" (brief §12: the message repeats the verb). */
 export function useRenew() {
   const renew = useRenewLoan();

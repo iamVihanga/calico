@@ -54,3 +54,10 @@ export async function setLoanBorrowedOn(v: BorrowedOnVars): Promise<void> {
   const { error } = await supabase.rpc('set_loan_borrowed_on', { p_loan: v.loanId, p_on: v.on });
   if (error) throw error;
 }
+
+/** Correct the due date (not a renewal; null clears it on friend and lent loans). */
+export type DueOnVars = { loanId: string; itemId: string; on: LocalDate | null };
+export async function setLoanDueOn(v: DueOnVars): Promise<void> {
+  const { error } = await supabase.rpc('set_loan_due_on', { p_loan: v.loanId, p_on: v.on as string });
+  if (error) throw error;
+}

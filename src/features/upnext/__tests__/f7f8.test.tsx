@@ -200,6 +200,16 @@ describe('F7: build the "Stephen King" collection', () => {
       ),
     );
     expect(await screen.findByText(copy.collections.added('Stephen King'))).toBeTruthy();
+
+    // Home: the collections as pills (with their counts), and See all.
+    await act(async () => router.navigate('/'));
+    const pill = await screen.findByTestId(`home-collection-${sk.id}`);
+    expect(pill).toHaveTextContent(/Stephen King 4/); // after the icon's glyph
+    await fireEvent.press(pill);
+    expect(await screen.findByTestId('screen-collection')).toBeTruthy();
+    await act(async () => router.navigate('/'));
+    await fireEvent.press(await screen.findByTestId('home-collections-all'));
+    expect(await screen.findByTestId('collection-new-tile')).toBeTruthy();
   });
 });
 

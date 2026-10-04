@@ -15,6 +15,7 @@ const mockReturn = jest.fn();
 const mockReopen = jest.fn();
 const mockAdd = jest.fn();
 const mockBorrowedOn = jest.fn();
+const mockDueOn = jest.fn();
 
 const today = colomboToday();
 const due = addLocalDays(today, 3);
@@ -92,6 +93,10 @@ jest.mock('@/features/loans/api', () => ({
   reopenLoan: async (v: unknown) => {
     mockReopen(v);
     mockMadol = fresh();
+  },
+  setLoanDueOn: async (v: { on: string | null }) => {
+    mockDueOn(v);
+    mockMadol = { ...mockMadol, loan: { ...mockMadol.loan!, dueOn: v.on!, dueStamps: [v.on!] } };
   },
   setLoanBorrowedOn: async (v: { on: string }) => {
     mockBorrowedOn(v);
@@ -271,5 +276,23 @@ describe('F4: library due date, renew then return', () => {
       }),
     );
     expect(await screen.findByText(copy.borrowedOn.changed(fmtShort(addLocalDays(today, -15))))).toBeTruthy();
+  });
+
+  it('the due date can be corrected from the date card (not a renewal)', async () => {
+    mockMadol = fresh(); // borrowed 14 days ago, due in 3
+    await renderRouter('./app', { initialUrl: '/book/madol' });
+    await fireEvent.press(await screen.findByTestId('loan-due-edit'));
+    expect(await screen.findByText(copy.loanDates.dueTitle)).toBeTruthy();
+    // A library loan always has a due date: no "No due date" choice.
+    expect(screen.queryByText(copy.loanDates.noDue)).toBeNull();
+    await fireEvent.press(screen.getByTestId('due-on-quick-2')); // +21 days from the borrowed day
+    await act(async () => {
+      await fireEvent.press(screen.getByTestId('due-on-done'));
+    });
+    await waitFor(() =>
+      expect(mockDueOn).toHaveBeenCalledWith({ loanId: 'loan-madol', itemId: 'madol', on: addLocalDays(today, 7) }),
+    );
+    expect(await screen.findByText(copy.borrowedOn.dueChanged(fmtShort(addLocalDays(today, 7))))).toBeTruthy();
+    expect(mockRenew).not.toHaveBeenCalled();
   });
 });

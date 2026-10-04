@@ -53,7 +53,8 @@ Expo-specific guidance: @AGENTS.md
   ticks every aired episode via `mark_show_watched(p_force_watched)`). Loan dates are two tiles
   (`LoanDatesField`: quick choices + `Calendar`; a local `Sheet` on screens, inline inside sheets); the due date keeps
   the loan length when the borrowed day moves until it's picked by hand (`moveBorrowed`/`setDue`); existing loans move
-  the borrowed day via `set_loan_borrowed_on`.
+  the borrowed day (`set_loan_borrowed_on`) or correct the due date (`set_loan_due_on`: replaces the current stamp,
+  not a renewal) from the date card.
 - Follow-up toasts use `useToastStore.getState().enqueue()`; an action that should cancel them calls `clearQueue()`.
 - Book edits go through the `update_book` RPC (only the keys sent change). A new cover photo is uploaded as
   `covers/{uid}/{itemId}/front-{timestamp}.jpg` (covers are cached by path), then the old file is removed.

@@ -853,6 +853,10 @@ export type Database = {
         };
         Returns: undefined;
       };
+      set_loan_due_on: {
+        Args: { p_loan: string; p_on: string | null };
+        Returns: undefined;
+      };
       set_loan_borrowed_on: {
         Args: { p_loan: string; p_on: string };
         Returns: undefined;

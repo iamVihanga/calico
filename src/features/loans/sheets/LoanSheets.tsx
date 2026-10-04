@@ -20,7 +20,7 @@ import { toast } from '@/lib/stores/toast';
 import { radius, shadow, useTheme } from '@/theme';
 
 import type { LoanKind } from '../api';
-import { useAddLoan, useRenew, useReturn, useSetBorrowedOn } from '../hooks';
+import { useAddLoan, useRenew, useReturn, useSetBorrowedOn, useSetDueOn } from '../hooks';
 import { LoanDatesField } from '../components/LoanDatesField';
 import { DEFAULT_RENEW, initialLoanDates, LOAN_DUE_CHOICES, type LoanDates, renewOptions } from '../logic';
 import { requestReminderSync } from '../reminders';
@@ -285,6 +285,39 @@ export function BorrowedOnSheetBody({ itemId, onClose }: Props) {
         if (on === loan.borrowedOn) return;
         setOn.mutate({ loanId: loan.id, itemId, on });
         toast({ message: copy.borrowedOn.changed(fmtShort(on)) });
+      }}
+    />
+  );
+}
+
+/** Correct the due date from the date card: quick lengths from the borrowed day, or any day on the calendar. */
+export function DueOnSheetBody({ itemId, onClose }: Props) {
+  const book = useBook(itemId).data;
+  const setDue = useSetDueOn();
+  const [on, setDay] = useState<string | null>(book?.loan?.dueOn ?? null);
+  const loan = book?.loan;
+  if (!book || !loan) return null;
+  // A library loan always has a due date (`set_loan_due_on`); friends and lent books may not.
+  const required = loan.direction === 'borrowed' && book.ownership === 'library';
+  const quick = [
+    ...LOAN_DUE_CHOICES.map((n) => ({ label: copy.loanDates.plusDays(n), date: addLocalDays(loan.borrowedOn, n) })),
+    ...(required ? [] : [{ label: copy.loanDates.noDue, date: null }]),
+  ];
+  const latest = addLocalDays(loan.borrowedOn, 365);
+  return (
+    <DatePickerPanel
+      title={copy.loanDates.dueTitle}
+      value={on}
+      onChange={setDay}
+      quick={quick}
+      min={loan.borrowedOn}
+      max={loan.dueOn && loan.dueOn > latest ? loan.dueOn : latest}
+      testID="due-on"
+      onDone={() => {
+        onClose();
+        if (on === loan.dueOn) return;
+        setDue.mutate({ loanId: loan.id, itemId, on });
+        toast({ message: on ? copy.borrowedOn.dueChanged(fmtShort(on)) : copy.borrowedOn.dueCleared });
       }}
     />
   );

@@ -29,6 +29,7 @@ export const mk = {
   loanReturn: ['loans', 'return'] as const,
   loanReopen: ['loans', 'reopen'] as const,
   loanBorrowedOn: ['loans', 'borrowedOn'] as const,
+  loanDueOn: ['loans', 'dueOn'] as const,
   mediaAdd: ['media', 'add'] as const,
   mediaViewing: ['media', 'viewing'] as const,
   mediaMarkEpisodes: ['media', 'markEpisodes'] as const,
@@ -70,6 +71,7 @@ export function registerMutations(qc: QueryClient) {
   qc.setMutationDefaults(mk.loanBorrowedOn, {
     mutationFn: (v: loans.BorrowedOnVars) => loans.setLoanBorrowedOn(v),
   });
+  qc.setMutationDefaults(mk.loanDueOn, { mutationFn: (v: loans.DueOnVars) => loans.setLoanDueOn(v) });
   qc.setMutationDefaults(mk.mediaAdd, { scope: MEDIA_SCOPE, mutationFn: (v: media.NewMedia) => media.addTmdbItem(v) });
   qc.setMutationDefaults(mk.mediaViewing, {
     scope: MEDIA_SCOPE,

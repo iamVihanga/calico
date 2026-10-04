@@ -76,6 +76,8 @@ type Props = {
   onReturned: () => void;
   /** Tapping the BORROWED column moves the start date (a loan added late). */
   onEditBorrowed?: () => void;
+  /** Tapping the DUE column corrects the due date (not a renewal). */
+  onEditDue?: () => void;
 };
 
 /**
@@ -83,7 +85,7 @@ type Props = {
  * DUE columns of ink stamps (latest last), due line, renewal count, Renew and Returned.
  * Lent-out loans reuse it as "Lent to {name}" without Renew.
  */
-export function LoanSlip({ loan, today, onRenew, onReturned, onEditBorrowed }: Props) {
+export function LoanSlip({ loan, today, onRenew, onReturned, onEditBorrowed, onEditDue }: Props) {
   const { t } = useTheme();
   const reduced = useReducedMotion();
   const lent = loan.direction === 'lent';
@@ -137,10 +139,20 @@ export function LoanSlip({ loan, today, onRenew, onReturned, onEditBorrowed }: P
           <DateStamp date={loan.borrowedOn} variant="borrowed" rotate={-2} />
         </Press>
         <View style={{ width: 1, backgroundColor: t.borderSoft, marginHorizontal: 16 }} />
-        <View style={{ flex: 1 }}>
-          <Txt role="label" size={10} color="textMuted" style={{ marginBottom: 10 }}>
-            {copy.loan.due}
-          </Txt>
+        <Press
+          accessibilityRole="button"
+          accessibilityLabel={onEditDue ? copy.borrowedOn.editDue : undefined}
+          disabled={!onEditDue}
+          onPress={onEditDue}
+          testID="loan-due-edit"
+          style={{ flex: 1 }}
+        >
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+            <Txt role="label" size={10} color="textMuted">
+              {copy.loan.due}
+            </Txt>
+            {onEditDue && <Icon name="edit" size={13} color="textMuted" />}
+          </View>
           {loan.dueStamps.length === 0 ? (
             <Txt family="ui" size="xs" color="textMuted">
               {copy.loanForm.noDue}
@@ -176,7 +188,7 @@ export function LoanSlip({ loan, today, onRenew, onReturned, onEditBorrowed }: P
               </View>
             </LayoutAnimationConfig>
           )}
-        </View>
+        </Press>
       </View>
 
       <View

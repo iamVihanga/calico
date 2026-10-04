@@ -17,6 +17,7 @@ export type SheetParams = {
   loanQuick: { itemId: string };
   loanForm: { itemId: string };
   borrowedOn: { itemId: string };
+  dueOn: { itemId: string };
   notif: undefined;
   /** The same explainer, for watch-time nudges (then the Android prompt). */
   notifNudges: undefined;

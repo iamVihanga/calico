@@ -656,6 +656,9 @@ export const en = {
     save: 'Save date',
     changed: (date: string) => `Borrowed on ${date}`,
     edit: 'Change the borrowed date',
+    editDue: 'Change the due date',
+    dueChanged: (date: string) => `Due on ${date}`,
+    dueCleared: 'No due date',
   },
   calendar: {
     months: [
@@ -824,6 +827,9 @@ export const en = {
     orTmdb: 'Or search for a movie or show',
     continueReading: 'Continue reading',
     pct: (n: number) => `${n}%`,
+    collections: 'Collections',
+    seeAllCollections: 'See all',
+    collectionA11y: (name: string, n: number) => `${name}, ${n} ${n === 1 ? 'item' : 'items'}`,
   },
   dev: {
     phase: (n: number) => `Arrives in phase ${n}.`,
