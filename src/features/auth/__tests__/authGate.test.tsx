@@ -68,8 +68,8 @@ describe('auth gate', () => {
     expect(await screen.findByText(copy.welcome.google)).toBeTruthy();
     expect(screen.getByText(copy.welcome.headline)).toBeTruthy();
     expect(screen.queryByTestId('screen-home')).toBeNull();
-    // The animated splash covered the app only while loading.
-    await waitFor(() => expect(screen.queryByTestId('animated-splash')).toBeNull());
+    // The animated splash plays its intro, then goes.
+    await waitFor(() => expect(screen.queryByTestId('animated-splash')).toBeNull(), { timeout: 4000 });
   });
 
   it('shows the tab shell with the seed user when signed in', async () => {
@@ -79,6 +79,7 @@ describe('auth gate', () => {
     expect(await screen.findByText('Dilan')).toBeTruthy();
     expect(await screen.findByText(copy.homeShelf.continueReading)).toBeTruthy();
     expect(await screen.findByTestId('reading-it')).toBeTruthy();
+    await waitFor(() => expect(screen.queryByTestId('animated-splash')).toBeNull(), { timeout: 4000 });
     // design/v2: the sun by the greeting in the day theme, the bookmark on the reading card.
     expect(screen.getByTestId('art-sun', { includeHiddenElements: true })).toBeTruthy();
     expect(screen.getByTestId('art-bookmark', { includeHiddenElements: true })).toBeTruthy();

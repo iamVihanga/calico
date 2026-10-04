@@ -237,6 +237,8 @@ describe('F8: reorder Up next and pick', () => {
   it('moves Gamperaliya from 12 to 4 with ↑, keeps the order after a refetch, then Pick for me → Start this', async () => {
     await renderRouter('./app', { initialUrl: '/up-next' });
     expect(await screen.findByTestId('queue-row-b12')).toBeTruthy();
+    // The splash (it has its own sleeping cat) finishes its intro first.
+    await waitFor(() => expect(screen.queryByTestId('animated-splash')).toBeNull(), { timeout: 4000 });
     expect(screen.getByText(copy.upNext.divider)).toBeTruthy();
     for (let n = 0; n < 8; n++) {
       await act(async () => {

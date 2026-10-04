@@ -17,6 +17,8 @@ import { appFonts } from '@/theme/fonts';
 initSentry();
 SplashScreen.preventAutoHideAsync();
 
+const hideNativeSplash = () => SplashScreen.hide();
+
 function RootStack({ fontsReady, restored }: { fontsReady: boolean; restored: boolean }) {
   const { t } = useTheme();
   const { status, session } = useAuth();
@@ -25,18 +27,18 @@ function RootStack({ fontsReady, restored }: { fontsReady: boolean; restored: bo
   const done = fontsReady && restored && status !== 'loading';
   const [splashGone, setSplashGone] = useState(false);
 
-  // The native splash (static Pinki) hands over to the animated one as soon as fonts are in (the
-  // wordmark needs them). The animated splash covers the app until the cache is restored and the
-  // session is known, then fades out. No minimum time.
-  useEffect(() => {
-    if (fontsReady) SplashScreen.hideAsync();
-  }, [fontsReady]);
+  // Android always shows the native splash (static Pinki) until the first frame. The animated one
+  // starts on that same frame (it needs the fonts for the wordmark) and the native one goes as soon
+  // as it has laid out, so there is no gap. The intro always plays in full on a cold start; the app
+  // mounts behind it once the cache is restored and the session is known, and the splash fades.
   if (!fontsReady) return null;
 
   return (
     <>
       {done && <Screens status={status} surface={t.surfacePage} />}
-      {!splashGone && <AnimatedSplash done={done} onHidden={() => setSplashGone(true)} />}
+      {!splashGone && (
+        <AnimatedSplash done={done} onHidden={() => setSplashGone(true)} onFirstLayout={hideNativeSplash} />
+      )}
     </>
   );
 }

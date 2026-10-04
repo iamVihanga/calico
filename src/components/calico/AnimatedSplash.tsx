@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { type LayoutChangeEvent, StyleSheet, View } from 'react-native';
 import Animated, {
   Easing,
   runOnJS,
@@ -22,6 +22,8 @@ const CAT = 214;
 const POP_MS = 560;
 const BAR_MS = 2000;
 const FADE_OUT_MS = 220;
+/** How long the intro plays at least (pop + reveal, then a beat with the scene) before it may fade. */
+export const INTRO_MS = 1400;
 /** The wordmark block under the cat pushes it this far above centre; the native splash centres it. */
 const NATIVE_DROP = 78;
 
@@ -31,10 +33,19 @@ const purr = Easing.bezier(...motion.easing.purr);
 /**
  * The design/v2 splash (prototype `splash`): Pinki asleep on the forest gradient with her moon, the
  * wordmark and three covers. Its first frame is the native splash (same background, cat at the
- * same size), so the hand-off doesn't jump; it shows only while the app is loading and fades out
- * as soon as `done`, then calls `onHidden`.
+ * same size), so the hand-off doesn't jump. `onFirstLayout` is when the native splash can go. On
+ * every cold start the intro plays in full (`INTRO_MS`); it fades out once that's done and the app
+ * is ready (`done`), then calls `onHidden`. With reduced motion it fades as soon as `done`.
  */
-export function AnimatedSplash({ done, onHidden }: { done: boolean; onHidden: () => void }) {
+export function AnimatedSplash({
+  done,
+  onHidden,
+  onFirstLayout,
+}: {
+  done: boolean;
+  onHidden: () => void;
+  onFirstLayout?: (e: LayoutChangeEvent) => void;
+}) {
   const { t } = useTheme();
   const reduced = useReducedMotion();
   const handoff = useSharedValue(1); // flat native-colour layer over the gradient
@@ -43,6 +54,13 @@ export function AnimatedSplash({ done, onHidden }: { done: boolean; onHidden: ()
   const reveal = useSharedValue(reduced ? 1 : 0); // everything that isn't on the native splash
   const bar = useSharedValue(0.04);
   const shown = useSharedValue(1);
+  const [introDone, setIntroDone] = useState(reduced);
+
+  useEffect(() => {
+    if (reduced) return;
+    const t = setTimeout(() => setIntroDone(true), INTRO_MS);
+    return () => clearTimeout(t);
+  }, [reduced]);
 
   useEffect(() => {
     if (reduced) {
@@ -57,11 +75,11 @@ export function AnimatedSplash({ done, onHidden }: { done: boolean; onHidden: ()
   }, [reduced, handoff, pop, drop, reveal, bar]);
 
   useEffect(() => {
-    if (!done) return;
+    if (!done || !introDone) return;
     shown.value = withTiming(0, { duration: reduced ? 0 : FADE_OUT_MS }, (finished) => {
       if (finished) runOnJS(onHidden)();
     });
-  }, [done, reduced, shown, onHidden]);
+  }, [done, introDone, reduced, shown, onHidden]);
 
   const rootStyle = useAnimatedStyle(() => ({ opacity: shown.value }));
   const handoffStyle = useAnimatedStyle(() => ({ opacity: handoff.value }));
@@ -72,6 +90,7 @@ export function AnimatedSplash({ done, onHidden }: { done: boolean; onHidden: ()
   return (
     <Animated.View
       testID="animated-splash"
+      onLayout={onFirstLayout}
       accessible
       accessibilityLabel={copy.splash.opening}
       style={[

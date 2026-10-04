@@ -103,8 +103,10 @@ Expo-specific guidance: @AGENTS.md
 - Density variants (`name@2x.png`, `name@3x.png`) are required by the base name (`require('…/name.png')`) and need
   the 1x file too: Metro picks the density, Jest needs the base file. `npx expo export --platform android` catches
   Metro-only resolution errors that Jest misses.
-- Launch: native splash (static Pinki on `splash.native`) hands off to `AnimatedSplash` in `app/_layout.tsx`,
-  which covers the app only until fonts, cache and session are ready.
+- Launch: Android always shows the native splash (static Pinki on `splash.native`) until the first frame;
+  `AnimatedSplash` starts on that same frame and hides it on first layout (`SplashScreen.hide()`). On every
+  cold start the intro plays in full (`INTRO_MS`), then it fades once fonts, cache and session are ready
+  (reduced motion: as soon as ready). Router tests that check art also on the splash wait for it to go.
 
 ## Status
 
