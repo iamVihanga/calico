@@ -123,7 +123,7 @@ export default function Review() {
     return isLowConfidence(extraction.confidence[key]) ? 'low' : 'ai';
   };
 
-  // Switching source: keep the status valid (Read isn't offered for borrowed books) and reset the lender.
+  // Switching source: keep the status valid (a wishlist book has none) and reset the lender.
   useEffect(() => {
     if (statuses.length && !statuses.includes(status)) setValue('status', 'to_read');
     setValue('party', source === 'library' ? (profile?.default_library ?? '') : '');

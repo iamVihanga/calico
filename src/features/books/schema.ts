@@ -31,10 +31,12 @@ export const reviewSchema = z
 
 export type ReviewForm = z.infer<typeof reviewSchema>;
 
-/** Status chips per source (prototype statusChips). */
+/**
+ * Status chips per source (prototype statusChips). A borrowed book can be Read too (added after
+ * finishing it, maybe "a while ago"); its loan stays open until it's returned.
+ */
 export function statusOptions(source: ReviewForm['source']): ReviewForm['status'][] {
-  if (source === 'wishlist') return [];
-  return source === 'bought' ? ['to_read', 'reading', 'read'] : ['to_read', 'reading'];
+  return source === 'wishlist' ? [] : ['to_read', 'reading', 'read'];
 }
 
 /** Edit details: the identity fields only (status, source and loans have their own flows). */

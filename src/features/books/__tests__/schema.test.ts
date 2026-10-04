@@ -36,7 +36,8 @@ describe('review form', () => {
 
   it('status chips depend on the source', () => {
     expect(statusOptions('bought')).toEqual(['to_read', 'reading', 'read']);
-    expect(statusOptions('library')).toEqual(['to_read', 'reading']);
+    expect(statusOptions('library')).toEqual(['to_read', 'reading', 'read']);
+    expect(statusOptions('friend')).toEqual(['to_read', 'reading', 'read']);
     expect(statusOptions('wishlist')).toEqual([]);
   });
 });

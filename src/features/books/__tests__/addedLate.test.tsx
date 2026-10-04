@@ -95,4 +95,21 @@ describe('adding a book late', () => {
     );
     expect(mockFinish).not.toHaveBeenCalled();
   });
+
+  it('a library book can be added as Read a while ago; its loan stays open', async () => {
+    await renderRouter('./app', { initialUrl: '/capture/review?manual=1' });
+    await fireEvent.changeText(await screen.findByTestId('review-title'), 'Gamperaliya');
+    await fireEvent.press(screen.getByTestId('source-library'));
+    await fireEvent.press(await screen.findByTestId('status-read'));
+    await fireEvent.press(await screen.findByTestId('review-when-past'));
+    await act(async () => {
+      await fireEvent.press(screen.getByTestId('review-add'));
+    });
+    await waitFor(() => expect(mockFinish).toHaveBeenCalled());
+    const book = mockCreate.mock.calls[0]![0] as { id: string; status: string; loan: unknown };
+    expect(book.loan).toEqual(expect.objectContaining({ borrowedOn: today }));
+    expect(mockFinish).toHaveBeenCalledWith(
+      expect.objectContaining({ itemId: book.id, backfill: true, precision: null, returnLoan: false }),
+    );
+  });
 });
