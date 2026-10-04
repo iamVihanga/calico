@@ -1,12 +1,18 @@
 import { supabase } from '@/lib/supabase';
 
-export type HomeStats = { pagesThisMonth: number; booksFinishedThisYear: number; episodesThisWeek: number };
+export type HomeStats = {
+  booksThisMonth: number;
+  pagesThisMonth: number;
+  booksFinishedThisYear: number;
+  episodesThisWeek: number;
+};
 
 export async function fetchHomeStats(): Promise<HomeStats> {
   const { data, error } = await supabase.rpc('home_stats');
   if (error) throw error;
   const d = (data ?? {}) as Record<string, number>;
   return {
+    booksThisMonth: d.books_this_month ?? 0,
     pagesThisMonth: d.pages_this_month ?? 0,
     booksFinishedThisYear: d.books_finished_this_year ?? 0,
     episodesThisWeek: d.episodes_this_week ?? 0,

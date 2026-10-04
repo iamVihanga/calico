@@ -190,6 +190,12 @@ export default function Settings() {
           'setting-lead',
         ),
         row(
+          copy.settings.homeStat,
+          copy.settings.homeStatValue[p?.home_stat === 'pages' ? 'pages' : 'books'],
+          () => update.mutate({ home_stat: p?.home_stat === 'pages' ? 'books' : 'pages' }),
+          'setting-home-stat',
+        ),
+        row(
           copy.settings.specials,
           onOff(p?.include_specials ?? false),
           () => update.mutate({ include_specials: !(p?.include_specials ?? false) }),

@@ -235,6 +235,7 @@ export type Database = {
           cover_url: string | null;
           created_at: string;
           finished_at: string | null;
+          finished_precision: string | null;
           id: string;
           kind: Database['public']['Enums']['media_kind'];
           note: string | null;
@@ -253,6 +254,7 @@ export type Database = {
           cover_url?: string | null;
           created_at?: string;
           finished_at?: string | null;
+          finished_precision?: string | null;
           id?: string;
           kind: Database['public']['Enums']['media_kind'];
           note?: string | null;
@@ -271,6 +273,7 @@ export type Database = {
           cover_url?: string | null;
           created_at?: string;
           finished_at?: string | null;
+          finished_precision?: string | null;
           id?: string;
           kind?: Database['public']['Enums']['media_kind'];
           note?: string | null;
@@ -465,6 +468,7 @@ export type Database = {
           default_library: string | null;
           default_loan_days: number;
           display_name: string | null;
+          home_stat: string;
           id: string;
           include_specials: boolean;
           lead_script: string;
@@ -482,6 +486,7 @@ export type Database = {
           default_library?: string | null;
           default_loan_days?: number;
           display_name?: string | null;
+          home_stat?: string;
           id: string;
           include_specials?: boolean;
           lead_script?: string;
@@ -499,6 +504,7 @@ export type Database = {
           default_library?: string | null;
           default_loan_days?: number;
           display_name?: string | null;
+          home_stat?: string;
           id?: string;
           include_specials?: boolean;
           lead_script?: string;

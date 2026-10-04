@@ -21,6 +21,7 @@ const base = (r: Tables<'items'>) => ({
   note: r.note,
   startedAt: r.started_at,
   finishedAt: r.finished_at,
+  finishedPrecision: r.finished_precision as Precision | null,
   createdAt: r.created_at,
   updatedAt: r.updated_at,
 });

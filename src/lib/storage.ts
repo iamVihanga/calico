@@ -16,6 +16,8 @@ export const storageKeys = {
   widgets: 'widgets',
   /** The one-time "Want a nudge?" card was answered. */
   nudgeOffer: 'nudge-offer',
+  /** Library segment, and per segment its filter, sort, grouping and view (survive a restart). */
+  libraryPrefs: 'library-prefs',
 } as const;
 
 /** Wipe everything except the theme (sign-out keeps the paper colour for the welcome screen). */

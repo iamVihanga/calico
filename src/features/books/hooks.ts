@@ -206,6 +206,7 @@ export function useFinishBook() {
         rating: v.rating ?? b.rating,
         note: v.note ?? b.note,
         finishedAt: v.on,
+        finishedPrecision: v.backfill ? (v.precision ?? null) : 'day',
         loan: v.returnLoan ? null : b.loan,
       }));
       leaveQueue(qc, v.itemId, 'read', (e) => requeue.mutate(e));

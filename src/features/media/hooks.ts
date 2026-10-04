@@ -107,6 +107,7 @@ function patchShow(qc: QueryClient, id: string, patch: (s: Show) => Partial<Show
 
 /** Apply a watch change locally: the watch set, Watchlist → Watching, and the Home/Library progress row. */
 function applyWatches(qc: QueryClient, itemId: string, season: number, episodes: number[], watched: boolean) {
+  patchShow(qc, itemId, () => ({})); // bumps updatedAt: "Recently updated" follows ticks
   const keys = new Set(episodes.map((e) => epKey(season, e)));
   qc.setQueryData<EpisodeRef[]>(qk.watches(itemId), (w = []) => {
     const rest = w.filter((x) => !keys.has(epKey(x.season, x.episode)));
@@ -158,6 +159,7 @@ function optimisticMedia(v: api.NewMedia): Movie | Show {
     note: null,
     startedAt: v.status === 'watching' ? colomboToday() : null,
     finishedAt: v.status === 'watched' ? (v.watchedOn ?? colomboToday()) : null,
+    finishedPrecision: v.status === 'watched' && v.backfill ? (v.precision ?? null) : 'day',
     createdAt: now(),
     updatedAt: now(),
     tmdbId: v.tmdbId,
@@ -234,6 +236,7 @@ export function useLogViewing() {
         return {
           status: 'watched',
           finishedAt: latest ? v.on : m.finishedAt,
+          finishedPrecision: latest ? (v.backfill ? (v.precision ?? null) : 'day') : m.finishedPrecision,
           rating: latest ? (v.rating ?? m.rating) : m.rating,
           viewings: [
             {
@@ -320,6 +323,12 @@ export function useMarkShowWatched() {
           status: watched ? 'watched' : 'watching',
           startedAt: x.startedAt && x.startedAt < on ? x.startedAt : on,
           finishedAt: v.forceWatched ? on : watched ? (x.finishedAt ?? on) : x.finishedAt,
+          finishedPrecision:
+            v.forceWatched || (watched && !x.finishedAt)
+              ? v.backfill
+                ? (v.precision ?? null)
+                : 'day'
+              : x.finishedPrecision,
         };
       });
       return s;
@@ -344,6 +353,7 @@ export function useSetMediaStatus() {
       const patch = (x: Movie | Show) => ({
         status: v.status,
         finishedAt: v.status === 'watched' ? on : x.finishedAt,
+        finishedPrecision: v.status === 'watched' ? ('day' as const) : x.finishedPrecision,
         startedAt: v.status === 'watching' ? (x.startedAt ?? on) : x.startedAt,
       });
       patchMovie(qc, v.itemId, (m) => patch(m) as Partial<Movie>);

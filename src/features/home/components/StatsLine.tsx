@@ -6,18 +6,18 @@ import { Icon } from '@/components/ds/Icon';
 import { Press } from '@/components/ds/Press';
 import { Txt } from '@/components/ds/Txt';
 import { fetchHomeStats } from '@/features/account/api';
+import { useProfile } from '@/features/profile/hooks';
 import { copy } from '@/i18n/en';
 import { qk } from '@/lib/queryKeys';
 import { layout, radius, useTheme } from '@/theme';
 
-/** "1,240 pages read this month →" at the bottom of Home, opening Your year (prototype `statsLine`). */
+/** "5 books read this month →" (or pages, Settings → Home stat) at the bottom of Home, opening Your year. */
 export function StatsLine() {
   const { t } = useTheme();
   const q = useQuery({ queryKey: qk.homeStats, queryFn: fetchHomeStats });
+  const choice = useProfile().data?.home_stat === 'pages' ? 'pages' : 'books';
   const s = q.data;
-  const line = s
-    ? copy.year.statsLine(s.pagesThisMonth, s.booksFinishedThisYear, s.episodesThisWeek)
-    : copy.settings.yourYear;
+  const line = s ? copy.year.statsLine(s, choice) : copy.settings.yourYear;
   return (
     <Press
       accessibilityRole="button"

@@ -27,18 +27,38 @@ import { BOOK_STATUSES, sortBooks, type SortKey, statusCounts, statusLabel } fro
 import type { Book, BookStatus } from '@/features/books/types';
 import { MediaRow, MediaTile } from '@/features/media/components/MediaTile';
 import { useMovies, useShowProgress, useShows } from '@/features/media/hooks';
+import { GROUP_BYS, type GroupBy, groupItems, type GroupRow, groupRows } from '@/features/library/logic';
+import {
+  type LibraryPrefs,
+  type LibraryView,
+  readLibraryPrefs,
+  saveLibraryPrefs,
+  type Segment,
+  type SegmentPrefs,
+} from '@/features/library/prefs';
 import { countBy, MOVIE_STATUSES, SHOW_STATUSES, sortMedia } from '@/features/media/logic';
 import type { Media, MediaStatus } from '@/features/media/types';
 import { copy } from '@/i18n/en';
 import { colomboToday } from '@/lib/dates';
 import { layout, radius, useTheme } from '@/theme';
 
-type Segment = 'books' | 'movies' | 'shows';
-type View_ = 'grid' | 'list' | 'shelf';
 type Filter = 'all' | BookStatus | MediaStatus;
 type Row = Book | Media;
+type ListRow = Row | GroupRow<Row>;
+const isGroupRow = (r: ListRow): r is GroupRow<Row> => 'type' in r && (r.type === 'header' || r.type === 'items');
+const save = (next: LibraryPrefs) => {
+  saveLibraryPrefs(next);
+  return next;
+};
+const withFilter = (p: LibraryPrefs, filter: string): LibraryPrefs =>
+  save({ ...p, [p.segment]: { ...p[p.segment], filter } });
+const FILTERS: Record<Segment, readonly string[]> = {
+  books: BOOK_STATUSES,
+  movies: MOVIE_STATUSES,
+  shows: SHOW_STATUSES,
+};
 
-const VIEWS: { id: View_; icon: IconName }[] = [
+const VIEWS: { id: LibraryView; icon: IconName }[] = [
   { id: 'grid', icon: 'grid_view' },
   { id: 'list', icon: 'view_list' },
   { id: 'shelf', icon: 'shelves' },
@@ -62,19 +82,27 @@ export default function Library() {
   const movies = useMovies();
   const shows = useShows();
   const progress = useShowProgress().data;
-  const [segment, setSegment] = useState<Segment>('books');
-  const [filter, setFilter] = useState<Filter>('all');
-  const [view, setView] = useState<View_>('grid');
-  const [sort, setSort] = useState<SortKey>('updated');
+  // Segment, and per segment its filter, sort, grouping and view: kept across restarts (MMKV).
+  const [prefs, setPrefs] = useState(() => readLibraryPrefs(FILTERS));
+  const segment = prefs.segment;
+  const { sort, view, group } = prefs[segment];
+  const filter = prefs[segment].filter as Filter;
+  const update = (patch: Partial<SegmentPrefs>) =>
+    setPrefs((p) => save({ ...p, [p.segment]: { ...p[p.segment], ...patch } }));
+  const setSegment = (s: Segment) => setPrefs((p) => save({ ...p, segment: s }));
+  const setFilter = (f: Filter) => setPrefs((p) => withFilter(p, f));
+  const setSort = (k: SortKey) => update({ sort: k });
+  const setView = (v: LibraryView) => update({ view: v });
+  const setGroup = (g: GroupBy) => update({ group: g });
   const today = colomboToday();
 
   // Tap the active Library tab: scroll to top (useScrollToTop) and reset the filter.
-  const ref = useRef<FlashListRef<Row>>(null);
+  const ref = useRef<FlashListRef<ListRow>>(null);
   useScrollToTop(ref);
   const navigation = useNavigation();
   const focused = useIsFocused();
   useEffect(
-    () => navigation.addListener('tabPress' as never, () => focused && setFilter('all')),
+    () => navigation.addListener('tabPress' as never, () => focused && setPrefs((p) => withFilter(p, 'all'))),
     [navigation, focused],
   );
 
@@ -100,8 +128,13 @@ export default function Library() {
   const pending = isBooks ? books.isPending : segment === 'movies' ? movies.isPending : shows.isPending;
   const layout_ = !isBooks && view === 'shelf' ? 'grid' : view; // no shelf for movies and shows
   const columns = layout_ === 'grid' ? 3 : 1;
-  const data: Row[] = isBooks ? (view === 'shelf' ? [] : shown) : shownMedia;
-  const shownCount = isBooks ? shown.length : shownMedia.length;
+  const list: Row[] = isBooks ? shown : shownMedia;
+  const shownCount = list.length;
+  const groups = useMemo(() => (group === 'none' ? null : groupItems(list, group)), [list, group]);
+  // Grouped: a single column of section headers and rows of up to 3 tiles (grid) or 1 row (list).
+  const data: ListRow[] =
+    isBooks && view === 'shelf' ? [] : groups ? groupRows(groups, layout_ === 'grid' ? 3 : 1) : list;
+  const listColumns = groups ? 1 : columns;
 
   const onStatus = (b: Book, s: BookStatus) => changeStatus(b, s);
 
@@ -125,10 +158,7 @@ export default function Library() {
           { id: 'shows', label: copy.library.segments.shows },
         ]}
         value={segment}
-        onChange={(s) => {
-          setSegment(s);
-          setFilter('all');
-        }}
+        onChange={setSegment}
       />
       <>
         <ScrollView
@@ -160,16 +190,27 @@ export default function Library() {
             paddingBottom: 16,
           }}
         >
-          <Select
-            variant="inline"
-            label={copy.library.sortLabel}
-            value={sort}
-            onChange={setSort}
-            options={(['updated', 'title', 'rating', 'added'] as const).map((k) => ({
-              value: k,
-              label: copy.library.sort[k],
-            }))}
-          />
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 14 }}>
+            <Select
+              variant="inline"
+              label={copy.library.sortLabel}
+              value={sort}
+              onChange={setSort}
+              testID="library-sort"
+              options={(['updated', 'title', 'rating', 'added'] as const).map((k) => ({
+                value: k,
+                label: copy.library.sort[k],
+              }))}
+            />
+            <Select
+              variant="inline"
+              label={copy.library.groupLabel}
+              value={group}
+              onChange={setGroup}
+              testID="library-group"
+              options={GROUP_BYS.map((g) => ({ value: g, label: copy.library.group[g] }))}
+            />
+          </View>
           <View
             style={{
               flexDirection: 'row',
@@ -251,42 +292,82 @@ export default function Library() {
         )}
       </View>
     ) : isBooks && view === 'shelf' ? (
-      <ShelfView books={shown} lead={lead} />
+      groups ? (
+        <View>
+          {groups.map((g) => (
+            <View key={g.key}>
+              <GroupHeader title={g.title} count={g.items.length} />
+              <ShelfView books={g.items as Book[]} lead={lead} />
+            </View>
+          ))}
+        </View>
+      ) : (
+        <ShelfView books={shown} lead={lead} />
+      )
     ) : null;
+
+  const tile = (item: Row, cell: number) => (
+    <View key={item.id} style={{ flex: 1, ...GRID_CELL[cell], paddingBottom: 18 }}>
+      {'kind' in item ? (
+        <MediaTile item={item} progress={progressById.get(item.id)} />
+      ) : (
+        <BookTile book={item} lead={lead} today={today} />
+      )}
+    </View>
+  );
+  const row = (item: Row) => (
+    <View key={item.id} style={{ paddingHorizontal: layout.gutterScreen, paddingBottom: 12 }}>
+      {'kind' in item ? (
+        <MediaRow item={item} progress={progressById.get(item.id)} />
+      ) : (
+        <BookRow book={item} lead={lead} onStatus={onStatus} onQueue={queue} />
+      )}
+    </View>
+  );
 
   return (
     <View style={{ flex: 1, backgroundColor: t.surfacePage }}>
       <FlashList
         ref={ref}
-        key={`${segment}-${layout_}-${columns}`}
+        key={`${segment}-${layout_}-${listColumns}-${group}`}
         testID="screen-library"
         data={data}
-        numColumns={columns}
-        keyExtractor={(b) => b.id}
-        getItemType={() => `${segment}-${layout_}`}
+        numColumns={listColumns}
+        keyExtractor={(r) => (isGroupRow(r) ? r.key : r.id)}
+        getItemType={(r) => (isGroupRow(r) ? r.type : `${segment}-${layout_}`)}
         ListHeaderComponent={header}
         ListEmptyComponent={empty}
         contentContainerStyle={{ paddingTop: insets.top + 6, paddingBottom: insets.bottom + TAB_SCREEN_BOTTOM }}
-        renderItem={({ item, index }) =>
-          layout_ === 'grid' ? (
-            <View style={{ flex: 1, ...GRID_CELL[index % 3], paddingBottom: 18 }}>
-              {'kind' in item ? (
-                <MediaTile item={item} progress={progressById.get(item.id)} />
-              ) : (
-                <BookTile book={item} lead={lead} today={today} />
-              )}
-            </View>
-          ) : (
-            <View style={{ paddingHorizontal: layout.gutterScreen, paddingBottom: 12 }}>
-              {'kind' in item ? (
-                <MediaRow item={item} progress={progressById.get(item.id)} />
-              ) : (
-                <BookRow book={item} lead={lead} onStatus={onStatus} onQueue={queue} />
-              )}
-            </View>
-          )
-        }
+        renderItem={({ item, index }) => {
+          if (isGroupRow(item)) {
+            if (item.type === 'header') return <GroupHeader title={item.title} count={item.count} />;
+            return layout_ === 'grid' ? (
+              <View style={{ flexDirection: 'row' }}>
+                {[0, 1, 2].map((i) => (item.items[i] ? tile(item.items[i]!, i) : <View key={i} style={{ flex: 1 }} />))}
+              </View>
+            ) : (
+              row(item.items[0]!)
+            );
+          }
+          return layout_ === 'grid' ? tile(item, index % 3) : row(item);
+        }}
       />
     </View>
+  );
+}
+
+/** A section title in a grouped Library: "2025 · 14". */
+function GroupHeader({ title, count }: { title: string; count: number }) {
+  return (
+    <Txt
+      family="display"
+      weight={700}
+      size={20}
+      accessibilityRole="header"
+      testID={`group-${title}`}
+      style={{ paddingHorizontal: layout.gutterScreen, paddingTop: 6, paddingBottom: 12 }}
+    >
+      {copy.library.groupHeader(title, count)}
+    </Txt>
   );
 }

@@ -15,6 +15,7 @@ import { Illustration } from '@/components/calico/Illustration';
 import { CoverPhoto } from '@/components/calico/CoverPhoto';
 import { coverFor } from '@/components/calico/coverPalette';
 import { coverRadius } from '@/components/calico/GeneratedCover';
+import { FinishedLine } from '@/components/calico/FinishedLine';
 import { LoanSlip } from '@/components/calico/LoanSlip';
 import { PaceSparkline } from '@/components/calico/PaceSparkline';
 import { ScriptToggle } from '@/components/calico/ScriptToggle';
@@ -223,6 +224,7 @@ export default function BookDetailScreen() {
             {meta}
           </Txt>
         </View>
+        {book.status === 'read' && <FinishedLine verb="read" on={book.finishedAt} precision={book.finishedPrecision} />}
       </View>
 
       <View style={{ marginTop: 26, marginHorizontal: layout.gutterScreen }}>

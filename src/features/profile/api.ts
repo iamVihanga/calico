@@ -18,6 +18,7 @@ export type ProfilePatch = Partial<
     | 'reading_goal'
     | 'include_specials'
     | 'watch_nudges'
+    | 'home_stat'
   >
 >;
 

@@ -50,3 +50,14 @@ export function partialLabel(on: LocalDate, precision: Precision | null | undefi
   if (precision === 'month') return format(parseLocal(on), 'MMM yyyy');
   return null;
 }
+
+/**
+ * When something was finished, as precisely as it's known: the day ("3 Mar 2024"), the month
+ * ("March 2024"), the year ("2024"), or null ("a while ago", no date). A missing precision is a day.
+ */
+export function finishedText(on: LocalDate, precision: Precision | null | undefined): string | null {
+  if (precision === null) return null;
+  if (precision === 'year') return on.slice(0, 4);
+  if (precision === 'month') return format(parseLocal(on), 'MMMM yyyy');
+  return format(parseLocal(on), 'd MMM yyyy');
+}

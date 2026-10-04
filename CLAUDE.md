@@ -55,6 +55,12 @@ Expo-specific guidance: @AGENTS.md
   the loan length when the borrowed day moves until it's picked by hand (`moveBorrowed`/`setDue`); existing loans move
   the borrowed day (`set_loan_borrowed_on`) or correct the due date (`set_loan_due_on`: replaces the current stamp,
   not a renewal) from the date card.
+- `items.finished_precision` sits next to `finished_at` (set by finish/viewing/mark-show/status RPCs; optional on the
+  app types, missing = a day): detail screens show it via `FinishedLine` ("Read in 2024", "Watched 3 Mar 2024").
+  Library prefs (segment, and per segment filter/sort/group/view) live in MMKV (`features/library/prefs.ts`,
+  unknown values fall back); grouping (`groupItems`: year finished / year added) renders header + item rows.
+  Episode ticks and page logs bump `items.updated_at` so "Recently updated" follows them. Home's stat line shows
+  books or pages read this month (`profiles.home_stat`, Settings → Home stat).
 - Follow-up toasts use `useToastStore.getState().enqueue()`; an action that should cancel them calls `clearQueue()`.
 - Book edits go through the `update_book` RPC (only the keys sent change). A new cover photo is uploaded as
   `covers/{uid}/{itemId}/front-{timestamp}.jpg` (covers are cached by path), then the old file is removed.

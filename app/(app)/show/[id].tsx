@@ -7,6 +7,7 @@ import { ActivityIndicator, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { coverFor } from '@/components/calico/coverPalette';
+import { FinishedLine } from '@/components/calico/FinishedLine';
 import { StatusRail } from '@/components/calico/StatusRail';
 import { Icon } from '@/components/ds/Icon';
 import { IconButton } from '@/components/ds/IconButton';
@@ -207,6 +208,9 @@ function ShowBody({ show }: { show: Show }) {
               {meta}
             </Txt>
           </View>
+        )}
+        {show.status === 'watched' && (
+          <FinishedLine verb="watched" on={show.finishedAt} precision={show.finishedPrecision} />
         )}
       </View>
 

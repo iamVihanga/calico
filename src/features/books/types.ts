@@ -34,6 +34,9 @@ export type Book = {
   note: string | null;
   startedAt: string | null;
   finishedAt: string | null;
+  /** How well `finishedAt` is known: 'day', 'month' or 'year'; null = read "a while ago", no date;
+   * missing = a day (cached before this was stored). */
+  finishedPrecision?: Precision | null;
   createdAt: string;
   updatedAt: string;
   coverPath: string | null;

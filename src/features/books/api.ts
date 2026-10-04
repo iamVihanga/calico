@@ -42,6 +42,7 @@ export function toBook(row: ItemRow): Book {
     note: row.note,
     startedAt: row.started_at,
     finishedAt: row.finished_at,
+    finishedPrecision: row.finished_precision as Precision | null,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
     coverPath: row.cover_path,

@@ -147,6 +147,13 @@ export const en = {
     },
     usual: (title: string, time: string) => `your usual ${time} ${title}`,
   },
+  finished: {
+    /** "Read 3 Mar 2024" / "Read in March 2024" / "Read in 2024" / "Read a while ago". */
+    read: (text: string | null, exactDay: boolean) =>
+      text === null ? 'Read a while ago' : exactDay ? `Read ${text}` : `Read in ${text}`,
+    watched: (text: string | null, exactDay: boolean) =>
+      text === null ? 'Watched a while ago' : exactDay ? `Watched ${text}` : `Watched in ${text}`,
+  },
   nudges: {
     channel: 'Watch-time nudges',
     title: (show: string) => `${show} time?`,
@@ -247,6 +254,8 @@ export const en = {
     collections: 'Collections',
   },
   settings: {
+    homeStat: 'Home stat',
+    homeStatValue: { books: 'Books read this month', pages: 'Pages read this month' },
     title: 'Settings',
     back: 'Back',
     account: 'Account',
@@ -310,14 +319,27 @@ export const en = {
     none: '—',
     pickYear: 'Year',
     failed: "Couldn't load this year. Pull to try again.",
-    statsLine: (pages: number, books: number, episodes: number) =>
-      pages
-        ? `${pages.toLocaleString('en')} pages read this month`
-        : books
-          ? `${books} ${books === 1 ? 'book' : 'books'} finished this year`
-          : episodes
-            ? `${episodes} ${episodes === 1 ? 'episode' : 'episodes'} this week`
-            : 'Your year so far',
+    /**
+     * Home's line: books or pages read this month (Settings → Home stat). When that's 0 it falls back to
+     * the other one, then books this year, then episodes this week, so it's never empty.
+     */
+    statsLine: (
+      s: { booksThisMonth: number; pagesThisMonth: number; booksFinishedThisYear: number; episodesThisWeek: number },
+      show: 'books' | 'pages',
+    ) => {
+      const books = s.booksThisMonth
+        ? `${s.booksThisMonth} ${s.booksThisMonth === 1 ? 'book' : 'books'} read this month`
+        : null;
+      const pages = s.pagesThisMonth ? `${s.pagesThisMonth.toLocaleString('en')} pages read this month` : null;
+      return (
+        (show === 'books' ? (books ?? pages) : (pages ?? books)) ??
+        (s.booksFinishedThisYear
+          ? `${s.booksFinishedThisYear} ${s.booksFinishedThisYear === 1 ? 'book' : 'books'} finished this year`
+          : s.episodesThisWeek
+            ? `${s.episodesThisWeek} ${s.episodesThisWeek === 1 ? 'episode' : 'episodes'} this week`
+            : 'Your year so far')
+      );
+    },
   },
   errors: {
     saveFailed: "Couldn't save that. Try again.",
@@ -374,6 +396,10 @@ export const en = {
     all: 'All',
     sort: { updated: 'Recently updated', title: 'Title', rating: 'Rating', added: 'Date added' },
     sortLabel: 'Sort',
+    groupLabel: 'Group',
+    group: { none: 'No grouping', finished: 'Year finished', added: 'Year added' },
+    groups: { while: 'A while ago', unfinished: 'Not finished yet' },
+    groupHeader: (title: string, n: number) => `${title} · ${n}`,
     empty: {
       reading: 'nothing on the go right now',
       abandoned: 'no abandoned books — nice',

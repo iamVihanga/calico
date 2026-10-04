@@ -1,4 +1,4 @@
-import { clampWhen, partialLabel, whenVars } from '../when';
+import { clampWhen, finishedText, partialLabel, whenVars } from '../when';
 
 const today = '2026-10-03';
 
@@ -56,5 +56,15 @@ describe('partialLabel', () => {
     expect(partialLabel('2024-01-01', 'year', 'x')).toBe('2024');
     expect(partialLabel('2024-03-01', 'month', 'x')).toBe('Mar 2024');
     expect(partialLabel('2024-03-09', 'day', 'x')).toBeNull();
+  });
+});
+
+describe('finishedText', () => {
+  it('as precisely as it is known', () => {
+    expect(finishedText('2024-03-09', 'day')).toBe('9 Mar 2024');
+    expect(finishedText('2024-03-01', 'month')).toBe('March 2024');
+    expect(finishedText('2024-01-01', 'year')).toBe('2024');
+    expect(finishedText('2026-10-04', null)).toBeNull();
+    expect(finishedText('2024-03-09', undefined)).toBe('9 Mar 2024'); // cached before it was stored
   });
 });

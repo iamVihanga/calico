@@ -59,7 +59,12 @@ jest.mock('@/features/media/api', () => ({
 }));
 jest.mock('@/features/account/api', () => ({
   ...jest.requireActual('@/features/account/api'),
-  fetchHomeStats: async () => ({ pagesThisMonth: 1240, booksFinishedThisYear: 17, episodesThisWeek: 3 }),
+  fetchHomeStats: async () => ({
+    booksThisMonth: 5,
+    pagesThisMonth: 1240,
+    booksFinishedThisYear: 17,
+    episodesThisWeek: 3,
+  }),
   fetchYearStats: async (year: number) => ({
     year,
     booksFinished: 17,
@@ -88,7 +93,8 @@ describe('Your year, Settings and deletion', () => {
 
   it('Home stats line opens Your year with the goal shelf and tiles', async () => {
     await renderRouter('./app', { initialUrl: '/' });
-    const line = await screen.findByText('1,240 pages read this month');
+    // Books read this month by default (Settings → Home stat switches to pages).
+    const line = await screen.findByText('5 books read this month');
     await fireEvent.press(line);
     expect(await screen.findByTestId('year-finished')).toHaveTextContent('17 books finished');
     expect(screen.getByText(copy.year.goal(24))).toBeTruthy();
@@ -114,6 +120,13 @@ describe('Your year, Settings and deletion', () => {
       await fireEvent.press(screen.getByTestId('setting-3d'));
     });
     await waitFor(() => expect(mockUpdate).toHaveBeenCalledWith({ remind_3d: false }));
+    expect(screen.getByTestId('setting-home-stat')).toHaveTextContent(copy.settings.homeStatValue.books, {
+      exact: false,
+    });
+    await act(async () => {
+      await fireEvent.press(screen.getByTestId('setting-home-stat'));
+    });
+    await waitFor(() => expect(mockUpdate).toHaveBeenCalledWith({ home_stat: 'pages' }));
     expect(screen.getByText(copy.settings.tmdbNotice)).toBeTruthy();
   });
 

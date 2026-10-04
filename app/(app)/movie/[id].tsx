@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { coverFor } from '@/components/calico/coverPalette';
 import { Poster } from '@/components/calico/Poster';
+import { FinishedLine } from '@/components/calico/FinishedLine';
 import { StatusRail } from '@/components/calico/StatusRail';
 import { TicketStack, type TicketStackHandle } from '@/components/calico/TicketStack';
 import { Button } from '@/components/ds/Button';
@@ -128,6 +129,9 @@ export default function MovieDetail() {
               {meta}
             </Txt>
           </View>
+        )}
+        {movie.status === 'watched' && (
+          <FinishedLine verb="watched" on={movie.finishedAt} precision={movie.finishedPrecision} />
         )}
       </View>
 
