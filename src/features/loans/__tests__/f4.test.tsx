@@ -5,6 +5,7 @@ import { addLocalDays, colomboToday, fmtShort } from '@/lib/dates';
 import { queryClient } from '@/lib/queryClient';
 import { useSheetStore } from '@/lib/stores/sheet';
 import { useToastStore } from '@/lib/stores/toast';
+import { pickDay } from '@/test/calendar';
 import { cleanupAppState } from '@/test/cleanup';
 
 import { reminderRoute } from '../responses';
@@ -196,7 +197,10 @@ describe('F4: library due date, renew then return', () => {
     await fireEvent.press(await screen.findByTestId('overflow-loan'));
     await fireEvent.press(await screen.findByText(copy.loanForm.kind.library));
     await fireEvent.changeText(screen.getByTestId('loan-party'), 'Colombo Public Library');
-    await fireEvent.press(screen.getByTestId('loan-due-21'));
+    // Due: the +21 days quick choice in the inline picker.
+    await fireEvent.press(screen.getByTestId('loan-dates-due'));
+    await fireEvent.press(await screen.findByTestId('loan-dates-picker-quick-2'));
+    await fireEvent.press(screen.getByTestId('loan-dates-picker-done'));
     await act(async () => {
       await fireEvent.press(screen.getByTestId('loan-save'));
     });
@@ -232,8 +236,12 @@ describe('F4: library due date, renew then return', () => {
     await fireEvent.press(await screen.findByTestId('overflow-loan'));
     await fireEvent.press(await screen.findByText(copy.loanForm.kind.friend));
     await fireEvent.changeText(screen.getByTestId('loan-party'), 'Nimali');
-    await fireEvent.press(screen.getByTestId('loan-borrowed-2')); // 2 days ago
-    await fireEvent.press(screen.getByTestId('loan-due-21'));
+    await fireEvent.press(screen.getByTestId('loan-dates-borrowed'));
+    await fireEvent.press(await screen.findByTestId('loan-dates-picker-quick-2')); // 2 days ago
+    await fireEvent.press(screen.getByTestId('loan-dates-picker-done'));
+    await fireEvent.press(screen.getByTestId('loan-dates-due'));
+    await fireEvent.press(await screen.findByTestId('loan-dates-picker-quick-2')); // +21 from then
+    await fireEvent.press(screen.getByTestId('loan-dates-picker-done'));
     await act(async () => {
       await fireEvent.press(screen.getByTestId('loan-save'));
     });
@@ -248,12 +256,12 @@ describe('F4: library due date, renew then return', () => {
     );
     await act(async () => useSheetStore.getState().close());
 
-    // Tapping BORROWED on the slip: the loan started 14 days ago, so the stepper is open; one day earlier.
+    // Tapping BORROWED on the slip: the loan started 14 days ago; pick the day before on the calendar.
     await fireEvent.press(await screen.findByTestId('loan-borrowed-edit'));
     expect(await screen.findByText(copy.borrowedOn.title)).toBeTruthy();
-    await fireEvent.press(screen.getByTestId('borrowed-on-earlier'));
+    await pickDay('borrowed-on-calendar', addLocalDays(today, -15));
     await act(async () => {
-      await fireEvent.press(screen.getByTestId('borrowed-on-save'));
+      await fireEvent.press(screen.getByTestId('borrowed-on-done'));
     });
     await waitFor(() =>
       expect(mockBorrowedOn).toHaveBeenCalledWith({

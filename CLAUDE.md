@@ -50,8 +50,10 @@ Expo-specific guidance: @AGENTS.md
   known). Rows store `date_precision` ('day' live, null = no date); stats use `counts_in(precision, grain)`
   (week needs a day, month a month, year any date). Asked on Review (Read), the Finish sheet, the movie viewing
   sheet, TMDB "Already watched" and the `watchedWhen` sheet (season "Mark all", show → Watched by hand, which
-  ticks every aired episode via `mark_show_watched(p_force_watched)`). Loans can start on an earlier day
-  (`DayChooser`; due = borrowed + length); existing loans move it via `set_loan_borrowed_on`.
+  ticks every aired episode via `mark_show_watched(p_force_watched)`). Loan dates are two tiles
+  (`LoanDatesField`: quick choices + `Calendar`; a local `Sheet` on screens, inline inside sheets); the due date keeps
+  the loan length when the borrowed day moves until it's picked by hand (`moveBorrowed`/`setDue`); existing loans move
+  the borrowed day via `set_loan_borrowed_on`.
 - Follow-up toasts use `useToastStore.getState().enqueue()`; an action that should cancel them calls `clearQueue()`.
 - Book edits go through the `update_book` RPC (only the keys sent change). A new cover photo is uploaded as
   `covers/{uid}/{itemId}/front-{timestamp}.jpg` (covers are cached by path), then the old file is removed.

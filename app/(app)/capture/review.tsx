@@ -7,7 +7,6 @@ import { KeyboardAvoidingView, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { type Confidence, ConfidenceField } from '@/components/calico/ConfidenceField';
-import { DayChooser } from '@/components/calico/DayChooser';
 import { coverRadius, GeneratedCover } from '@/components/calico/GeneratedCover';
 import { WhenChooser } from '@/components/calico/WhenChooser';
 import { Button } from '@/components/ds/Button';
@@ -20,7 +19,7 @@ import { Txt } from '@/components/ds/Txt';
 import { type NewBook, newId } from '@/features/books/api';
 import { useBooks, useCreateBook, useFinishBook } from '@/features/books/hooks';
 import { statusLabel } from '@/features/books/logic';
-import { DUE_CHOICES, type ReviewForm, reviewSchema, SOURCES, statusOptions } from '@/features/books/schema';
+import { type ReviewForm, reviewSchema, SOURCES, statusOptions } from '@/features/books/schema';
 import { CoverSourceRows } from '@/features/books/sheets/BookSheets';
 import { uploadCover } from '@/features/capture/api';
 import { removeDraft } from '@/features/capture/drafts';
@@ -33,11 +32,13 @@ import {
   isLowConfidence,
 } from '@/features/capture/logic';
 import { capture, type Draft } from '@/features/capture/store';
+import { LoanDatesField } from '@/features/loans/components/LoanDatesField';
+import { initialLoanDates, type LoanDates } from '@/features/loans/logic';
 import { maybeAskForReminders } from '@/features/loans/sheets/LoanSheets';
 import { useProfile, useUpdateProfile } from '@/features/profile/hooks';
 import { copy } from '@/i18n/en';
 import { JUST_NOW, type When, whenVars } from '@/lib/when';
-import { addLocalDays, colomboToday, fmtShort } from '@/lib/dates';
+import { addLocalDays, colomboToday } from '@/lib/dates';
 import { toast, useToastStore } from '@/lib/stores/toast';
 import { layout, radius, shadow, useTheme } from '@/theme';
 
@@ -74,11 +75,10 @@ export default function Review() {
   const books = useBooks().data ?? [];
   const today = colomboToday();
   // Added late: the loan can start on an earlier day, and a Read book can be "a while ago".
-  const [borrowedOn, setBorrowedOn] = useState(today);
+  const [loanDates, setLoanDates] = useState<LoanDates>(() =>
+    initialLoanDates(today, profile?.default_loan_days ?? 14),
+  );
   const [readWhen, setReadWhen] = useState<When>(JUST_NOW);
-  const defaultDue = (DUE_CHOICES as readonly number[]).includes(profile?.default_loan_days ?? 0)
-    ? (profile!.default_loan_days as ReviewForm['dueDays'])
-    : 14;
 
   const { control, handleSubmit, setValue, formState } = useForm<ReviewForm>({
     resolver: zodResolver(reviewSchema),
@@ -92,7 +92,6 @@ export default function Review() {
       format: 'physical',
       source: 'bought',
       party: profile?.default_library ?? '',
-      dueDays: defaultDue,
       priority: 'soon',
       price: '',
       // F2: a scanned bought book defaults to To read; a book you're holding defaults to Reading.
@@ -101,11 +100,18 @@ export default function Review() {
       ...(extraction ? formFromExtraction(extraction) : {}),
     },
   });
-  const [source, title, titleNative, dueDays, status] = useWatch({
+  const [source, title, titleNative, status] = useWatch({
     control,
-    name: ['source', 'title', 'titleNative', 'dueDays', 'status'],
+    name: ['source', 'title', 'titleNative', 'status'],
   });
   const statuses = statusOptions(source);
+  // A library loan always has a due date; a friend's has none unless one was picked.
+  const loan: LoanDates =
+    source === 'library' && !loanDates.dueOn
+      ? { ...loanDates, dueOn: addLocalDays(loanDates.borrowedOn, profile?.default_loan_days ?? 14), dueSet: false }
+      : source === 'friend' && !loanDates.dueSet
+        ? { ...loanDates, dueOn: null }
+        : loanDates;
   const duplicate = findDuplicate(books, title, titleNative);
 
   /** ✦ when the AI filled the field; dotted underline when it isn't sure. */
@@ -161,8 +167,8 @@ export default function Review() {
           ? {
               id: newId(),
               party: v.party || (v.source === 'library' ? copy.review.sources.library : copy.review.sources.friend),
-              borrowedOn,
-              dueOn: v.source === 'library' ? addLocalDays(borrowedOn, v.dueDays) : undefined,
+              borrowedOn: loan.borrowedOn,
+              dueOn: loan.dueOn ?? undefined,
             }
           : undefined,
     };
@@ -191,7 +197,7 @@ export default function Review() {
   });
 
   const chips = <V extends string | number>(
-    name: 'format' | 'source' | 'dueDays' | 'priority' | 'status',
+    name: 'format' | 'source' | 'priority' | 'status',
     options: readonly { value: V; label: string }[],
   ) => (
     <Controller
@@ -414,35 +420,20 @@ export default function Review() {
           {source === 'library' && (
             <View style={{ gap: 14, padding: 16, backgroundColor: t.surfacePageWarm, borderRadius: radius.lg }}>
               {field('party', copy.review.libraryName)}
-              <View style={{ flexDirection: 'row', gap: 12 }}>
-                <View style={{ flex: 1 }}>
-                  <Label>{copy.review.borrowed}</Label>
-                  <Txt family="ui" size="sm">
-                    {borrowedOn === today ? copy.review.todayDate(fmtShort(today)) : fmtShort(borrowedOn)}
-                  </Txt>
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Label>{copy.review.due}</Label>
-                  <Txt family="ui" weight={700} size="sm" color="textAccent" testID="review-due">
-                    {fmtShort(addLocalDays(borrowedOn, dueDays))}
-                  </Txt>
-                </View>
-              </View>
-              <DayChooser value={borrowedOn} onChange={setBorrowedOn} testID="review-borrowed" />
-              {chips(
-                'dueDays',
-                DUE_CHOICES.map((d) => ({ value: d, label: `+${d}` })),
-              )}
+              <LoanDatesField value={loan} onChange={setLoanDates} dueRequired mode="sheet" testID="review-loan" />
             </View>
           )}
 
           {source === 'friend' && (
             <View style={{ gap: 14, padding: 16, backgroundColor: t.surfacePageWarm, borderRadius: radius.lg }}>
               {field('party', copy.review.friendName)}
-              <View>
-                <Label>{copy.review.borrowed}</Label>
-                <DayChooser value={borrowedOn} onChange={setBorrowedOn} testID="review-borrowed" />
-              </View>
+              <LoanDatesField
+                value={loan}
+                onChange={setLoanDates}
+                dueRequired={false}
+                mode="sheet"
+                testID="review-loan"
+              />
             </View>
           )}
 

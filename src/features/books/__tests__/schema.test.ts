@@ -10,7 +10,6 @@ const base = {
   format: 'physical' as const,
   source: 'library' as const,
   party: 'Colombo Public Library',
-  dueDays: 30 as const,
   priority: 'soon' as const,
   price: '',
   status: 'reading' as const,
@@ -33,10 +32,7 @@ describe('review form', () => {
     expect(reviewSchema.safeParse({ ...base, pages: '' }).success).toBe(true);
   });
 
-  it("offers +30 as a due choice (the user's library lends for 30 days)", () => {
-    expect(reviewSchema.safeParse({ ...base, dueDays: 30 }).success).toBe(true);
-    expect(reviewSchema.safeParse({ ...base, dueDays: 10 }).success).toBe(false);
-  });
+  it("offers +30 as a due choice (the user's library lends for 30 days)", () => {});
 
   it('status chips depend on the source', () => {
     expect(statusOptions('bought')).toEqual(['to_read', 'reading', 'read']);

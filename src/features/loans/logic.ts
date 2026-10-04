@@ -147,3 +147,30 @@ export function diffReminders(
   const schedule = desired.filter((r) => have.get(r.identifier) !== r.sig);
   return { cancel, schedule };
 }
+
+// Borrowed and due dates (loan form, Review) -------------------------------------------------------------
+
+/** `dueSet`: the user picked the due date themselves, so moving the borrowed day leaves it alone. */
+export type LoanDates = { borrowedOn: LocalDate; dueOn: LocalDate | null; dueSet: boolean };
+
+export const initialLoanDates = (today: LocalDate, days: number | null): LoanDates => ({
+  borrowedOn: today,
+  dueOn: days === null ? null : addLocalDays(today, days),
+  dueSet: false,
+});
+
+/**
+ * A new borrowed day keeps the loan's length (the due date moves with it) until the due date was picked
+ * by hand; a hand-picked due date stays, unless it would fall before the borrowed day.
+ */
+export function moveBorrowed(d: LoanDates, borrowedOn: LocalDate): LoanDates {
+  if (!d.dueOn) return { ...d, borrowedOn };
+  if (!d.dueSet) return { ...d, borrowedOn, dueOn: addLocalDays(borrowedOn, daysBetween(d.borrowedOn, d.dueOn)) };
+  return { ...d, borrowedOn, dueOn: d.dueOn < borrowedOn ? borrowedOn : d.dueOn };
+}
+
+export const setDue = (d: LoanDates, dueOn: LocalDate | null): LoanDates => ({
+  ...d,
+  dueOn: dueOn && dueOn < d.borrowedOn ? d.borrowedOn : dueOn,
+  dueSet: true,
+});

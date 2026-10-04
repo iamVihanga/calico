@@ -2,6 +2,7 @@ import { act, fireEvent, renderRouter, screen, waitFor } from 'expo-router/testi
 
 import { copy } from '@/i18n/en';
 import { addLocalDays, colomboToday, fmtShort } from '@/lib/dates';
+import { pickDay } from '@/test/calendar';
 import { cleanupAppState } from '@/test/cleanup';
 
 const mockCreate = jest.fn().mockResolvedValue(undefined);
@@ -70,19 +71,27 @@ describe('adding a book late', () => {
     );
   });
 
-  it('a library book borrowed a week ago is due a week sooner', async () => {
+  it('a library book borrowed a week ago is due a week sooner, or on the day picked', async () => {
     await renderRouter('./app', { initialUrl: '/capture/review?manual=1' });
     await fireEvent.changeText(await screen.findByTestId('review-title'), 'Madol Doova');
     await fireEvent.press(screen.getByTestId('source-library'));
-    expect(await screen.findByTestId('review-due')).toHaveTextContent(fmtShort(addLocalDays(today, 14)));
-    await fireEvent.press(screen.getByTestId('review-borrowed-3')); // a week ago
-    expect(screen.getByTestId('review-due')).toHaveTextContent(fmtShort(addLocalDays(today, 7)));
+    expect(await screen.findByTestId('review-loan-due-value')).toHaveTextContent(fmtShort(addLocalDays(today, 14)));
+    // Borrowed a week ago (quick choice): the loan keeps its length.
+    await fireEvent.press(screen.getByTestId('review-loan-borrowed'));
+    await fireEvent.press(await screen.findByTestId('review-loan-picker-quick-3'));
+    await fireEvent.press(screen.getByTestId('review-loan-picker-done'));
+    expect(screen.getByTestId('review-loan-due-value')).toHaveTextContent(fmtShort(addLocalDays(today, 7)));
+    // Then the exact due date from the calendar.
+    await fireEvent.press(screen.getByTestId('review-loan-due'));
+    await pickDay('review-loan-picker-calendar', addLocalDays(today, 10));
+    await fireEvent.press(screen.getByTestId('review-loan-picker-done'));
+    expect(screen.getByTestId('review-loan-due-value')).toHaveTextContent(fmtShort(addLocalDays(today, 10)));
     await act(async () => {
       await fireEvent.press(screen.getByTestId('review-add'));
     });
     await waitFor(() => expect(mockCreate).toHaveBeenCalled());
     expect((mockCreate.mock.calls[0]![0] as { loan: unknown }).loan).toEqual(
-      expect.objectContaining({ borrowedOn: addLocalDays(today, -7), dueOn: addLocalDays(today, 7) }),
+      expect.objectContaining({ borrowedOn: addLocalDays(today, -7), dueOn: addLocalDays(today, 10) }),
     );
     expect(mockFinish).not.toHaveBeenCalled();
   });

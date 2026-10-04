@@ -6,10 +6,13 @@ import {
   diffReminders,
   dueSoon,
   dueTone,
+  initialLoanDates,
+  moveBorrowed,
   planReminders,
   reminderId,
   reminderLoans,
   renewOptions,
+  setDue,
   type ReminderLoan,
 } from '../logic';
 
@@ -158,5 +161,28 @@ describe('diffReminders', () => {
       { identifier: 'dev-test', sig: 'y' },
     ];
     expect(diffReminders(scheduled, [])).toEqual({ cancel: ['loan:gone:3d'], schedule: [] });
+  });
+});
+
+describe('loan dates', () => {
+  const today = '2026-10-04';
+  it('a new borrowed day keeps the length until the due date is picked by hand', () => {
+    const d = initialLoanDates(today, 14);
+    expect(d).toEqual({ borrowedOn: today, dueOn: '2026-10-18', dueSet: false });
+    expect(moveBorrowed(d, '2026-09-30')).toEqual({ borrowedOn: '2026-09-30', dueOn: '2026-10-14', dueSet: false });
+    const picked = setDue(d, '2026-10-25');
+    expect(moveBorrowed(picked, '2026-09-30').dueOn).toBe('2026-10-25');
+  });
+
+  it('a due date never falls before the borrowed day', () => {
+    const picked = setDue(initialLoanDates('2026-09-01', 14), '2026-09-05');
+    expect(moveBorrowed(picked, '2026-09-10').dueOn).toBe('2026-09-10');
+    expect(setDue(initialLoanDates(today, 14), '2026-10-01').dueOn).toBe(today);
+  });
+
+  it('no due date stays none', () => {
+    const d = initialLoanDates(today, null);
+    expect(moveBorrowed(d, '2026-10-01')).toEqual({ borrowedOn: '2026-10-01', dueOn: null, dueSet: false });
+    expect(setDue(initialLoanDates(today, 14), null)).toEqual({ borrowedOn: today, dueOn: null, dueSet: true });
   });
 });

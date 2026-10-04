@@ -20,7 +20,6 @@ export const reviewSchema = z
     format: z.enum(['physical', 'ebook', 'audiobook']),
     source: z.enum(SOURCES),
     party: z.string().trim().max(120),
-    dueDays: z.union([z.literal(7), z.literal(14), z.literal(21), z.literal(30)]),
     priority: z.enum(['someday', 'soon', 'must']),
     price: z
       .string()

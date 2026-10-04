@@ -1,13 +1,12 @@
 import { useState } from 'react';
 import { View } from 'react-native';
 
-import { DayChooser } from '@/components/calico/DayChooser';
+import { DatePickerPanel } from '@/components/calico/DatePickerPanel';
 import { Button } from '@/components/ds/Button';
 import { Icon } from '@/components/ds/Icon';
 import { Input } from '@/components/ds/Input';
 import { Press } from '@/components/ds/Press';
 import { SegmentedControl } from '@/components/ds/SegmentedControl';
-import { Tag } from '@/components/ds/Tag';
 import { Txt } from '@/components/ds/Txt';
 import { newId } from '@/features/books/api';
 import { useBook, useLeadScript } from '@/features/books/hooks';
@@ -22,7 +21,8 @@ import { radius, shadow, useTheme } from '@/theme';
 
 import type { LoanKind } from '../api';
 import { useAddLoan, useRenew, useReturn, useSetBorrowedOn } from '../hooks';
-import { DEFAULT_RENEW, LOAN_DUE_CHOICES, renewOptions } from '../logic';
+import { LoanDatesField } from '../components/LoanDatesField';
+import { DEFAULT_RENEW, initialLoanDates, LOAN_DUE_CHOICES, type LoanDates, renewOptions } from '../logic';
 import { requestReminderSync } from '../reminders';
 
 type Props = { itemId: string; onClose: () => void };
@@ -177,7 +177,6 @@ export function LoanQuickSheetBody({ itemId, onClose }: Props) {
 
 /** Add a loan to a book you already have: from a library, from a friend, or lent out (plan §9.1). */
 export function LoanFormSheetBody({ itemId, onClose }: Props) {
-  const { t } = useTheme();
   const book = useBook(itemId).data;
   const profile = useProfile().data;
   const add = useAddLoan();
@@ -188,15 +187,19 @@ export function LoanFormSheetBody({ itemId, onClose }: Props) {
     : 14;
   const [kind, setKind] = useState<LoanKind>(book?.ownership === 'owned' ? 'lent' : 'library');
   const [party, setParty] = useState(kind === 'library' ? (profile?.default_library ?? '') : '');
-  const [dueDays, setDueDays] = useState<number | null>(kind === 'library' ? defaultDays : null);
-  const [borrowedOn, setBorrowedOn] = useState(today);
+  const [dates, setDates] = useState<LoanDates>(() => initialLoanDates(today, kind === 'library' ? defaultDays : null));
   const [error, setError] = useState<string | undefined>();
   if (!book) return null;
 
   const switchKind = (k: LoanKind) => {
     setKind(k);
     setParty(k === 'library' ? (profile?.default_library ?? '') : '');
-    setDueDays(k === 'library' ? defaultDays : null);
+    // A library loan always has a due date; friends and lent books start without one.
+    setDates((d) => ({
+      ...d,
+      dueOn: k === 'library' ? addLocalDays(d.borrowedOn, defaultDays) : null,
+      dueSet: false,
+    }));
     setError(undefined);
   };
 
@@ -206,7 +209,7 @@ export function LoanFormSheetBody({ itemId, onClose }: Props) {
       setError(copy.loanForm.needParty);
       return;
     }
-    const dueOn = dueDays === null ? null : addLocalDays(borrowedOn, dueDays);
+    const { borrowedOn, dueOn } = dates;
     add.mutate({ id: newId(), itemId, kind, party: name, borrowedOn, dueOn });
     onClose();
     toast({ message: copy.loanForm.saved(name) });
@@ -238,37 +241,14 @@ export function LoanFormSheetBody({ itemId, onClose }: Props) {
         error={error}
         testID="loan-party"
       />
-      <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Txt role="label" size={10} color="textMuted">
-          {kind === 'lent' ? copy.loanForm.lentOn : copy.loanForm.borrowed}
-        </Txt>
-        <Txt family="ui" weight={600} size="xs" color="textSecondary">
-          {borrowedOn === today ? copy.review.todayDate(fmtShort(today)) : fmtShort(borrowedOn)}
-        </Txt>
-      </View>
-      <DayChooser value={borrowedOn} onChange={setBorrowedOn} testID="loan-borrowed" />
-      <View style={{ gap: 8 }}>
-        <Txt role="label" size={10} color="textMuted">
-          {kind === 'library' ? copy.loanForm.due : copy.loanForm.dueOptional}
-        </Txt>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-          {kind !== 'library' && (
-            <Tag selected={dueDays === null} onPress={() => setDueDays(null)} testID="loan-due-none">
-              {copy.loanForm.noDue}
-            </Tag>
-          )}
-          {LOAN_DUE_CHOICES.map((d) => (
-            <Tag key={d} selected={dueDays === d} onPress={() => setDueDays(d)} testID={`loan-due-${d}`}>
-              {`+${d}`}
-            </Tag>
-          ))}
-        </View>
-        {dueDays !== null && (
-          <Txt family="ui" size="2xs" tint={t.textMuted}>
-            {fmtShort(addLocalDays(borrowedOn, dueDays))}
-          </Txt>
-        )}
-      </View>
+      <LoanDatesField
+        value={dates}
+        onChange={setDates}
+        dueRequired={kind === 'library'}
+        lent={kind === 'lent'}
+        mode="inline"
+        testID="loan-dates"
+      />
       <Button variant="accent" size="lg" block onPress={save} testID="loan-save">
         {copy.loanForm.save}
       </Button>
@@ -280,28 +260,33 @@ export function LoanFormSheetBody({ itemId, onClose }: Props) {
 export function BorrowedOnSheetBody({ itemId, onClose }: Props) {
   const book = useBook(itemId).data;
   const setOn = useSetBorrowedOn();
-  const [on, setDay] = useState(book?.loan?.borrowedOn ?? colomboToday());
+  const today = colomboToday();
+  const [on, setDay] = useState(book?.loan?.borrowedOn ?? today);
   const loan = book?.loan;
   if (!loan) return null;
+  const max = loan.dueOn && loan.dueOn < today ? loan.dueOn : today;
+  const quick = [
+    { label: copy.loanDates.today, date: today },
+    { label: copy.loanDates.yesterday, date: addLocalDays(today, -1) },
+    { label: copy.loanDates.daysAgo(2), date: addLocalDays(today, -2) },
+    { label: copy.loanDates.weekAgo, date: addLocalDays(today, -7) },
+  ].filter((q) => q.date <= max);
   return (
-    <View style={{ gap: 16 }}>
-      <Title>{loan.direction === 'lent' ? copy.loanForm.lentOn : copy.borrowedOn.title}</Title>
-      <DayChooser value={on} onChange={setDay} max={loan.dueOn ?? undefined} testID="borrowed-on" />
-      <Button
-        variant="accent"
-        size="lg"
-        block
-        testID="borrowed-on-save"
-        disabled={on === loan.borrowedOn}
-        onPress={() => {
-          setOn.mutate({ loanId: loan.id, itemId, on });
-          onClose();
-          toast({ message: copy.borrowedOn.changed(fmtShort(on)) });
-        }}
-      >
-        {copy.borrowedOn.save}
-      </Button>
-    </View>
+    <DatePickerPanel
+      title={loan.direction === 'lent' ? copy.loanDates.lentTitle : copy.borrowedOn.title}
+      value={on}
+      onChange={(d) => d && setDay(d)}
+      quick={quick}
+      min={addLocalDays(today, -365)}
+      max={max}
+      testID="borrowed-on"
+      onDone={() => {
+        onClose();
+        if (on === loan.borrowedOn) return;
+        setOn.mutate({ loanId: loan.id, itemId, on });
+        toast({ message: copy.borrowedOn.changed(fmtShort(on)) });
+      }}
+    />
   );
 }
 
