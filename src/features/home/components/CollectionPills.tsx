@@ -10,8 +10,8 @@ import { layout } from '@/theme';
 const SHOWN = 6;
 
 /**
- * Under Home's search: the collections as a row of pills (in the user's order, with how many things are
- * in each) and a "See all" pill to the Collections tab. Hidden when there are no collections.
+ * Under Home's search: the collections as a row of pills (in the user's order) and a "See all" pill to
+ * the Collections tab. Hidden when there are no collections.
  */
 export function CollectionPills() {
   const list = useCollections().data ?? [];
@@ -29,7 +29,6 @@ export function CollectionPills() {
           <Tag
             key={c.id}
             icon="shelves"
-            count={c.items.length}
             testID={`home-collection-${c.id}`}
             onPress={() => router.push(`/collection/${c.id}`)}
           >

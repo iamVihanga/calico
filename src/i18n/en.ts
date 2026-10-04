@@ -829,7 +829,6 @@ export const en = {
     pct: (n: number) => `${n}%`,
     collections: 'Collections',
     seeAllCollections: 'See all',
-    collectionA11y: (name: string, n: number) => `${name}, ${n} ${n === 1 ? 'item' : 'items'}`,
   },
   dev: {
     phase: (n: number) => `Arrives in phase ${n}.`,
