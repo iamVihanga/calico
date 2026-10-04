@@ -6,7 +6,7 @@ import { useProfile } from '@/features/profile/hooks';
 import { appendKey, byPosition } from '@/features/upnext/logic';
 import { copy } from '@/i18n/en';
 import { colomboToday, localDateOf } from '@/lib/dates';
-import { mk } from '@/lib/mutations';
+import { BOOK_SCOPE, mk } from '@/lib/mutations';
 import { qk } from '@/lib/queryKeys';
 import { toast } from '@/lib/stores/toast';
 
@@ -151,6 +151,7 @@ export function useSetBookStatus() {
   const requeue = useAddToUpNext();
   return useMutation<void, Error, api.SetStatusVars, Snapshot>({
     mutationKey: mk.bookSetStatus,
+    scope: BOOK_SCOPE,
     onMutate: async (v) => {
       const s = await snapshot(qc, v.itemId);
       patchBook(qc, v.itemId, (b) => ({
@@ -174,6 +175,7 @@ export function useLogPage() {
   const qc = useQueryClient();
   return useMutation<void, Error, api.LogPageVars, Snapshot>({
     mutationKey: mk.bookLogPage,
+    scope: BOOK_SCOPE,
     onMutate: async (v) => {
       const s = await snapshot(qc, v.itemId);
       patchBook(qc, v.itemId, () => ({ currentPage: v.page, status: 'reading' }));
@@ -198,6 +200,7 @@ export function useFinishBook() {
   const requeue = useAddToUpNext();
   return useMutation<void, Error, api.FinishVars, Snapshot>({
     mutationKey: mk.bookFinish,
+    scope: BOOK_SCOPE,
     onMutate: async (v) => {
       const s = await snapshot(qc, v.itemId);
       patchBook(qc, v.itemId, (b) => ({
@@ -225,6 +228,7 @@ export function useStopBook() {
   const requeue = useAddToUpNext();
   return useMutation<void, Error, api.StopVars, Snapshot>({
     mutationKey: mk.bookStop,
+    scope: BOOK_SCOPE,
     onMutate: async (v) => {
       const s = await snapshot(qc, v.itemId);
       const status: BookStatus = v.toRead ? 'to_read' : 'abandoned';
@@ -244,6 +248,7 @@ export function useUpdateNote() {
   const qc = useQueryClient();
   return useMutation<void, Error, api.NoteVars, Snapshot>({
     mutationKey: mk.itemNote,
+    scope: BOOK_SCOPE,
     onMutate: async (v) => {
       const s = await snapshot(qc, v.itemId);
       patchBook(qc, v.itemId, () => ({ note: v.note || null }));
@@ -261,6 +266,7 @@ export function useUpdateBook() {
   const qc = useQueryClient();
   return useMutation<void, Error, api.UpdateBookVars, Snapshot>({
     mutationKey: mk.bookUpdate,
+    scope: BOOK_SCOPE,
     onMutate: async ({ itemId, edit }) => {
       const s = await snapshot(qc, itemId);
       patchBook(qc, itemId, () => ({
@@ -347,6 +353,7 @@ export function useCreateBook() {
   const qc = useQueryClient();
   return useMutation<void, Error, api.NewBook, Snapshot>({
     mutationKey: mk.bookCreate,
+    scope: BOOK_SCOPE,
     onMutate: async (v) => {
       await qc.cancelQueries({ queryKey: BOOKS });
       const prev = { books: qc.getQueryData<Book[]>(BOOKS) };

@@ -112,4 +112,32 @@ describe('adding a book late', () => {
       expect.objectContaining({ itemId: book.id, backfill: true, precision: null, returnLoan: false }),
     );
   });
+
+  // Regression: create_book and finish_book raced, and a finish that arrived first failed ("book not
+  // found"), leaving the book To read. Book writes now run one at a time, in order.
+  it('a book added as Read is finished only after it was created', async () => {
+    const order: string[] = [];
+    mockCreate.mockImplementation(
+      () =>
+        new Promise((resolve) =>
+          setTimeout(() => {
+            order.push('create');
+            resolve(undefined);
+          }, 300),
+        ),
+    );
+    mockFinish.mockImplementation(async () => {
+      order.push('finish');
+    });
+    await renderRouter('./app', { initialUrl: '/capture/review?manual=1' });
+    await fireEvent.changeText(await screen.findByTestId('review-title'), 'Hath Pana');
+    await fireEvent.press(screen.getByTestId('status-read'));
+    await fireEvent.press(await screen.findByTestId('review-when-past'));
+    await act(async () => {
+      await fireEvent.press(screen.getByTestId('review-add'));
+    });
+    await waitFor(() => expect(order).toEqual(['create', 'finish']), { timeout: 3000 });
+    mockCreate.mockResolvedValue(undefined);
+    mockFinish.mockResolvedValue(undefined);
+  });
 });

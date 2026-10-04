@@ -6,7 +6,7 @@ import { leadTitle } from '@/features/books/logic';
 import type { Book, LeadScript, Loan } from '@/features/books/types';
 import { copy } from '@/i18n/en';
 import { colomboToday, fmtShort } from '@/lib/dates';
-import { mk } from '@/lib/mutations';
+import { BOOK_SCOPE, mk } from '@/lib/mutations';
 import { useToastStore } from '@/lib/stores/toast';
 
 import * as api from './api';
@@ -20,6 +20,7 @@ function useLoanMutation<V extends { itemId: string }>(
   const qc = useQueryClient();
   return useMutation<void, Error, V, Snapshot>({
     mutationKey,
+    scope: BOOK_SCOPE,
     onMutate: async (v) => {
       const s = await snapshot(qc, v.itemId);
       patchBook(qc, v.itemId, (b) => apply(v, b));

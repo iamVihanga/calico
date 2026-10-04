@@ -17,8 +17,8 @@ const FINISHED = new Set(['read', 'watched']);
 
 /**
  * Library sections, keeping the list's order inside each.
- * - `finished`: by the year it was read or watched (newest first). "A while ago" for finished items
- *   with no date known. "Not finished yet" last.
+ * - `finished`: "Not finished yet" first, then the year it was read or watched (newest first), then
+ *   "A while ago" for finished items with no date known.
  * - `added`: by the year it was added (Colombo), newest first.
  */
 export function groupItems<T extends Groupable>(items: T[], by: GroupBy): Group<T>[] {
@@ -31,7 +31,7 @@ export function groupItems<T extends Groupable>(items: T[], by: GroupBy): Group<
     else if (item.finishedPrecision === null) add('while', item);
     else add(item.finishedAt.slice(0, 4), item);
   }
-  const rank = (k: string) => (k === 'unfinished' ? 2 : k === 'while' ? 1 : 0);
+  const rank = (k: string) => (k === 'unfinished' ? 0 : k === 'while' ? 2 : 1);
   return [...groups.entries()]
     .sort(([a], [b]) => rank(a) - rank(b) || b.localeCompare(a))
     .map(([key, list]) => ({

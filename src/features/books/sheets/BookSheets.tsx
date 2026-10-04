@@ -5,7 +5,6 @@ import { Share, View } from 'react-native';
 import { Pinki } from '@/components/calico/Pinki';
 import { RatingStars } from '@/components/calico/RatingStars';
 import { Button } from '@/components/ds/Button';
-import { Checkbox } from '@/components/ds/Checkbox';
 import { Icon, type IconName } from '@/components/ds/Icon';
 import { Input } from '@/components/ds/Input';
 import { Press } from '@/components/ds/Press';
@@ -44,7 +43,8 @@ export function FinishSheetBody({ itemId, onClose }: Props) {
   const finish = useFinishBook();
   const [rating, setRating] = useState(0);
   const [note, setNote] = useState('');
-  const [returnLoan, setReturnLoan] = useState(true);
+  // On loan: ask whether it went back too (nothing is assumed; Save waits for the answer).
+  const [returnLoan, setReturnLoan] = useState<boolean | null>(null);
   const [when, setWhen] = useState<When>(JUST_NOW);
   const [prompt] = useState(() => copy.finish.prompts[promptIndex++ % copy.finish.prompts.length]);
   if (!book) return null;
@@ -78,19 +78,34 @@ export function FinishSheetBody({ itemId, onClose }: Props) {
         <WhenChooser value={when} onChange={setWhen} testID="finish-when" />
       </View>
       {book.loan && (
-        <Checkbox label={copy.finish.returnToo(book.loan.party)} checked={returnLoan} onChange={setReturnLoan} />
+        <View style={{ gap: 8, paddingVertical: 4 }} testID="finish-return">
+          <Txt family="ui" weight={600} size={14}>
+            {book.loan.direction === 'lent'
+              ? copy.finish.gotBackAsk(book.loan.party)
+              : copy.finish.returnAsk(book.loan.party)}
+          </Txt>
+          <View style={{ flexDirection: 'row', gap: 8 }}>
+            <Tag selected={returnLoan === false} onPress={() => setReturnLoan(false)} testID="finish-return-no">
+              {copy.finish.notYet}
+            </Tag>
+            <Tag selected={returnLoan === true} onPress={() => setReturnLoan(true)} testID="finish-return-yes">
+              {book.loan.direction === 'lent' ? copy.finish.gotBack : copy.finish.returned}
+            </Tag>
+          </View>
+        </View>
       )}
       <Button
         variant="accent"
         size="lg"
         block
         testID="finish-save"
+        disabled={!!book.loan && returnLoan === null}
         onPress={() => {
           finish.mutate({
             itemId,
             rating: rating || null,
             note: note.trim() || null,
-            returnLoan: !!book.loan && returnLoan,
+            returnLoan: !!book.loan && returnLoan === true,
             ...whenVars(when, today),
           });
           onClose();

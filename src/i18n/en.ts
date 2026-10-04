@@ -319,27 +319,15 @@ export const en = {
     none: '—',
     pickYear: 'Year',
     failed: "Couldn't load this year. Pull to try again.",
-    /**
-     * Home's line: books or pages read this month (Settings → Home stat). When that's 0 it falls back to
-     * the other one, then books this year, then episodes this week, so it's never empty.
-     */
-    statsLine: (
-      s: { booksThisMonth: number; pagesThisMonth: number; booksFinishedThisYear: number; episodesThisWeek: number },
-      show: 'books' | 'pages',
-    ) => {
-      const books = s.booksThisMonth
-        ? `${s.booksThisMonth} ${s.booksThisMonth === 1 ? 'book' : 'books'} read this month`
-        : null;
-      const pages = s.pagesThisMonth ? `${s.pagesThisMonth.toLocaleString('en')} pages read this month` : null;
-      return (
-        (show === 'books' ? (books ?? pages) : (pages ?? books)) ??
-        (s.booksFinishedThisYear
-          ? `${s.booksFinishedThisYear} ${s.booksFinishedThisYear === 1 ? 'book' : 'books'} finished this year`
-          : s.episodesThisWeek
-            ? `${s.episodesThisWeek} ${s.episodesThisWeek === 1 ? 'episode' : 'episodes'} this week`
-            : 'Your year so far')
-      );
-    },
+    /** Home's line: books or pages read this month, whichever Settings → Home stat says. */
+    statsLine: (s: { booksThisMonth: number; pagesThisMonth: number }, show: 'books' | 'pages') =>
+      show === 'books'
+        ? s.booksThisMonth
+          ? `${s.booksThisMonth} ${s.booksThisMonth === 1 ? 'book' : 'books'} read this month`
+          : 'No books read this month yet'
+        : s.pagesThisMonth
+          ? `${s.pagesThisMonth.toLocaleString('en')} pages read this month`
+          : 'No pages read this month yet',
   },
   errors: {
     saveFailed: "Couldn't save that. Try again.",
@@ -644,7 +632,11 @@ export const en = {
     prompts: ["A line you'll remember", 'Who would you lend it to?', 'One word for this book'],
     finished: 'Finished',
     today: (date: string) => `Today, ${date}`,
-    returnToo: (party: string) => `Return to ${party} too`,
+    returnAsk: (party: string) => `Did you return it to ${party}?`,
+    gotBackAsk: (party: string) => `Did ${party} give it back?`,
+    notYet: 'Not yet',
+    returned: 'Returned it',
+    gotBack: 'Got it back',
     save: 'Mark as read',
     done: (title: string) => `Marked ${title} as read`,
     open: 'Open',

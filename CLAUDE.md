@@ -109,6 +109,8 @@ Expo-specific guidance: @AGENTS.md
   layout). Don't use `BottomSheetModal`: its `present()` waits on `requestAnimationFrame`, which stalls on Android.
 - Android rejects iOS-only accessibility roles (e.g. `tabbar`) at mount; `accessibilityRoles.test.ts` checks them.
 - Every mutation has a `mutationKey` and is registered in `src/lib/mutations.ts` via `setMutationDefaults`, so paused offline mutations resume after restart.
+  Book and loan writes share `BOOK_SCOPE` (media `MEDIA_SCOPE`) so dependent writes (create → finish) run in order;
+  give new book/loan mutations the scope in both the defaults and the hook.
 - Pure logic (pace, next episode, pick reasons, fractional keys, ISBN validation) lives in `features/*/logic.ts` with unit tests.
 - Every gesture has a visible button alternative. Respect reduced motion (`useReducedMotion`).
 - Minimum touch target 48dp (use `hitSlop` when the visual is smaller).

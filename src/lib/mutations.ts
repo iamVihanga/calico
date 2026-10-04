@@ -50,28 +50,52 @@ export const mk = {
 
 /** Movie/show writes run one at a time, so a collection or episode mark never beats the add it depends on. */
 export const MEDIA_SCOPE = { id: 'media' };
+/**
+ * Book and loan writes run one at a time too: a book added as Read is created, then finished, and the
+ * finish must never reach the server first (it would fail and the book would stay To read).
+ */
+export const BOOK_SCOPE = { id: 'books' };
 
 export function registerMutations(qc: QueryClient) {
   qc.setMutationDefaults(mk.profileUpdate, {
     mutationFn: (patch: ProfilePatch) => updateProfile(patch),
   });
-  qc.setMutationDefaults(mk.bookCreate, { mutationFn: (v: books.NewBook) => books.createBook(v) });
-  qc.setMutationDefaults(mk.bookSetStatus, { mutationFn: (v: books.SetStatusVars) => books.setBookStatus(v) });
-  qc.setMutationDefaults(mk.bookLogPage, { mutationFn: (v: books.LogPageVars) => books.logPage(v) });
-  qc.setMutationDefaults(mk.bookFinish, { mutationFn: (v: books.FinishVars) => books.finishBook(v) });
-  qc.setMutationDefaults(mk.bookStop, { mutationFn: (v: books.StopVars) => books.stopBook(v) });
-  qc.setMutationDefaults(mk.bookUpdate, { mutationFn: (v: books.UpdateBookVars) => books.updateBook(v) });
-  qc.setMutationDefaults(mk.itemNote, { mutationFn: (v: books.NoteVars) => books.updateNote(v) });
+  qc.setMutationDefaults(mk.bookCreate, { scope: BOOK_SCOPE, mutationFn: (v: books.NewBook) => books.createBook(v) });
+  qc.setMutationDefaults(mk.bookSetStatus, {
+    scope: BOOK_SCOPE,
+    mutationFn: (v: books.SetStatusVars) => books.setBookStatus(v),
+  });
+  qc.setMutationDefaults(mk.bookLogPage, { scope: BOOK_SCOPE, mutationFn: (v: books.LogPageVars) => books.logPage(v) });
+  qc.setMutationDefaults(mk.bookFinish, {
+    scope: BOOK_SCOPE,
+    mutationFn: (v: books.FinishVars) => books.finishBook(v),
+  });
+  qc.setMutationDefaults(mk.bookStop, { scope: BOOK_SCOPE, mutationFn: (v: books.StopVars) => books.stopBook(v) });
+  qc.setMutationDefaults(mk.bookUpdate, {
+    scope: BOOK_SCOPE,
+    mutationFn: (v: books.UpdateBookVars) => books.updateBook(v),
+  });
+  qc.setMutationDefaults(mk.itemNote, { scope: BOOK_SCOPE, mutationFn: (v: books.NoteVars) => books.updateNote(v) });
   qc.setMutationDefaults(mk.itemDelete, { mutationFn: (v: { itemId: string }) => books.deleteItem(v) });
   qc.setMutationDefaults(mk.upNextAdd, { mutationFn: (v: books.QueueVars) => books.addToUpNext(v) });
-  qc.setMutationDefaults(mk.loanAdd, { mutationFn: (v: loans.AddLoanVars) => loans.addLoan(v) });
-  qc.setMutationDefaults(mk.loanRenew, { mutationFn: (v: loans.RenewVars) => loans.renewLoan(v) });
-  qc.setMutationDefaults(mk.loanReturn, { mutationFn: (v: loans.ReturnVars) => loans.returnLoan(v) });
-  qc.setMutationDefaults(mk.loanReopen, { mutationFn: (v: loans.ReopenVars) => loans.reopenLoan(v) });
+  qc.setMutationDefaults(mk.loanAdd, { scope: BOOK_SCOPE, mutationFn: (v: loans.AddLoanVars) => loans.addLoan(v) });
+  qc.setMutationDefaults(mk.loanRenew, { scope: BOOK_SCOPE, mutationFn: (v: loans.RenewVars) => loans.renewLoan(v) });
+  qc.setMutationDefaults(mk.loanReturn, {
+    scope: BOOK_SCOPE,
+    mutationFn: (v: loans.ReturnVars) => loans.returnLoan(v),
+  });
+  qc.setMutationDefaults(mk.loanReopen, {
+    scope: BOOK_SCOPE,
+    mutationFn: (v: loans.ReopenVars) => loans.reopenLoan(v),
+  });
   qc.setMutationDefaults(mk.loanBorrowedOn, {
+    scope: BOOK_SCOPE,
     mutationFn: (v: loans.BorrowedOnVars) => loans.setLoanBorrowedOn(v),
   });
-  qc.setMutationDefaults(mk.loanDueOn, { mutationFn: (v: loans.DueOnVars) => loans.setLoanDueOn(v) });
+  qc.setMutationDefaults(mk.loanDueOn, {
+    scope: BOOK_SCOPE,
+    mutationFn: (v: loans.DueOnVars) => loans.setLoanDueOn(v),
+  });
   qc.setMutationDefaults(mk.mediaAdd, { scope: MEDIA_SCOPE, mutationFn: (v: media.NewMedia) => media.addTmdbItem(v) });
   qc.setMutationDefaults(mk.mediaViewing, {
     scope: MEDIA_SCOPE,

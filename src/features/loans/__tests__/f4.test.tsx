@@ -16,6 +16,7 @@ const mockReopen = jest.fn();
 const mockAdd = jest.fn();
 const mockBorrowedOn = jest.fn();
 const mockDueOn = jest.fn();
+const mockFinish = jest.fn();
 
 const today = colomboToday();
 const due = addLocalDays(today, 3);
@@ -71,6 +72,7 @@ jest.mock('@/features/profile/api', () => ({
 }));
 jest.mock('@/features/books/api', () => ({
   ...jest.requireActual('@/features/books/api'),
+  finishBook: async (v: unknown) => mockFinish(v),
   fetchBooks: async () => [mockMadol],
   fetchBook: async () => ({ ...mockMadol, sessions: [], collections: [] }),
   fetchPageLogs: async () => [],
@@ -294,5 +296,20 @@ describe('F4: library due date, renew then return', () => {
     );
     expect(await screen.findByText(copy.borrowedOn.dueChanged(fmtShort(addLocalDays(today, 7))))).toBeTruthy();
     expect(mockRenew).not.toHaveBeenCalled();
+  });
+
+  it('finishing a borrowed book asks whether it went back; Not yet keeps the loan', async () => {
+    mockMadol = fresh();
+    await renderRouter('./app', { initialUrl: '/book/madol?sheet=finish' });
+    expect(await screen.findByText(copy.finish.returnAsk('Colombo Public Library'))).toBeTruthy();
+    expect(screen.getByTestId('finish-save')).toBeDisabled(); // nothing assumed
+    await fireEvent.press(screen.getByTestId('finish-return-no'));
+    expect(screen.getByTestId('finish-save')).toBeEnabled();
+    await act(async () => {
+      await fireEvent.press(screen.getByTestId('finish-save'));
+    });
+    await waitFor(() =>
+      expect(mockFinish).toHaveBeenCalledWith(expect.objectContaining({ itemId: 'madol', returnLoan: false })),
+    );
   });
 });

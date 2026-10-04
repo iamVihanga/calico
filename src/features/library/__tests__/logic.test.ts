@@ -20,7 +20,7 @@ const item = (
 });
 
 describe('library groups', () => {
-  it('by year finished: newest year first, then a while ago, then not finished; order kept inside', () => {
+  it('by year finished: not finished first, then newest year first, then a while ago; order kept inside', () => {
     const groups = groupItems(
       [
         item('a', { finishedAt: '2024-03-09', finishedPrecision: 'day' }),
@@ -33,11 +33,11 @@ describe('library groups', () => {
       'finished',
     );
     expect(groups.map((g) => [g.title, g.items.map((i) => i.id)])).toEqual([
+      ['Not finished yet', ['b']],
       ['2025', ['d']],
       ['2024', ['a', 'e']],
       ['2023', ['f']],
       ['A while ago', ['c']],
-      ['Not finished yet', ['b']],
     ]);
   });
 
