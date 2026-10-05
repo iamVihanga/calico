@@ -10,7 +10,7 @@ import { Txt } from '@/components/ds/Txt';
 import { AvatarFace } from '@/features/profile/AvatarFace';
 import { TabScreen } from '@/components/layout/TabScreen';
 import { useBooks, useLeadScript, useReadingLogs } from '@/features/books/hooks';
-import { CollectionPills } from '@/features/home/components/CollectionPills';
+// import { CollectionPills } from '@/features/home/components/CollectionPills'; // turned off on Home for now
 import { ContinueReadingCard } from '@/features/home/components/ContinueReadingCard';
 import { ContinueWatching } from '@/features/home/components/ContinueWatching';
 import { useMovies, useShows } from '@/features/media/hooks';
