@@ -8,6 +8,7 @@ import { copy } from '@/i18n/en';
 import { queryClient } from '@/lib/queryClient';
 import { useDragStore } from '@/lib/stores/drag';
 import { useSheetStore } from '@/lib/stores/sheet';
+import { storage, storageKeys } from '@/lib/storage';
 import { useToastStore } from '@/lib/stores/toast';
 import { cleanupAppState } from '@/test/cleanup';
 
@@ -73,7 +74,7 @@ const mockState = {
     items: { itemId: string; position: string }[];
   }[],
 };
-const mockCalls = { status: jest.fn(), move: jest.fn(), create: jest.fn(), add: jest.fn() };
+const mockCalls = { status: jest.fn(), move: jest.fn(), place: jest.fn(), create: jest.fn(), add: jest.fn() };
 
 jest.mock('@/lib/supabase', () => ({
   supabase: {
@@ -96,7 +97,6 @@ jest.mock('@/features/books/api', () => ({
   fetchBook: async (id: string) => ({ ...mockState.books.find((b) => b.id === id), sessions: [], collections: [] }),
   fetchPageLogs: async () => [],
   fetchPageLogsFor: async () => ({}),
-  fetchUpNextPositions: async () => mockState.queue,
   setBookStatus: async (v: { itemId: string; status: string }) => {
     mockCalls.status(v);
     const b = mockState.books.find((x) => x.id === v.itemId);
@@ -129,12 +129,18 @@ jest.mock('@/features/collections/api', () => ({
     c.items.push(...v.items.map((itemId, i) => ({ itemId, position: v.positions[i]! })));
   },
 }));
-jest.mock('@/features/upnext/api', () => ({
-  ...jest.requireActual('@/features/upnext/api'),
-  moveInQueue: async (v: { itemId: string; position: string }) => {
+jest.mock('@/features/wishlist/api', () => ({
+  ...jest.requireActual('@/features/wishlist/api'),
+  fetchWishlistOrder: async () => mockState.queue,
+  moveInWishlist: async (v: { itemId: string; position: string }) => {
     mockCalls.move(v);
     const e = mockState.queue.find((x) => x.itemId === v.itemId)!;
     e.position = v.position;
+  },
+  placeInWishlist: async (v: { entries: { itemId: string; position: string }[] }) => {
+    mockCalls.place(v);
+    for (const e of v.entries)
+      if (!mockState.queue.some((q) => q.itemId === e.itemId)) mockState.queue.push({ ...e, addedAt: '' });
   },
 }));
 jest.mock('@/features/search/api', () => ({
@@ -204,7 +210,7 @@ describe('F7: build the "Stephen King" collection', () => {
   });
 });
 
-describe('F8: reorder Up next and pick', () => {
+describe('F8: the Wishlist, in your own order', () => {
   const titles = [
     'Fire & Blood',
     'Hath Pana',
@@ -221,8 +227,13 @@ describe('F8: reorder Up next and pick', () => {
   ];
   beforeEach(() => {
     reset();
-    mockState.books = titles.map((t, i) => mockBook(`b${i + 1}`, t));
-    mockState.movies = [];
+    storage.set(storageKeys.wishlistFilter, 'all');
+    mockState.books = [
+      ...titles.map((t, i) => mockBook(`b${i + 1}`, t, { status: 'wishlist' })),
+      mockBook('reading', 'On the go', { status: 'reading' }), // not on the Wishlist
+      mockBook('fresh', 'Just wished for', { status: 'wishlist', createdAt: '2026-10-01T00:00:00Z' }),
+    ];
+    mockState.movies = [mockMovie('m1', 'Dune: Part Two', 693134)]; // on the Watchlist
     mockState.collections = [];
     mockState.queue = titles.map((_, i) => ({
       itemId: `b${i + 1}`,
@@ -230,52 +241,57 @@ describe('F8: reorder Up next and pick', () => {
       addedAt: '2026-09-11T00:00:00Z',
     }));
   });
-  afterAll(() => {
-    jest.restoreAllMocks();
-    cleanupAppState();
-  });
+  afterAll(cleanupAppState);
 
-  it('moves Gamperaliya from 12 to 4 with ↑, keeps the order after a refetch, then Pick for me → Start this', async () => {
-    await renderRouter('./app', { initialUrl: '/up-next' });
-    expect(await screen.findByTestId('queue-row-b12')).toBeTruthy();
-    // The splash (it has its own sleeping cat) finishes its intro first.
-    await waitFor(() => expect(screen.queryByTestId('animated-splash')).toBeNull(), { timeout: 4000 });
-    expect(screen.getByText(copy.upNext.divider)).toBeTruthy();
+  const order = () =>
+    screen.getAllByTestId(/^wish-row-/).map((n) => (n.props as { testID: string }).testID.replace('wish-row-', ''));
+
+  it('lists wishlist books and watchlist movies; new ones get a place at the end; ↑ moves stick', async () => {
+    await renderRouter('./app', { initialUrl: '/wishlist' });
+    expect(await screen.findByTestId('wish-row-b12')).toBeTruthy();
+    expect(screen.queryByTestId('wish-row-reading')).toBeNull();
+    // Items without a place yet are placed after the rest (oldest added first), in one write.
+    await waitFor(() => expect(mockCalls.place).toHaveBeenCalledTimes(1));
+    const placed = (mockCalls.place.mock.calls[0]![0] as { entries: { itemId: string }[] }).entries.map(
+      (e) => e.itemId,
+    );
+    expect(placed).toEqual(['m1', 'fresh']);
+    await waitFor(() => expect(order().slice(-2)).toEqual(['m1', 'fresh']));
+
     for (let n = 0; n < 8; n++) {
       await act(async () => {
-        await fireEvent.press(screen.getByTestId('queue-up-b12'));
+        await fireEvent.press(screen.getByTestId('wish-up-b12'));
       });
     }
     await waitFor(() => expect(mockCalls.move).toHaveBeenCalledTimes(8));
-    const order = () =>
-      screen.getAllByTestId(/^queue-row-/).map((n) => (n.props as { testID: string }).testID.replace('queue-row-', ''));
     await waitFor(() => expect(order().slice(0, 5)).toEqual(['b1', 'b2', 'b3', 'b12', 'b4']));
     await act(async () => {
       await queryClient.refetchQueries({ queryKey: ['upNext'] });
     });
     expect(order().slice(0, 5)).toEqual(['b1', 'b2', 'b3', 'b12', 'b4']);
 
-    jest.spyOn(Math, 'random').mockReturnValue(0.35); // index 3 of the top ten: Gamperaliya
-    await fireEvent.press(screen.getByTestId('pick-for-me'));
-    expect(await screen.findByText(copy.pick.shuffling)).toBeTruthy();
-    expect(screen.getByTestId('art-cat-loaf', { includeHiddenElements: true })).toBeTruthy();
-    // Shuffle (1s) → paw (0.5s) → reveal.
+    // Filters: only movies.
+    await fireEvent.press(screen.getByTestId('wish-filter-movie'));
+    await waitFor(() => expect(order()).toEqual(['m1']));
+    await fireEvent.press(screen.getByTestId('wish-filter-all'));
+
+    // Starting a book takes it off the Wishlist (membership is the status).
+    mockState.books = mockState.books.map((b) => (b.id === 'b1' ? { ...b, status: 'reading' } : b));
     await act(async () => {
-      jest.advanceTimersByTime(1000);
+      await queryClient.refetchQueries({ queryKey: ['items'] });
     });
-    expect(screen.getByText(copy.pick.pinkiPicks)).toBeTruthy();
-    await act(async () => {
-      jest.advanceTimersByTime(600);
-    });
-    expect(await screen.findByTestId('pick-title')).toHaveTextContent('Gamperaliya');
-    expect(screen.getByTestId('pick-reason')).toHaveTextContent(/queued \d+ days ago/);
-    await act(async () => {
-      await fireEvent.press(screen.getByTestId('pick-start'));
-    });
-    await waitFor(() =>
-      expect(mockCalls.status).toHaveBeenCalledWith(expect.objectContaining({ itemId: 'b12', status: 'reading' })),
-    );
-    expect(await screen.findByTestId('screen-book')).toBeTruthy();
+    await waitFor(() => expect(screen.queryByTestId('wish-row-b1')).toBeNull());
+  });
+
+  it('no Up next or Pick anywhere: Home and the book menu', async () => {
+    await renderRouter('./app', { initialUrl: '/book/b2' });
+    await fireEvent.press(await screen.findByTestId('book-overflow'));
+    expect(await screen.findByTestId('overflow-edit')).toBeTruthy();
+    expect(screen.queryByTestId('overflow-upnext')).toBeNull();
+    await act(async () => router.navigate('/'));
+    await waitFor(() => expect(screen.queryByTestId('animated-splash')).toBeNull(), { timeout: 4000 });
+    expect(screen.queryByTestId('pick-for-me')).toBeNull();
+    expect(screen.queryByTestId('home-up-next')).toBeNull();
   });
 });
 

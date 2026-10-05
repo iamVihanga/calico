@@ -22,7 +22,7 @@ import { BookRow } from '@/features/books/components/BookRow';
 import { BookTile } from '@/features/books/components/BookTile';
 import { ShelfView } from '@/features/books/components/ShelfView';
 import { useBookStatusChange } from '@/features/books/useBookStatusChange';
-import { useBooks, useLeadScript, useQueueBook } from '@/features/books/hooks';
+import { useBooks, useLeadScript } from '@/features/books/hooks';
 import { BOOK_STATUSES, sortBooks, type SortKey, statusCounts, statusLabel } from '@/features/books/logic';
 import type { Book, BookStatus } from '@/features/books/types';
 import { MediaRow, MediaTile } from '@/features/media/components/MediaTile';
@@ -78,7 +78,6 @@ export default function Library() {
   const insets = useSafeAreaInsets();
   const lead = useLeadScript();
   const books = useBooks();
-  const queue = useQueueBook();
   const changeStatus = useBookStatusChange();
   const movies = useMovies();
   const shows = useShows();
@@ -344,7 +343,7 @@ export default function Library() {
       {'kind' in item ? (
         <MediaRow item={item} progress={progressById.get(item.id)} />
       ) : (
-        <BookRow book={item} lead={lead} onStatus={onStatus} onQueue={queue} />
+        <BookRow book={item} lead={lead} onStatus={onStatus} />
       )}
     </View>
   );

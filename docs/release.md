@@ -195,8 +195,8 @@ Calico's behalf, which Play doesn't count as sharing.
 > • Search and add films and series, and mark episodes as you watch.
 > • Always know which episode is next.
 >
-> UP NEXT AND COLLECTIONS
-> • Keep one queue for everything you want to read or watch, and let "Pick for me" choose.
+> WISHLIST AND COLLECTIONS
+> • One Wishlist for the books, movies and shows you want, in your own order.
 > • Group anything into collections.
 >
 > HOME-SCREEN WIDGETS
@@ -218,9 +218,9 @@ The app's own launcher icon (adaptive, with a themed monochrome layer), notifica
 splash come from the same script (`assets/images/`); they change only with a new build.
 
 Screenshots: from a preview build, signed in with a test account that has a few books, a library
-loan, a show in progress and some Up next items (not your real data). Take 4–8 at native
+loan, a show in progress and a few Wishlist items (not your real data). Take 4–8 at native
 resolution: Home, Library grid, a book with its loan slip, the cover-reading Review screen, a show
-with the episode grid, Up next, Your year. Include at least two in the night theme.
+with the episode grid, the Wishlist, Your year. Include at least two in the night theme.
 
 **Category**: Books & Reference. **Tags**: reading tracker, library, TV tracker.
 **Contact details**: vihangarashansilva@gmail.com and the website `https://<host>/`.

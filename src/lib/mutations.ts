@@ -5,7 +5,7 @@ import * as collections from '@/features/collections/api';
 import * as loans from '@/features/loans/api';
 import * as media from '@/features/media/api';
 import * as chat from '@/features/media/chat/api';
-import * as upnext from '@/features/upnext/api';
+import * as wishlist from '@/features/wishlist/api';
 import { type ProfilePatch, updateProfile } from '@/features/profile/api';
 
 /**
@@ -37,9 +37,10 @@ export const mk = {
   mediaMarkShow: ['media', 'markShow'] as const,
   mediaStatus: ['media', 'status'] as const,
   collectionCreate: ['collections', 'create'] as const,
-  upNextMove: ['upNext', 'move'] as const,
+  // The Wishlist order (the keys keep their Up next values, so paused offline writes still resume).
+  wishlistMove: ['upNext', 'move'] as const,
+  wishlistPlace: ['upNext', 'addMany'] as const,
   upNextRemove: ['upNext', 'remove'] as const,
-  upNextAddMany: ['upNext', 'addMany'] as const,
   collectionAdd: ['collections', 'add'] as const,
   collectionRemove: ['collections', 'remove'] as const,
   collectionDelete: ['collections', 'delete'] as const,
@@ -55,6 +56,8 @@ export const MEDIA_SCOPE = { id: 'media' };
  * finish must never reach the server first (it would fail and the book would stay To read).
  */
 export const BOOK_SCOPE = { id: 'books' };
+/** Wishlist order writes run in order too: new items get their place before a move can rewrite it. */
+export const WISHLIST_SCOPE = { id: 'wishlist' };
 
 export function registerMutations(qc: QueryClient) {
   qc.setMutationDefaults(mk.profileUpdate, {
@@ -117,9 +120,18 @@ export function registerMutations(qc: QueryClient) {
     scope: MEDIA_SCOPE,
     mutationFn: (v: media.MediaStatusVars) => media.setItemStatus(v),
   });
-  qc.setMutationDefaults(mk.upNextMove, { mutationFn: (v: upnext.MoveVars) => upnext.moveInQueue(v) });
-  qc.setMutationDefaults(mk.upNextRemove, { mutationFn: (v: { itemId: string }) => upnext.removeFromQueue(v) });
-  qc.setMutationDefaults(mk.upNextAddMany, { mutationFn: (v: upnext.AddManyVars) => upnext.addManyToQueue(v) });
+  qc.setMutationDefaults(mk.wishlistMove, {
+    scope: WISHLIST_SCOPE,
+    mutationFn: (v: wishlist.MoveVars) => wishlist.moveInWishlist(v),
+  });
+  qc.setMutationDefaults(mk.wishlistPlace, {
+    scope: WISHLIST_SCOPE,
+    mutationFn: (v: wishlist.PlaceVars) => wishlist.placeInWishlist(v),
+  });
+  // Old Up next writes only (paused offline before the update).
+  qc.setMutationDefaults(mk.upNextRemove, {
+    mutationFn: (v: { itemId: string }) => wishlist.removeFromWishlistOrder(v),
+  });
   qc.setMutationDefaults(mk.collectionAdd, {
     scope: MEDIA_SCOPE,
     mutationFn: (v: collections.AddItemsVars) => collections.addToCollection(v),

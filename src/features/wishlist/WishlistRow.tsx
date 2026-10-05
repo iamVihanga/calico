@@ -10,26 +10,26 @@ import { Txt } from '@/components/ds/Txt';
 import { copy } from '@/i18n/en';
 import { layout, radius, shadow, useTheme } from '@/theme';
 
-import type { QueueRow } from './hooks';
+import { itemHref, type LibItem } from '@/features/library/items';
 
-export const itemHref = (i: { id: string; kind: 'book' | 'movie' | 'show' }) =>
-  i.kind === 'book' ? `/book/${i.id}` : i.kind === 'movie' ? `/movie/${i.id}` : `/show/${i.id}`;
+import type { WishRow } from './logic';
 
 type Props = {
-  row: QueueRow;
+  row: WishRow<LibItem>;
   n: number;
   active: boolean;
-  /** Undefined when dragging is off (a filter is active). */
   onDrag?: () => void;
   onUp?: () => void;
-  onRemove: () => void;
 };
 
-/** One Up next row (prototype queueRows): handle, number, cover, title + meta, ↑ and ✕. */
-export const QueueRowView = memo(function QueueRowView({ row, n, active, onDrag, onUp, onRemove }: Props) {
+/**
+ * One Wishlist row (the old Up next row): drag handle, number, cover, title + meta, and ↑ as the drag's
+ * button alternative. Leaving the Wishlist is a status change on the item, so there's no remove here.
+ */
+export const WishlistRow = memo(function WishlistRow({ row, n, active, onDrag, onUp }: Props) {
   const { t } = useTheme();
   const { item } = row;
-  const icon = (name: 'arrow_upward' | 'close', label: string, run: (() => void) | undefined, testID: string) => (
+  const icon = (name: 'arrow_upward', label: string, run: (() => void) | undefined, testID: string) => (
     <Press
       accessibilityRole="button"
       accessibilityLabel={label}
@@ -49,7 +49,7 @@ export const QueueRowView = memo(function QueueRowView({ row, n, active, onDrag,
   );
   return (
     <View
-      testID={`queue-row-${item.id}`}
+      testID={`wish-row-${item.id}`}
       style={{
         flexDirection: 'row',
         alignItems: 'center',
@@ -64,7 +64,7 @@ export const QueueRowView = memo(function QueueRowView({ row, n, active, onDrag,
     >
       <Press
         accessibilityRole="button"
-        accessibilityLabel={copy.upNext.drag(item.title)}
+        accessibilityLabel={copy.wishlist.drag(item.title)}
         disabled={!onDrag}
         onLongPress={() => {
           void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -100,8 +100,7 @@ export const QueueRowView = memo(function QueueRowView({ row, n, active, onDrag,
           {item.meta}
         </Txt>
       </Press>
-      {icon('arrow_upward', copy.upNext.moveUp(item.title), onUp, `queue-up-${item.id}`)}
-      {icon('close', copy.upNext.remove(item.title), onRemove, `queue-remove-${item.id}`)}
+      {icon('arrow_upward', copy.wishlist.moveUp(item.title), onUp, `wish-up-${item.id}`)}
     </View>
   );
 });

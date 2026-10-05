@@ -13,6 +13,10 @@ export type LibKind = 'book' | 'movie' | 'show';
  * One thing in the library, whatever it is: what Up next, collections, search and Pick for me need
  * (title in the lead script, cover source, a short meta line and the numbers behind pick reasons).
  */
+/** Where an item opens. */
+export const itemHref = (i: { id: string; kind: 'book' | 'movie' | 'show' }) =>
+  i.kind === 'book' ? `/book/${i.id}` : i.kind === 'movie' ? `/movie/${i.id}` : `/show/${i.id}`;
+
 export type LibItem = {
   id: string;
   kind: LibKind;

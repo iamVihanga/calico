@@ -185,7 +185,6 @@ export type NewMedia = {
   backfill?: boolean;
   precision?: Precision | null;
   rating?: number | null;
-  upNextPosition?: string;
   // movies
   runtimeMin?: number | null;
   genres?: string[];
@@ -246,7 +245,6 @@ export async function addTmdbItem(v: NewMedia): Promise<void> {
       backfill: v.backfill ?? false,
       precision: v.precision ?? null,
       rating: v.rating ?? null,
-      ...(v.upNextPosition ? { up_next_position: v.upNextPosition } : {}),
       ...(movie
         ? {
             release_year: v.year,

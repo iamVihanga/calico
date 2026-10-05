@@ -92,9 +92,13 @@ Expo-specific guidance: @AGENTS.md
   episode). `ai_usage.kind` splits the limits: covers 30/day, chat 50/day. Any Gemini call goes through
   `_shared/gemini.ts` (logs Gemini's error, schema fallback).
 - Router tests: never call `findBy*` inside `act()` (it waits forever); find first, then act.
-- Anything that lists "whatever it is" (Up next, collections, search, Pick) uses `useLibraryItems()`
-  (`src/features/library/items.ts`) and `ItemCover`. Queue moves compute from the query cache at call time
+- Anything that lists "whatever it is" (Wishlist, collections, search) uses `useLibraryItems()`
+  (`src/features/library/items.ts`) and `ItemCover`. Wishlist moves compute from the query cache at call time
   (`keyForMove` on the current order), never from a render-time index.
+- Wishlist (tab; Up next and Pick for me are gone): wishlist books + watchlist movies/shows by status
+  (`isWanted`); their drag order lives in `up_next` (`qk.wishlistOrder`, fractional positions). New items get a
+  place at the end on screen open (`placesForNew`, one upsert); a move rewrites one row; SQL drops the row when an
+  item leaves the wishlist/watchlist (`items_status_side_effects`). Writes share `WISHLIST_SCOPE`.
 - Screen `presentation` (modals) is declared in the parent layout's `<Stack.Screen>`, not from inside the
   screen: changing it later remounts the screen.
 - Collection art (`collections.cover_item_id` / `cover_path`): `CollectionMosaic` shows the first four covers

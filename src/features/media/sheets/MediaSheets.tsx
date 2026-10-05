@@ -14,8 +14,7 @@ import { Input } from '@/components/ds/Input';
 import { Press } from '@/components/ds/Press';
 import { Txt } from '@/components/ds/Txt';
 import { newId } from '@/features/books/api';
-import { useQueueBook } from '@/features/books/hooks';
-import { byPosition } from '@/features/upnext/logic';
+import { byPosition } from '@/features/wishlist/logic';
 import { WhenChooser } from '@/components/calico/WhenChooser';
 import { copy } from '@/i18n/en';
 import { JUST_NOW, type When, type WhenVars, whenVars } from '@/lib/when';
@@ -306,7 +305,6 @@ export function MediaOverflowSheetBody({ itemId, onClose }: { itemId: string; on
   const movie = useMovie(itemId).data;
   const show = useShow(itemId).data;
   const item = movie ?? show;
-  const queue = useQueueBook();
   const del = useDeleteMedia();
   const [confirm, setConfirm] = useState(false);
   if (!item) return null;
@@ -342,14 +340,6 @@ export function MediaOverflowSheetBody({ itemId, onClose }: { itemId: string; on
   }
 
   const rows: { icon: IconName; label: string; run: () => void; testID?: string }[] = [
-    {
-      icon: 'playlist_add',
-      label: copy.overflow.upNext,
-      run: () => {
-        onClose();
-        void queue(itemId);
-      },
-    },
     {
       icon: 'category',
       label: copy.overflow.addCollection,

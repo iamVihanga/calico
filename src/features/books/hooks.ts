@@ -3,7 +3,6 @@ import { useMemo } from 'react';
 
 import { requestReminderSync } from '@/features/loans/reminders';
 import { useProfile } from '@/features/profile/hooks';
-import { appendKey, byPosition } from '@/features/upnext/logic';
 import { copy } from '@/i18n/en';
 import { colomboToday, localDateOf } from '@/lib/dates';
 import { BOOK_SCOPE, mk } from '@/lib/mutations';
@@ -15,7 +14,6 @@ import { leadTitle, statusLabel } from './logic';
 import type { Book, BookDetail, BookStatus, LeadScript, PageLog } from './types';
 
 const BOOKS = qk.items('book', 'all');
-type Queue = api.QueueEntry[];
 
 export function useLeadScript(): LeadScript {
   const { data } = useProfile();
@@ -49,11 +47,9 @@ export function useReadingLogs(ids: string[]) {
   });
 }
 
-export const useUpNextPositions = () => useQuery({ queryKey: qk.upNext, queryFn: api.fetchUpNextPositions });
-
 // Cache helpers -----------------------------------------------------------------------------------
 
-export type Snapshot = { books?: Book[]; item?: BookDetail | null; logs?: PageLog[]; queue?: Queue };
+export type Snapshot = { books?: Book[]; item?: BookDetail | null; logs?: PageLog[] };
 
 export async function snapshot(qc: QueryClient, id: string): Promise<Snapshot> {
   await Promise.all([
@@ -65,7 +61,6 @@ export async function snapshot(qc: QueryClient, id: string): Promise<Snapshot> {
     books: qc.getQueryData<Book[]>(BOOKS),
     item: qc.getQueryData<BookDetail | null>(qk.item(id)),
     logs: qc.getQueryData<PageLog[]>(qk.pageLogs(id)),
-    queue: qc.getQueryData<Queue>(qk.upNext),
   };
 }
 
@@ -81,7 +76,6 @@ export function restore(qc: QueryClient, id: string, s?: Snapshot) {
   qc.setQueryData(BOOKS, s.books);
   qc.setQueryData(qk.item(id), s.item);
   qc.setQueryData(qk.pageLogs(id), s.logs);
-  qc.setQueryData(qk.upNext, s.queue);
 }
 
 export function settle(qc: QueryClient, id: string) {
@@ -89,66 +83,16 @@ export function settle(qc: QueryClient, id: string) {
   void qc.invalidateQueries({ queryKey: qk.item(id) });
   void qc.invalidateQueries({ queryKey: qk.pageLogs(id) });
   void qc.invalidateQueries({ queryKey: ['pageLogs', 'many'] });
-  void qc.invalidateQueries({ queryKey: qk.upNext });
+  void qc.invalidateQueries({ queryKey: qk.wishlistOrder }); // leaving the wishlist drops its place (SQL)
   void qc.invalidateQueries({ queryKey: qk.homeStats });
   requestReminderSync(); // a new, finished-and-returned or deleted book can change the reminders
 }
 
 export const failed = () => toast({ message: copy.errors.saveFailed });
-/** Statuses that take any item off Up next (DB trigger `items_status_side_effects`). */
-const DONE_STATUSES: string[] = ['read', 'abandoned', 'watched', 'dropped'];
-
-/** Finished/stopped items leave Up next (DB trigger). Mirror it locally and offer Undo (plan §11.1). */
-export function leaveQueue(qc: QueryClient, id: string, status: string, requeue: (v: api.QueueVars) => void) {
-  if (!DONE_STATUSES.includes(status)) return;
-  const queue = qc.getQueryData<Queue>(qk.upNext);
-  const entry = queue?.find((q) => q.itemId === id);
-  if (!entry) return;
-  qc.setQueryData<Queue>(
-    qk.upNext,
-    queue?.filter((q) => q.itemId !== id),
-  );
-  toast({ message: copy.books.removed, action: { label: copy.common.undo, onPress: () => requeue(entry) } });
-}
-
 // Mutations ---------------------------------------------------------------------------------------
-
-export function useAddToUpNext() {
-  const qc = useQueryClient();
-  return useMutation<void, Error, api.QueueVars, Snapshot>({
-    mutationKey: mk.upNextAdd,
-    onMutate: async (v) => {
-      await qc.cancelQueries({ queryKey: qk.upNext });
-      const prev = { queue: qc.getQueryData<Queue>(qk.upNext) };
-      qc.setQueryData<Queue>(qk.upNext, (q) => [...(q ?? []).filter((x) => x.itemId !== v.itemId), v].sort(byPosition));
-      return prev;
-    },
-    onError: (_e, _v, ctx) => {
-      qc.setQueryData(qk.upNext, ctx?.queue);
-      failed();
-    },
-    onSettled: () => qc.invalidateQueries({ queryKey: qk.upNext }),
-  });
-}
-
-/** Append to the end of Up next, or say it's already there. */
-export function useQueueBook() {
-  const qc = useQueryClient();
-  const add = useAddToUpNext();
-  return async (itemId: string) => {
-    const queue = (await qc.ensureQueryData({ queryKey: qk.upNext, queryFn: api.fetchUpNextPositions })) ?? [];
-    if (queue.some((q) => q.itemId === itemId)) {
-      toast({ message: copy.overflow.alreadyUpNext });
-      return;
-    }
-    add.mutate({ itemId, position: appendKey([...queue].sort(byPosition)) });
-    toast({ message: copy.overflow.addedUpNext });
-  };
-}
 
 export function useSetBookStatus() {
   const qc = useQueryClient();
-  const requeue = useAddToUpNext();
   return useMutation<void, Error, api.SetStatusVars, Snapshot>({
     mutationKey: mk.bookSetStatus,
     scope: BOOK_SCOPE,
@@ -160,7 +104,6 @@ export function useSetBookStatus() {
           ? { currentPage: b.status === 'read' ? 0 : b.currentPage, startedAt: v.on ?? colomboToday() }
           : {}),
       }));
-      leaveQueue(qc, v.itemId, v.status, (e) => requeue.mutate(e));
       return s;
     },
     onError: (_e, v, ctx) => {
@@ -197,7 +140,6 @@ export function useLogPage() {
 
 export function useFinishBook() {
   const qc = useQueryClient();
-  const requeue = useAddToUpNext();
   return useMutation<void, Error, api.FinishVars, Snapshot>({
     mutationKey: mk.bookFinish,
     scope: BOOK_SCOPE,
@@ -212,7 +154,6 @@ export function useFinishBook() {
         finishedPrecision: v.backfill ? (v.precision ?? null) : 'day',
         loan: v.returnLoan ? null : b.loan,
       }));
-      leaveQueue(qc, v.itemId, 'read', (e) => requeue.mutate(e));
       return s;
     },
     onError: (_e, v, ctx) => {
@@ -225,7 +166,6 @@ export function useFinishBook() {
 
 export function useStopBook() {
   const qc = useQueryClient();
-  const requeue = useAddToUpNext();
   return useMutation<void, Error, api.StopVars, Snapshot>({
     mutationKey: mk.bookStop,
     scope: BOOK_SCOPE,
@@ -233,7 +173,6 @@ export function useStopBook() {
       const s = await snapshot(qc, v.itemId);
       const status: BookStatus = v.toRead ? 'to_read' : 'abandoned';
       patchBook(qc, v.itemId, () => ({ status, abandonReason: v.toRead ? null : v.reason }));
-      leaveQueue(qc, v.itemId, status, (e) => requeue.mutate(e));
       return s;
     },
     onError: (_e, v, ctx) => {
@@ -296,7 +235,6 @@ export function useDeleteItem() {
     onMutate: async (v) => {
       const s = await snapshot(qc, v.itemId);
       qc.setQueryData<Book[]>(BOOKS, (list) => list?.filter((b) => b.id !== v.itemId));
-      qc.setQueryData<Queue>(qk.upNext, (q) => q?.filter((x) => x.itemId !== v.itemId));
       return s;
     },
     onError: (_e, v, ctx) => {

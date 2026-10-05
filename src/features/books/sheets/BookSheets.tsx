@@ -24,7 +24,6 @@ import {
   useDeleteItem,
   useFinishBook,
   useLeadScript,
-  useQueueBook,
   useSetBookStatus,
   useStopBook,
   useUpdateBook,
@@ -215,7 +214,6 @@ export function StartReadingSheetBody({ itemId, reread, onClose }: Props & { rer
 export function OverflowSheetBody({ itemId, onClose }: Props) {
   const lead = useLeadScript();
   const book = useBook(itemId).data;
-  const queue = useQueueBook();
   if (!book) return null;
   const items: MenuItem[] = [
     {
@@ -225,15 +223,6 @@ export function OverflowSheetBody({ itemId, onClose }: Props) {
       run: () => {
         onClose();
         router.push(`/book/edit/${itemId}`);
-      },
-    },
-    {
-      icon: 'playlist_add',
-      label: copy.overflow.upNext,
-      testID: 'overflow-upnext',
-      run: () => {
-        onClose();
-        void queue(itemId);
       },
     },
     ...(book.loan

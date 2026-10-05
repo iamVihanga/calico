@@ -11,7 +11,8 @@ export const qk = {
   showProgress: (id?: string) => ['showProgress', id ?? 'all'] as const,
   episodes: (tmdbId: number) => ['episodes', tmdbId] as const,
   watchLogs: (id: string) => ['watchLogs', id] as const,
-  upNext: ['upNext'] as const,
+  /** The Wishlist's drag order (`up_next` rows); the key keeps its old name so caches carry over. */
+  wishlistOrder: ['upNext'] as const,
   collections: ['collections'] as const,
   collection: (id: string) => ['collection', id] as const,
   search: (q: string) => ['search', q] as const,

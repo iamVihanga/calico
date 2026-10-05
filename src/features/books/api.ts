@@ -274,6 +274,7 @@ export async function deleteItem({ itemId }: { itemId: string }): Promise<void> 
   if (error) throw error;
 }
 
+/** Only for paused offline writes from the old Up next (the key is still registered so they can finish). */
 export type QueueVars = { itemId: string; position: string };
 export async function addToUpNext({ itemId, position }: QueueVars): Promise<void> {
   const uid = await currentUserId();
@@ -281,13 +282,6 @@ export async function addToUpNext({ itemId, position }: QueueVars): Promise<void
     .from('up_next')
     .upsert({ item_id: itemId, user_id: uid, position }, { onConflict: 'item_id', ignoreDuplicates: true });
   if (error) throw error;
-}
-
-export type QueueEntry = { itemId: string; position: string; addedAt?: string };
-export async function fetchUpNextPositions(): Promise<QueueEntry[]> {
-  const { data, error } = await supabase.from('up_next').select('item_id, position, added_at');
-  if (error) throw error;
-  return data.map((r) => ({ itemId: r.item_id, position: r.position, addedAt: r.added_at }));
 }
 
 export const newId = () => randomUUID();

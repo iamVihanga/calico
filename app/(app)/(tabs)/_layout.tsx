@@ -6,13 +6,13 @@ import { TabBar, type TabItem } from '@/components/ds/TabBar';
 import { copy } from '@/i18n/en';
 import { openSheet } from '@/lib/stores/sheet';
 
-type TabId = 'index' | 'library' | 'up-next' | 'collections';
+type TabId = 'index' | 'library' | 'wishlist' | 'collections';
 type TabBarProps = Parameters<NonNullable<ComponentProps<typeof Tabs>['tabBar']>>[0];
 
 const items: TabItem<TabId>[] = [
   { id: 'index', label: copy.tabs.home, icon: 'home' },
   { id: 'library', label: copy.tabs.library, icon: 'grid_view' },
-  { id: 'up-next', label: copy.tabs.upNext, icon: 'playlist_play' },
+  { id: 'wishlist', label: copy.tabs.wishlist, icon: 'star' },
   { id: 'collections', label: copy.tabs.collections, icon: 'category' },
 ];
 
@@ -41,7 +41,7 @@ export default function TabsLayout() {
     <Tabs tabBar={(props) => <AppTabBar {...props} />} screenOptions={{ headerShown: false }}>
       <Tabs.Screen name="index" />
       <Tabs.Screen name="library" />
-      <Tabs.Screen name="up-next" />
+      <Tabs.Screen name="wishlist" />
       <Tabs.Screen name="collections" />
     </Tabs>
   );

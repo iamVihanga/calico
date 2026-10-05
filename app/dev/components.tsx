@@ -122,7 +122,7 @@ function Gallery({ name, setName }: { name: ThemeName; setName: (n: ThemeName) =
   const [checked, setChecked] = useState(true);
   const [on, setOn] = useState(true);
   const [seg, setSeg] = useState<'Books' | 'Movies' | 'Shows'>('Books');
-  const [tab, setTab] = useState<'home' | 'library' | 'upnext' | 'collections'>('home');
+  const [tab, setTab] = useState<'home' | 'library' | 'wishlist' | 'collections'>('home');
   const [filter, setFilter] = useState('Reading');
   const [sheetOpen, setSheetOpen] = useState(false);
 
@@ -393,7 +393,7 @@ function Gallery({ name, setName }: { name: ThemeName; setName: (n: ThemeName) =
               items={[
                 { id: 'home', label: copy.tabs.home, icon: 'home' },
                 { id: 'library', label: copy.tabs.library, icon: 'grid_view' },
-                { id: 'upnext', label: copy.tabs.upNext, icon: 'playlist_play' },
+                { id: 'wishlist', label: copy.tabs.wishlist, icon: 'star' },
                 { id: 'collections', label: copy.tabs.collections, icon: 'category' },
               ]}
             />

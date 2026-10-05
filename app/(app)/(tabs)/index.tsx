@@ -19,7 +19,6 @@ import { NudgeOfferCard } from '@/features/home/components/NudgeOfferCard';
 import { HomeEmpty } from '@/features/home/components/HomeEmpty';
 import { PendingCapturesCard } from '@/features/home/components/PendingCapturesCard';
 import { StatsLine } from '@/features/home/components/StatsLine';
-import { UpNextPreview } from '@/features/home/components/UpNextPreview';
 import { useProfile, useSetTheme } from '@/features/profile/hooks';
 import { copy } from '@/i18n/en';
 import { layout, radius, shadow, useTheme } from '@/theme';
@@ -32,7 +31,7 @@ function greeting(hour: number) {
 
 /**
  * Home (prototype `home`): greeting, search pill, night toggle, Due soon (overdue first), Continue
- * reading, Continue watching, Up next + Pick for me, the stats line (→ Your year), empty state.
+ * reading, Continue watching, the stats line (→ Your year), empty state.
  */
 export default function Home() {
   const { t, name } = useTheme();
@@ -186,7 +185,6 @@ export default function Home() {
 
       <NudgeOfferCard />
       <ContinueWatching />
-      <UpNextPreview />
       {!empty && <StatsLine />}
     </TabScreen>
   );

@@ -18,6 +18,8 @@ export const storageKeys = {
   nudgeOffer: 'nudge-offer',
   /** Library segment, and per segment its filter, sort, grouping and view (survive a restart). */
   libraryPrefs: 'library-prefs',
+  /** The Wishlist tab's filter pill. */
+  wishlistFilter: 'wishlist-filter',
 } as const;
 
 /** Wipe everything except the theme (sign-out keeps the paper colour for the welcome screen). */

@@ -23,14 +23,13 @@ type Props = {
   book: Book;
   lead: LeadScript;
   onStatus: (book: Book, status: BookStatus) => void;
-  onQueue: (id: string) => void;
 };
 
 /**
  * List row (prototype list view). Swipe right = next logical status; swipe left reveals
- * Up next / Collection / Delete. The ⋯ button opens the same actions (gesture alternative).
+ * Collection / Delete. The ⋯ button opens the same actions (gesture alternative).
  */
-export const BookRow = memo(function BookRow({ book, lead, onStatus, onQueue }: Props) {
+export const BookRow = memo(function BookRow({ book, lead, onStatus }: Props) {
   const { t } = useTheme();
   const ref = useRef<SwipeableMethods>(null);
   const p = coverFor(book.id);
@@ -74,7 +73,6 @@ export const BookRow = memo(function BookRow({ book, lead, onStatus, onQueue }: 
         )}
         renderRightActions={() => (
           <View style={{ flexDirection: 'row', backgroundColor: t.surfaceSunk }}>
-            {action('playlist_add', copy.library.swipe.upNext, () => onQueue(book.id))}
             {action('category', copy.library.swipe.collection, () =>
               openSheet('addToCollection', { itemId: book.id, title: main }),
             )}
@@ -92,13 +90,9 @@ export const BookRow = memo(function BookRow({ book, lead, onStatus, onQueue }: 
         <Press
           accessibilityRole="button"
           accessibilityLabel={`${main}, ${meta}`}
-          accessibilityActions={[
-            { name: 'next', label: statusLabel(next) },
-            { name: 'queue', label: copy.library.swipe.upNext },
-          ]}
+          accessibilityActions={[{ name: 'next', label: statusLabel(next) }]}
           onAccessibilityAction={(e) => {
             if (e.nativeEvent.actionName === 'next') onStatus(book, next);
-            if (e.nativeEvent.actionName === 'queue') onQueue(book.id);
           }}
           testID={`book-row-${book.id}`}
           scaleTo={0.99}

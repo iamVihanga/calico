@@ -13,12 +13,9 @@ import { Press } from '@/components/ds/Press';
 import { Tag } from '@/components/ds/Tag';
 import { Txt } from '@/components/ds/Txt';
 import { useCollection, useSeriesSuggestions } from '@/features/collections/hooks';
-import { useLibraryItems } from '@/features/library/items';
-import { useAddManyToQueue } from '@/features/upnext/hooks';
-import { itemHref } from '@/features/upnext/QueueRowView';
+import { itemHref, useLibraryItems } from '@/features/library/items';
 import { copy } from '@/i18n/en';
 import { openSheet } from '@/lib/stores/sheet';
-import { toast } from '@/lib/stores/toast';
 import { layout, radius, useTheme } from '@/theme';
 
 type Filter = 'all' | 'book' | 'movie' | 'show';
@@ -30,7 +27,6 @@ export default function CollectionDetail() {
   const insets = useSafeAreaInsets();
   const q = useCollection(id);
   const lib = useLibraryItems();
-  const addAll = useAddManyToQueue();
   const [filter, setFilter] = useState<Filter>('all');
   const c = q.data;
   const members = useMemo(
@@ -93,7 +89,7 @@ export default function CollectionDetail() {
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 14 }}>
           {(['all', 'book', 'movie', 'show'] as const).map((f) => (
             <Tag key={f} selected={filter === f} onPress={() => setFilter(f)}>
-              {copy.upNext.filters[f]}
+              {copy.wishlist.filters[f]}
             </Tag>
           ))}
         </View>
@@ -168,22 +164,6 @@ export default function CollectionDetail() {
             onPress={() => router.push(`/collection/${c.id}/add`)}
           >
             {copy.collections.addItems}
-          </Button>
-          <Button
-            variant="accent"
-            block
-            style={{ flex: 1, minHeight: 50 }}
-            testID="collection-all-up-next"
-            disabled={members.length === 0}
-            onPress={() => {
-              const n = addAll(members.map((m) => m.id));
-              toast({
-                message: n ? copy.collections.allAdded(c.name) : copy.collections.alreadyQueued,
-                action: { label: copy.collections.open, onPress: () => router.navigate('/up-next') },
-              });
-            }}
-          >
-            {copy.collections.allToUpNext}
           </Button>
         </View>
       </View>

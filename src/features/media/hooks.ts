@@ -1,7 +1,7 @@
 import { type QueryClient, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useMemo } from 'react';
 
-import { failed, leaveQueue, useAddToUpNext } from '@/features/books/hooks';
+import { failed } from '@/features/books/hooks';
 import { useProfile } from '@/features/profile/hooks';
 import { colomboToday } from '@/lib/dates';
 import { MEDIA_SCOPE, mk } from '@/lib/mutations';
@@ -90,7 +90,7 @@ function settleMedia(qc: QueryClient, itemId?: string) {
   void qc.invalidateQueries({ queryKey: MOVIES });
   void qc.invalidateQueries({ queryKey: SHOWS });
   void qc.invalidateQueries({ queryKey: PROGRESS });
-  void qc.invalidateQueries({ queryKey: qk.upNext });
+  void qc.invalidateQueries({ queryKey: qk.wishlistOrder }); // leaving the watchlist drops its place (SQL)
   void qc.invalidateQueries({ queryKey: qk.homeStats });
   void qc.invalidateQueries({ queryKey: qk.watchSessions });
   if (itemId) void qc.invalidateQueries({ queryKey: qk.watches(itemId) });
@@ -225,7 +225,6 @@ export function useAddMedia() {
 
 export function useLogViewing() {
   const qc = useQueryClient();
-  const requeue = useAddToUpNext();
   return useMutation<void, Error, api.ViewingVars, Snap>({
     mutationKey: mk.mediaViewing,
     scope: MEDIA_SCOPE,
@@ -251,7 +250,6 @@ export function useLogViewing() {
           ].sort((a, b) => b.watchedOn.localeCompare(a.watchedOn)),
         };
       });
-      leaveQueue(qc, v.itemId, 'watched', (e) => requeue.mutate(e));
       return s;
     },
     onError: (_e, _v, ctx) => {
@@ -343,7 +341,6 @@ export function useMarkShowWatched() {
 
 export function useSetMediaStatus() {
   const qc = useQueryClient();
-  const requeue = useAddToUpNext();
   return useMutation<void, Error, api.MediaStatusVars, Snap>({
     mutationKey: mk.mediaStatus,
     scope: MEDIA_SCOPE,
@@ -358,7 +355,6 @@ export function useSetMediaStatus() {
       });
       patchMovie(qc, v.itemId, (m) => patch(m) as Partial<Movie>);
       patchShow(qc, v.itemId, (x) => patch(x) as Partial<Show>);
-      leaveQueue(qc, v.itemId, v.status, (e) => requeue.mutate(e));
       return s;
     },
     onError: (_e, _v, ctx) => {
