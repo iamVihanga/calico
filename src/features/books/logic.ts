@@ -3,6 +3,7 @@ import { differenceInCalendarDays, subDays } from 'date-fns';
 import { copy } from '@/i18n/en';
 import { addLocalDays, daysBetween, localDateOf, toColombo, type LocalDate } from '@/lib/dates';
 import { stampLabel } from '@/components/calico/DateStamp';
+import { DEFAULT_DIR, type LibrarySort, type SortDir, sortItems } from '@/features/library/sort';
 
 import type { Book, BookStatus, LeadScript } from './types';
 
@@ -90,23 +91,15 @@ export function libraryTag(b: Book, today: LocalDate): { text: string; tone: 'da
   return { text: statusLabel(b.status), tone: 'muted' };
 }
 
-export type SortKey = 'updated' | 'title' | 'rating' | 'added';
+export type SortKey = LibrarySort;
 
-export function sortBooks(books: Book[], sort: SortKey, lead: LeadScript): Book[] {
-  const list = [...books];
-  switch (sort) {
-    case 'title': {
-      // Plain code-point comparison of the leading title keeps both scripts stable.
-      const key = (b: Book) => leadTitle(b, lead).main.toLowerCase();
-      return list.sort((a, b) => (key(a) < key(b) ? -1 : key(a) > key(b) ? 1 : 0));
-    }
-    case 'rating':
-      return list.sort((a, b) => (b.rating ?? -1) - (a.rating ?? -1));
-    case 'added':
-      return list.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
-    default:
-      return list.sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
-  }
+/** Library order for books (`sortItems`); titles by the lead script, compared by code point. */
+export function sortBooks(books: Book[], sort: SortKey, lead: LeadScript, dir: SortDir = DEFAULT_DIR[sort]): Book[] {
+  return sortItems(books, sort, dir, {
+    // Plain code-point comparison of the leading title keeps both scripts stable.
+    titleOf: (b) => leadTitle(b, lead).main.toLowerCase(),
+    compareTitle: (a, b) => (a < b ? -1 : a > b ? 1 : 0),
+  });
 }
 
 export function statusCounts(books: Book[]): Record<BookStatus, number> {

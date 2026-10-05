@@ -59,6 +59,8 @@ Expo-specific guidance: @AGENTS.md
   app types, missing = a day): detail screens show it via `FinishedLine` ("Read in 2024", "Watched 3 Mar 2024").
   Library prefs (segment, and per segment filter/sort/group/view) live in MMKV (`features/library/prefs.ts`,
   unknown values fall back); grouping (`groupItems`: year finished / year added) renders header + item rows.
+  Sorting is `sortItems` (`features/library/sort.ts`): every sort has a direction (`DEFAULT_DIR`; a new sort resets
+  it), missing values (unrated, unfinished, undated) stay last either way, "Date finished" follows the precision.
   Episode ticks and page logs bump `items.updated_at` so "Recently updated" follows them. Home's stat line shows
   books or pages read this month (`profiles.home_stat`, Settings → Home stat).
 - Follow-up toasts use `useToastStore.getState().enqueue()`; an action that should cancel them calls `clearQueue()`.

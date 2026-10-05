@@ -1,4 +1,4 @@
-import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
+import { act, fireEvent, renderRouter, screen, waitFor } from 'expo-router/testing-library';
 
 import { copy } from '@/i18n/en';
 import { storage, storageKeys } from '@/lib/storage';
@@ -101,5 +101,35 @@ describe('library groups and saved options', () => {
     cleanupAppState();
     await renderRouter('./app', { initialUrl: '/book/new' });
     expect(await screen.findByTestId('finished-line')).toHaveTextContent('Read 9 Mar 2025');
+  });
+
+  it('sorts by date finished, flips direction, and keeps both after a restart', async () => {
+    storage.set(storageKeys.libraryPrefs, '{}');
+    cleanupAppState();
+    await renderRouter('./app', { initialUrl: '/library' });
+    const order = () =>
+      screen
+        .getAllByTestId(/^book-tile-/, { includeHiddenElements: true })
+        .map((n) => (n.props as { testID: string }).testID.replace('book-tile-', ''));
+    await fireEvent.press(await screen.findByTestId('library-sort'));
+    await act(async () => {
+      await fireEvent.press(await screen.findByText(copy.library.sort.finished));
+    });
+    // Newest first; the book still being read comes last.
+    await waitFor(() => expect(order()).toEqual(['new', 'old', 'now']));
+    expect(screen.getByTestId('library-sort-dir').props.accessibilityLabel).toBe(copy.library.dir.finished.desc);
+    await act(async () => {
+      await fireEvent.press(screen.getByTestId('library-sort-dir'));
+    });
+    expect(screen.getByTestId('library-sort-dir').props.accessibilityLabel).toBe(copy.library.dir.finished.asc);
+    await waitFor(() => expect(order()).toEqual(['old', 'new', 'now'])); // unfinished stays last either way
+
+    // Kept after a restart.
+    cleanupAppState();
+    await renderRouter('./app', { initialUrl: '/library' });
+    await screen.findByTestId('library-sort');
+    expect(screen.getByTestId('library-sort').props.accessibilityValue).toEqual({ text: copy.library.sort.finished });
+    expect(screen.getByTestId('library-sort-dir').props.accessibilityLabel).toBe(copy.library.dir.finished.asc);
+    await waitFor(() => expect(order()).toEqual(['old', 'new', 'now']));
   });
 });

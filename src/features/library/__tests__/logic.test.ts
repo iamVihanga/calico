@@ -66,20 +66,27 @@ describe('library prefs', () => {
     saveLibraryPrefs({
       ...DEFAULT_PREFS,
       segment: 'shows',
-      shows: { filter: 'watching', sort: 'title', group: 'finished', view: 'list' },
+      shows: { filter: 'watching', sort: 'finished', dir: 'asc', group: 'finished', view: 'list' },
     });
     expect(readLibraryPrefs(filters).shows).toEqual({
       filter: 'watching',
-      sort: 'title',
+      sort: 'finished',
+      dir: 'asc',
       group: 'finished',
       view: 'list',
     });
     expect(readLibraryPrefs(filters).segment).toBe('shows');
     storage.set(
       storageKeys.libraryPrefs,
-      JSON.stringify({ segment: 'podcasts', books: { filter: 'gone', sort: 'x', group: 'genre', view: 'grid' } }),
+      JSON.stringify({
+        segment: 'podcasts',
+        books: { filter: 'gone', sort: 'x', dir: 'sideways', group: 'genre', view: 'grid' },
+      }),
     );
     expect(readLibraryPrefs(filters)).toEqual(DEFAULT_PREFS);
+    // Saved before directions existed: the sort's own default (titles A→Z).
+    storage.set(storageKeys.libraryPrefs, JSON.stringify({ books: { sort: 'title' } }));
+    expect(readLibraryPrefs(filters).books.dir).toBe('asc');
     storage.set(storageKeys.libraryPrefs, '{not json');
     expect(readLibraryPrefs(filters)).toEqual(DEFAULT_PREFS);
   });

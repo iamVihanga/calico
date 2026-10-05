@@ -382,7 +382,22 @@ export const en = {
   library: {
     views: { grid: 'Grid', list: 'List', shelf: 'Shelf' },
     all: 'All',
-    sort: { updated: 'Recently updated', title: 'Title', rating: 'Rating', added: 'Date added' },
+    sort: {
+      updated: 'Recently updated',
+      title: 'Title',
+      rating: 'Rating',
+      added: 'Date added',
+      finished: 'Date finished',
+    },
+    /** The direction button's label for each sort (asc / desc). */
+    dir: {
+      updated: { asc: 'Oldest first', desc: 'Newest first' },
+      title: { asc: 'A to Z', desc: 'Z to A' },
+      rating: { asc: 'Lowest first', desc: 'Highest first' },
+      added: { asc: 'Oldest first', desc: 'Newest first' },
+      finished: { asc: 'Oldest first', desc: 'Newest first' },
+    },
+    dirHint: 'Flips the order',
     sortLabel: 'Sort',
     groupLabel: 'Group',
     group: { none: 'No grouping', finished: 'Year finished', added: 'Year added' },

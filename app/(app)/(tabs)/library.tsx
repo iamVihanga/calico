@@ -28,6 +28,7 @@ import type { Book, BookStatus } from '@/features/books/types';
 import { MediaRow, MediaTile } from '@/features/media/components/MediaTile';
 import { useMovies, useShowProgress, useShows } from '@/features/media/hooks';
 import { GROUP_BYS, type GroupBy, groupItems, type GroupRow, groupRows } from '@/features/library/logic';
+import { DEFAULT_DIR, LIBRARY_SORTS } from '@/features/library/sort';
 import {
   type LibraryPrefs,
   type LibraryView,
@@ -85,13 +86,15 @@ export default function Library() {
   // Segment, and per segment its filter, sort, grouping and view: kept across restarts (MMKV).
   const [prefs, setPrefs] = useState(() => readLibraryPrefs(FILTERS));
   const segment = prefs.segment;
-  const { sort, view, group } = prefs[segment];
+  const { sort, dir, view, group } = prefs[segment];
   const filter = prefs[segment].filter as Filter;
   const update = (patch: Partial<SegmentPrefs>) =>
     setPrefs((p) => save({ ...p, [p.segment]: { ...p[p.segment], ...patch } }));
   const setSegment = (s: Segment) => setPrefs((p) => save({ ...p, segment: s }));
   const setFilter = (f: Filter) => setPrefs((p) => withFilter(p, f));
-  const setSort = (k: SortKey) => update({ sort: k });
+  // A new sort starts in its own natural direction (newest / highest first, titles A→Z).
+  const setSort = (k: SortKey) => update({ sort: k, dir: DEFAULT_DIR[k] });
+  const flipDir = () => update({ dir: dir === 'asc' ? 'desc' : 'asc' });
   const setView = (v: LibraryView) => update({ view: v });
   const setGroup = (g: GroupBy) => update({ group: g });
   const today = colomboToday();
@@ -109,8 +112,8 @@ export default function Library() {
   const all = useMemo(() => books.data ?? [], [books.data]);
   const counts = useMemo(() => statusCounts(all), [all]);
   const shown = useMemo(
-    () => sortBooks(filter === 'all' ? all : all.filter((b) => b.status === filter), sort, lead),
-    [all, filter, sort, lead],
+    () => sortBooks(filter === 'all' ? all : all.filter((b) => b.status === filter), sort, lead, dir),
+    [all, filter, sort, lead, dir],
   );
   const isBooks = segment === 'books';
   const media: Media[] = useMemo(
@@ -121,8 +124,8 @@ export default function Library() {
     segment === 'books' ? BOOK_STATUSES : segment === 'movies' ? MOVIE_STATUSES : SHOW_STATUSES;
   const mediaCounts = useMemo(() => countBy(media as { status: string }[], statuses as string[]), [media, statuses]);
   const shownMedia = useMemo(
-    () => sortMedia(filter === 'all' ? media : media.filter((m) => m.status === filter), sort),
-    [media, filter, sort],
+    () => sortMedia(filter === 'all' ? media : media.filter((m) => m.status === filter), sort, dir),
+    [media, filter, sort, dir],
   );
   const progressById = useMemo(() => new Map((progress ?? []).map((p) => [p.itemId, p])), [progress]);
   const pending = isBooks ? books.isPending : segment === 'movies' ? movies.isPending : shows.isPending;
@@ -197,11 +200,32 @@ export default function Library() {
               value={sort}
               onChange={setSort}
               testID="library-sort"
-              options={(['updated', 'title', 'rating', 'added'] as const).map((k) => ({
-                value: k,
-                label: copy.library.sort[k],
-              }))}
+              options={LIBRARY_SORTS.map((k) => ({ value: k, label: copy.library.sort[k] }))}
             />
+            <Press
+              accessibilityRole="button"
+              accessibilityLabel={copy.library.dir[sort][dir]}
+              accessibilityHint={copy.library.dirHint}
+              testID="library-sort-dir"
+              onPress={flipDir}
+              hitSlop={7}
+              style={{
+                width: 34,
+                height: 34,
+                marginLeft: -8,
+                borderRadius: radius.pill,
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: t.surfaceSunk,
+              }}
+            >
+              <Icon
+                name="arrow_upward"
+                size={18}
+                color="textSecondary"
+                style={{ transform: [{ rotate: dir === 'asc' ? '0deg' : '180deg' }] }}
+              />
+            </Press>
             <Select
               variant="inline"
               label={copy.library.groupLabel}
@@ -329,7 +353,8 @@ export default function Library() {
     <View style={{ flex: 1, backgroundColor: t.surfacePage }}>
       <FlashList
         ref={ref}
-        key={`${segment}-${layout_}-${listColumns}-${group}`}
+        // A new order redraws the list from the top.
+        key={`${segment}-${layout_}-${listColumns}-${group}-${sort}-${dir}`}
         testID="screen-library"
         data={data}
         numColumns={listColumns}

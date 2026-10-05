@@ -4,6 +4,7 @@ import { copy } from '@/i18n/en';
 import type { LocalDate } from '@/lib/dates';
 
 import type { Episode, EpisodeRef, MovieStatus, ShowStatus } from './types';
+import { DEFAULT_DIR, type LibrarySort, type SortDir, type Sortable, sortItems } from '@/features/library/sort';
 
 /** TMDB statuses of shows that won't get new episodes. */
 export const ENDED_STATUS = ENDED;
@@ -113,23 +114,11 @@ export function franchiseOthers<T extends { tmdbId: number }>(parts: T[], have: 
   return parts.filter((p) => p.tmdbId !== added && !have.has(p.tmdbId));
 }
 
-export type MediaSort = 'updated' | 'title' | 'rating' | 'added';
+export type MediaSort = LibrarySort;
 
-export function sortMedia<T extends { title: string; rating: number | null; createdAt: string; updatedAt: string }>(
-  items: T[],
-  sort: MediaSort,
-): T[] {
-  const list = [...items];
-  switch (sort) {
-    case 'title':
-      return list.sort((a, b) => a.title.toLowerCase().localeCompare(b.title.toLowerCase()));
-    case 'rating':
-      return list.sort((a, b) => (b.rating ?? -1) - (a.rating ?? -1));
-    case 'added':
-      return list.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
-    default:
-      return list.sort((a, b) => (a.updatedAt < b.updatedAt ? 1 : -1));
-  }
+/** Library order for movies and shows (`sortItems`). */
+export function sortMedia<T extends Sortable>(items: T[], sort: MediaSort, dir: SortDir = DEFAULT_DIR[sort]): T[] {
+  return sortItems(items, sort, dir);
 }
 
 export function countBy<S extends string>(items: { status: S }[], statuses: readonly S[]): Record<S, number> {
