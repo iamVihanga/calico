@@ -20,7 +20,15 @@ const item = (
 });
 
 describe('library groups', () => {
-  it('by year finished: not finished first, then newest year first, then a while ago; order kept inside', () => {
+  it('movies and shows on the Watchlist get their own section too', () => {
+    const groups = groupItems([item('m', { status: 'watchlist' }), item('d', { status: 'dropped' })], 'finished');
+    expect(groups.map((g) => [g.title, g.items.map((i) => i.id)])).toEqual([
+      ['Not finished yet', ['d']],
+      ['Watchlist', ['m']],
+    ]);
+  });
+
+  it('by year finished: not finished, then the wishlist, then newest year first, then a while ago', () => {
     const groups = groupItems(
       [
         item('a', { finishedAt: '2024-03-09', finishedPrecision: 'day' }),
@@ -29,11 +37,13 @@ describe('library groups', () => {
         item('d', { finishedAt: '2025-01-01', finishedPrecision: 'year' }),
         item('e', { finishedAt: '2024-01-01', finishedPrecision: 'year' }),
         item('f', { finishedAt: '2023-05-02' }), // cached before precision was stored: a day
+        item('w', { status: 'wishlist' }),
       ],
       'finished',
     );
     expect(groups.map((g) => [g.title, g.items.map((i) => i.id)])).toEqual([
       ['Not finished yet', ['b']],
+      ['Wishlist', ['w']],
       ['2025', ['d']],
       ['2024', ['a', 'e']],
       ['2023', ['f']],

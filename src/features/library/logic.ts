@@ -14,11 +14,13 @@ type Groupable = {
 export type Group<T> = { key: string; title: string; items: T[] };
 
 const FINISHED = new Set(['read', 'watched']);
+/** Wanted, not started: books on the Wishlist, movies and shows on the Watchlist. */
+const WANTED = new Set(['wishlist', 'watchlist']);
 
 /**
  * Library sections, keeping the list's order inside each.
- * - `finished`: "Not finished yet" first, then the year it was read or watched (newest first), then
- *   "A while ago" for finished items with no date known.
+ * - `finished`: "Not finished yet" first, then "Wishlist" (books) / "Watchlist" (movies, shows), then the
+ *   year it was read or watched (newest first), then "A while ago" for finished items with no date known.
  * - `added`: by the year it was added (Colombo), newest first.
  */
 export function groupItems<T extends Groupable>(items: T[], by: GroupBy): Group<T>[] {
@@ -27,16 +29,26 @@ export function groupItems<T extends Groupable>(items: T[], by: GroupBy): Group<
   const add = (key: string, item: T) => (groups.get(key) ?? groups.set(key, []).get(key)!).push(item);
   for (const item of items) {
     if (by === 'added') add(localDateOf(new Date(item.createdAt)).slice(0, 4), item);
+    else if (WANTED.has(item.status)) add(item.status, item);
     else if (!FINISHED.has(item.status) || !item.finishedAt) add('unfinished', item);
     else if (item.finishedPrecision === null) add('while', item);
     else add(item.finishedAt.slice(0, 4), item);
   }
-  const rank = (k: string) => (k === 'unfinished' ? 0 : k === 'while' ? 2 : 1);
+  const rank = (k: string) => (k === 'unfinished' ? 0 : WANTED.has(k) ? 1 : k === 'while' ? 3 : 2);
   return [...groups.entries()]
     .sort(([a], [b]) => rank(a) - rank(b) || b.localeCompare(a))
     .map(([key, list]) => ({
       key,
-      title: key === 'while' ? copy.library.groups.while : key === 'unfinished' ? copy.library.groups.unfinished : key,
+      title:
+        key === 'while'
+          ? copy.library.groups.while
+          : key === 'unfinished'
+            ? copy.library.groups.unfinished
+            : key === 'wishlist'
+              ? copy.library.groups.wishlist
+              : key === 'watchlist'
+                ? copy.library.groups.watchlist
+                : key,
       items: list,
     }));
 }

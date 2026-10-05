@@ -401,7 +401,7 @@ export const en = {
     sortLabel: 'Sort',
     groupLabel: 'Group',
     group: { none: 'No grouping', finished: 'Year finished', added: 'Year added' },
-    groups: { while: 'A while ago', unfinished: 'Not finished yet' },
+    groups: { while: 'A while ago', unfinished: 'Not finished yet', wishlist: 'Wishlist', watchlist: 'Watchlist' },
     groupHeader: (title: string, n: number) => `${title} · ${n}`,
     empty: {
       reading: 'nothing on the go right now',
