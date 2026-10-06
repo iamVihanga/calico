@@ -24,6 +24,11 @@ Expo-specific guidance: @AGENTS.md
 ## Rules
 
 - Styles only from `src/theme` tokens via `useTheme()` / `makeStyles()`. No raw hex, px sizes or ms durations in screens.
+- Themes: a colour family (`ThemePalette`: Forest, Tortoiseshell; Settings → Theme, `palette` sheet, `useSetPalette`,
+  `profiles.palette` + MMKV `themePalette`) × night reading (`theme`: day/night/system). `themes[palette][mode]`
+  must all have the same tokens (`theme.test.ts` checks keys and text contrast). Never use `palette.forest`/`fern`
+  for surfaces in screens: use tokens (`surfaceInverse`, `surfaceInverseRaised`, `surfaceInk`, `accentTertiary`).
+  The splash stays Forest. Widgets draw with the stored palette. Home's sun/moon follows the clock (`isDaytime`).
 - Text only through `<Txt>` (handles Sinhala font + line height). Never use bare `<Text>`.
 - Copy only from `src/i18n/en.ts`.
 - Multi-table writes go through Postgres RPCs (atomic, replayable offline). Single-row writes may use table APIs.

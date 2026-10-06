@@ -47,8 +47,8 @@ function WatchCard({ show, row }: { show: Show; row: ShowProgress }) {
           height: 164,
           justifyContent: 'flex-end',
           padding: 16,
-          backgroundColor: palette.ink,
-          experimental_backgroundImage: `linear-gradient(140deg, ${palette.fern}, ${palette.ink})`,
+          backgroundColor: t.surfaceInk,
+          experimental_backgroundImage: `linear-gradient(140deg, ${t.surfaceInverseRaised}, ${t.surfaceInk})`,
         }}
       >
         {image && (

@@ -10,6 +10,7 @@ export type ProfilePatch = Partial<
     | 'display_name'
     | 'lead_script'
     | 'theme'
+    | 'palette'
     | 'reminder_time'
     | 'remind_3d'
     | 'remind_1d'

@@ -8,7 +8,7 @@ import {
   StartReadingSheetBody,
   StopSheetBody,
 } from '@/features/books/sheets/BookSheets';
-import { ExportSheetBody, SettingSheetBody } from '@/features/account/SettingSheets';
+import { ExportSheetBody, PaletteSheetBody, SettingSheetBody } from '@/features/account/SettingSheets';
 import { WatchedWhenSheetBody } from '@/features/media/sheets/WatchedWhenSheet';
 import { RulerSheetBody } from '@/features/books/sheets/RulerSheet';
 import {
@@ -190,6 +190,14 @@ export function SheetHost() {
         {sheet?.name === 'setting' && (
           <SettingSheetBody key={sheet.params.field} p={sheet.params} onClose={closer('setting')} />
         )}
+      </Sheet>
+      <Sheet
+        open={sheet?.name === 'palette'}
+        onClose={closer('palette')}
+        title={copy.settings.palette}
+        testID="sheet-palette"
+      >
+        {sheet?.name === 'palette' && <PaletteSheetBody onClose={closer('palette')} />}
       </Sheet>
       <Sheet open={sheet?.name === 'export'} onClose={closer('export')} testID="sheet-export">
         {sheet?.name === 'export' && <ExportSheetBody onClose={closer('export')} />}

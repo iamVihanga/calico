@@ -219,7 +219,7 @@ function YearBody({ s }: { s: YearStats }) {
             }}
           >
             {segments.map((seg, i) => {
-              const bg = i === 0 ? t.accentSecondary : i === 1 ? palette.forest : t.cover[(i + 2) % t.cover.length]!;
+              const bg = i === 0 ? t.accentSecondary : i === 1 ? t.accentTertiary : t.cover[(i + 2) % t.cover.length]!;
               return (
                 <View
                   key={seg.language}

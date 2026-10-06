@@ -65,7 +65,7 @@ function variantColors(t: Theme, v: ButtonVariant) {
     case 'inverse':
       return {
         bg: palette.cream,
-        fg: palette.forest,
+        fg: t.surfaceInverse,
         border: 'transparent',
         pressed: palette.white,
         shadow: undefined,

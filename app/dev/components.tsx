@@ -659,10 +659,10 @@ function Gallery({ name, setName }: { name: ThemeName; setName: (n: ThemeName) =
 }
 
 export default function ComponentsGallery() {
-  const { name: appTheme } = useTheme();
+  const { name: appTheme, palette } = useTheme();
   const [name, setName] = useState<ThemeName>(appTheme);
   return (
-    <ThemeProvider forced={name}>
+    <ThemeProvider forced={name} forcedPalette={palette}>
       <Gallery name={name} setName={setName} />
     </ThemeProvider>
   );

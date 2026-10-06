@@ -25,7 +25,7 @@ const NEXT_THEME: Record<ThemePreference, ThemePreference> = { day: 'night', nig
 
 /** Settings (prototype `settings`, plan §11.13): account, reading, reminders, display, data, about, delete. */
 export default function Settings() {
-  const { t, preference } = useTheme();
+  const { t, preference, palette } = useTheme();
   const insets = useSafeAreaInsets();
   const { session } = useAuth();
   const profile = useProfile();
@@ -177,6 +177,7 @@ export default function Settings() {
       ])}
 
       {group(copy.settings.display, [
+        row(copy.settings.palette, copy.settings.paletteValue[palette], () => openSheet('palette'), 'setting-palette'),
         row(
           copy.settings.nightReading,
           copy.settings.themeValue[preference],

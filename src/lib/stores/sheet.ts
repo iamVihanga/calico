@@ -46,6 +46,8 @@ export type SheetParams = {
   collectionMenu: { collectionId: string };
   collectionArt: { collectionId: string };
   setting: { field: 'goal' | 'loanDays' | 'library' | 'time' };
+  /** Settings → Theme: Forest or Tortoiseshell. */
+  palette: undefined;
   export: undefined;
 };
 export type SheetName = keyof SheetParams;

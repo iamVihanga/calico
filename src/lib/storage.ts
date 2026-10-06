@@ -5,6 +5,8 @@ export const storage = createMMKV({ id: 'calico' });
 
 export const storageKeys = {
   theme: 'theme',
+  /** Settings → Theme (colour family): 'forest' | 'tortoiseshell'. */
+  themePalette: 'theme-palette',
   queryCache: 'query-cache',
   pendingCaptures: 'pending-captures',
   remindersAsked: 'reminders-asked',

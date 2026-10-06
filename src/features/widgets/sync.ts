@@ -9,7 +9,7 @@ import { qk } from '@/lib/queryKeys';
 import { useHourNow } from '@/lib/useHourNow';
 
 import { buildSnapshot, WIDGETS, type WidgetSnapshot } from './logic';
-import { readSnapshot, saveSnapshot, themePreference, widgetsAvailable } from './store';
+import { readSnapshot, saveSnapshot, themePalette, themePreference, widgetsAvailable } from './store';
 
 const WATCHED = new Set(['items', 'showProgress', 'profile', 'signedUrl', 'watchSessions']);
 
@@ -65,7 +65,7 @@ export function useWidgetSync() {
     const push = () => {
       const s = snapshotFrom(qc);
       if (!s) return;
-      const key = JSON.stringify(s) + themePreference();
+      const key = JSON.stringify(s) + themePreference() + themePalette();
       if (key === drawn) return;
       drawn = key;
       if (JSON.stringify(readSnapshot()) !== JSON.stringify(s)) saveSnapshot(s);

@@ -17,17 +17,13 @@ import { useMovies, useShows } from '@/features/media/hooks';
 import { DueSoonRow } from '@/features/home/components/DueSoonRow';
 import { NudgeOfferCard } from '@/features/home/components/NudgeOfferCard';
 import { HomeEmpty } from '@/features/home/components/HomeEmpty';
+import { greeting, isDaytime } from '@/features/home/logic';
 import { PendingCapturesCard } from '@/features/home/components/PendingCapturesCard';
 import { StatsLine } from '@/features/home/components/StatsLine';
 import { useProfile, useSetTheme } from '@/features/profile/hooks';
 import { copy } from '@/i18n/en';
+import { useHourNow } from '@/lib/useHourNow';
 import { layout, radius, shadow, useTheme } from '@/theme';
-
-function greeting(hour: number) {
-  if (hour < 12) return copy.home.greetingMorning;
-  if (hour < 17) return copy.home.greetingAfternoon;
-  return copy.home.greetingEvening;
-}
 
 /**
  * Home (prototype `home`): greeting, search pill, night toggle, Due soon (overdue first), Continue
@@ -50,6 +46,8 @@ export default function Home() {
     books.data.length + movies.data.length + shows.data.length === 0;
   const displayName = profile.data?.display_name ?? '';
   const night = name === 'night';
+  // The sun or the moon follows the time of day, not night reading.
+  const hour = useHourNow().getHours();
 
   return (
     <TabScreen testID="screen-home">
@@ -64,10 +62,10 @@ export default function Home() {
         }}
       >
         <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-          <Illustration name={night ? 'moon' : 'sun'} width={40} float={7000} />
+          <Illustration name={isDaytime(hour) ? 'sun' : 'moon'} width={40} float={7000} />
           <View style={{ flex: 1 }}>
             <Txt family="hand" weight={400} size={21} leading={1} color="textAccent">
-              {greeting(new Date().getHours())}
+              {greeting(hour)}
             </Txt>
             <Txt family="display" weight={700} size={34} leading={1.06} style={{ letterSpacing: -0.03 * 34 }}>
               {displayName.split(' ')[0] ?? ''}

@@ -269,6 +269,13 @@ export const en = {
     signOut: 'Sign out',
     signOutHint: 'This phone forgets your library until you sign in again.',
     nightReading: 'Night reading',
+    palette: 'Theme',
+    paletteValue: { forest: 'Forest', tortoiseshell: 'Tortoiseshell' },
+    paletteHint: {
+      forest: 'Deep greens and marmalade',
+      tortoiseshell: 'Warm cream, clay orange and soft browns',
+    },
+    paletteA11y: (name: string, on: boolean) => (on ? `${name}, chosen` : name),
     themeValue: { day: 'Off', night: 'On', system: 'System' },
     components: 'Component gallery (dev)',
     reading: 'Reading',

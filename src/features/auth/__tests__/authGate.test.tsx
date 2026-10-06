@@ -1,5 +1,6 @@
-import { act, renderRouter, screen, waitFor } from 'expo-router/testing-library';
+import { act, renderRouter, screen, waitFor, within } from 'expo-router/testing-library';
 
+import { isDaytime } from '@/features/home/logic';
 import { copy } from '@/i18n/en';
 import { cleanupAppState } from '@/test/cleanup';
 
@@ -80,8 +81,9 @@ describe('auth gate', () => {
     expect(await screen.findByText(copy.homeShelf.continueReading)).toBeTruthy();
     expect(await screen.findByTestId('reading-it')).toBeTruthy();
     await waitFor(() => expect(screen.queryByTestId('animated-splash')).toBeNull(), { timeout: 4000 });
-    // design/v2: the sun by the greeting in the day theme, the bookmark on the reading card.
-    expect(screen.getByTestId('art-sun', { includeHiddenElements: true })).toBeTruthy();
+    // design/v2: the sun (by day) or the moon by the greeting, the bookmark on the reading card.
+    const sky = isDaytime(new Date().getHours()) ? 'art-sun' : 'art-moon';
+    expect(within(screen.getByTestId('screen-home')).getByTestId(sky, { includeHiddenElements: true })).toBeTruthy();
     expect(screen.getByTestId('art-bookmark', { includeHiddenElements: true })).toBeTruthy();
     expect(screen.getByTestId('tab-add')).toBeTruthy();
     expect(screen.queryByText(copy.welcome.google)).toBeNull();

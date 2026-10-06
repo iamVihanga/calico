@@ -1,7 +1,7 @@
 import { Platform, TurboModuleRegistry } from 'react-native';
 
 import { storage, storageKeys } from '@/lib/storage';
-import type { ThemePreference } from '@/theme/themes';
+import { isThemePalette, type ThemePalette, type ThemePreference } from '@/theme/themes';
 
 import type { WidgetSnapshot } from './logic';
 
@@ -30,4 +30,10 @@ export function saveSnapshot(s: WidgetSnapshot) {
 export function themePreference(): ThemePreference {
   const v = storage.getString(storageKeys.theme);
   return v === 'night' || v === 'system' ? v : 'day';
+}
+
+/** Settings → Theme, as the app last saved it (Forest when unknown). */
+export function themePalette(): ThemePalette {
+  const v = storage.getString(storageKeys.themePalette);
+  return isThemePalette(v) ? v : 'forest';
 }

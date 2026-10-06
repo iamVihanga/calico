@@ -9,11 +9,11 @@ import { SegmentedControl } from '@/components/ds/SegmentedControl';
 import { Tag } from '@/components/ds/Tag';
 import { Txt } from '@/components/ds/Txt';
 import { DUE_CHOICES } from '@/features/books/schema';
-import { useProfile, useUpdateProfile } from '@/features/profile/hooks';
+import { useProfile, useSetPalette, useUpdateProfile } from '@/features/profile/hooks';
 import { copy } from '@/i18n/en';
 import type { SheetParams } from '@/lib/stores/sheet';
 import { toast } from '@/lib/stores/toast';
-import { layout, radius, shadow, useTheme } from '@/theme';
+import { layout, radius, shadow, THEME_PALETTES, themes, useTheme } from '@/theme';
 
 import { fmtTime, parseTime, toTime } from './logic';
 import { shareExport } from './share';
@@ -248,6 +248,73 @@ export function ExportSheetBody({ onClose }: { onClose: () => void }) {
       <Title>{copy.account.exportTitle}</Title>
       {row('json', 'data_object', copy.account.exportJson)}
       {row('csv', 'table', copy.account.exportCsv)}
+    </View>
+  );
+}
+
+/** Settings → Theme: each colour family as a small preview in the current day/night mode; tap to switch. */
+export function PaletteSheetBody({ onClose }: { onClose: () => void }) {
+  const { t, name, palette } = useTheme();
+  const setPalette = useSetPalette();
+  return (
+    <View style={{ gap: 12 }} testID="palette-sheet">
+      {THEME_PALETTES.map((id) => {
+        const th = themes[id][name];
+        const on = id === palette;
+        return (
+          <Press
+            key={id}
+            accessibilityRole="radio"
+            accessibilityState={{ checked: on }}
+            accessibilityLabel={copy.settings.paletteA11y(copy.settings.paletteValue[id], on)}
+            onPress={() => {
+              setPalette(id);
+              onClose();
+            }}
+            scaleTo={0.98}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 14,
+              padding: 12,
+              borderRadius: radius.lg,
+              borderWidth: 2,
+              borderColor: on ? t.accentPrimary : t.borderHairline,
+              backgroundColor: t.surfaceCard,
+            }}
+            testID={`palette-${id}`}
+          >
+            {/* A tiny page in that theme: paper, a card, the accent and the dark panel. */}
+            <View
+              style={{
+                width: 76,
+                height: 64,
+                borderRadius: radius.md,
+                padding: 7,
+                gap: 5,
+                backgroundColor: th.surfacePage,
+                borderWidth: 1,
+                borderColor: th.borderSoft,
+              }}
+            >
+              <View style={{ flex: 1, borderRadius: radius.xs, backgroundColor: th.panel1 }} />
+              <View style={{ flexDirection: 'row', gap: 5, height: 16 }}>
+                <View style={{ flex: 1, borderRadius: radius.xs, backgroundColor: th.surfaceCard }} />
+                <View style={{ width: 16, borderRadius: radius.pill, backgroundColor: th.accentPrimary }} />
+              </View>
+            </View>
+            <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
+              <Txt family="display" weight={700} size={18}>
+                {copy.settings.paletteValue[id]}
+              </Txt>
+              <Txt family="ui" size="2xs" color="textMuted">
+                {copy.settings.paletteHint[id]}
+              </Txt>
+            </View>
+            {on && <Icon name="check_circle" size={24} tint={t.accentPrimary} />}
+          </Press>
+        );
+      })}
     </View>
   );
 }

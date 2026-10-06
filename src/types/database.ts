@@ -434,6 +434,7 @@ export type Database = {
           id: string;
           include_specials: boolean;
           lead_script: string;
+          palette: string;
           reading_goal: number | null;
           remind_1d: boolean;
           remind_3d: boolean;
@@ -452,6 +453,7 @@ export type Database = {
           id: string;
           include_specials?: boolean;
           lead_script?: string;
+          palette?: string;
           reading_goal?: number | null;
           remind_1d?: boolean;
           remind_3d?: boolean;
@@ -470,6 +472,7 @@ export type Database = {
           id?: string;
           include_specials?: boolean;
           lead_script?: string;
+          palette?: string;
           reading_goal?: number | null;
           remind_1d?: boolean;
           remind_3d?: boolean;

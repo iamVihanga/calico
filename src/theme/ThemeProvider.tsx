@@ -13,7 +13,7 @@ import Animated, {
 
 import { storage, storageKeys } from '@/lib/storage';
 
-import { type Theme, type ThemeName, type ThemePreference, themes } from './themes';
+import { isThemePalette, type Theme, type ThemeName, type ThemePalette, type ThemePreference, themes } from './themes';
 import { motion, tokens } from './tokens';
 import { type } from './typography';
 
@@ -22,6 +22,9 @@ type ThemeContextValue = {
   name: ThemeName;
   preference: ThemePreference;
   setPreference: (p: ThemePreference) => void;
+  /** Settings → Theme: Forest or Tortoiseshell. */
+  palette: ThemePalette;
+  setPalette: (p: ThemePalette) => void;
   tokens: typeof tokens;
   type: typeof type;
 };
@@ -37,27 +40,50 @@ function readStoredPreference(): ThemePreference {
   }
 }
 
+function readStoredPalette(): ThemePalette {
+  try {
+    const v = storage.getString(storageKeys.themePalette);
+    return isThemePalette(v) ? v : 'forest';
+  } catch {
+    return 'forest';
+  }
+}
+
 type Props = {
   children: ReactNode;
   /** Force a theme (dev gallery, tests). Skips storage. */
   forced?: ThemeName;
+  /** With `forced`: the colour family (default Forest). */
+  forcedPalette?: ThemePalette;
 };
 
 /**
- * Day / night ("night reading") themes. The preference is mirrored in MMKV so the first frame
- * uses the right paper; `profiles.theme` becomes the source of truth once the profile loads (Phase 1).
+ * Day / night ("night reading") in a colour family (Forest, Tortoiseshell). Both choices are mirrored in
+ * MMKV so the first frame uses the right paper; `profiles.theme` / `profiles.palette` are the source of
+ * truth once the profile loads (`useProfileThemeSync`).
  */
-export function ThemeProvider({ children, forced }: Props) {
+export function ThemeProvider({ children, forced, forcedPalette }: Props) {
   const system = useColorScheme();
   const [preference, setPreferenceState] = useState<ThemePreference>(() => (forced ? forced : readStoredPreference()));
 
   const name: ThemeName = forced ?? (preference === 'system' ? (system === 'dark' ? 'night' : 'day') : preference);
-  const t = themes[name];
+  const [storedPalette, setPaletteState] = useState<ThemePalette>(() =>
+    forced ? (forcedPalette ?? 'forest') : readStoredPalette(),
+  );
+  const palette = forced ? (forcedPalette ?? 'forest') : storedPalette;
+  const t = themes[palette][name];
 
   const setPreference = useCallback(
     (p: ThemePreference) => {
       setPreferenceState(p);
       if (!forced) storage.set(storageKeys.theme, p);
+    },
+    [forced],
+  );
+  const setPalette = useCallback(
+    (p: ThemePalette) => {
+      setPaletteState(p);
+      if (!forced) storage.set(storageKeys.themePalette, p);
     },
     [forced],
   );
@@ -68,8 +94,8 @@ export function ThemeProvider({ children, forced }: Props) {
   }, [forced, t.surfacePage]);
 
   const value = useMemo<ThemeContextValue>(
-    () => ({ t, name, preference, setPreference, tokens, type }),
-    [t, name, preference, setPreference],
+    () => ({ t, name, preference, setPreference, palette, setPalette, tokens, type }),
+    [t, name, preference, setPreference, palette, setPalette],
   );
 
   return (

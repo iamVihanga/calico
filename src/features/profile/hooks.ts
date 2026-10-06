@@ -6,7 +6,7 @@ import { copy } from '@/i18n/en';
 import { mk } from '@/lib/mutations';
 import { qk } from '@/lib/queryKeys';
 import { toast } from '@/lib/stores/toast';
-import { type ThemePreference, useTheme } from '@/theme';
+import { isThemePalette, type ThemePalette, type ThemePreference, useTheme } from '@/theme';
 
 import { fetchProfile, type Profile, type ProfilePatch } from './api';
 
@@ -58,13 +58,30 @@ export function useSetTheme() {
   );
 }
 
-/** `profiles.theme` is the source of truth once loaded; MMKV only mirrors it for the first frame. */
+/** Settings → Theme: the colour family, instant locally, saved to the profile (queued when offline). */
+export function useSetPalette() {
+  const { setPalette } = useTheme();
+  const update = useUpdateProfile();
+  return useCallback(
+    (palette: ThemePalette) => {
+      setPalette(palette);
+      update.mutate({ palette });
+    },
+    [setPalette, update],
+  );
+}
+
+/** `profiles.theme` / `profiles.palette` are the source of truth once loaded; MMKV only mirrors them. */
 export function useProfileThemeSync() {
   const { data } = useProfile();
-  const { preference, setPreference } = useTheme();
+  const { preference, setPreference, palette, setPalette } = useTheme();
   const pending = useIsMutating({ mutationKey: mk.profileUpdate });
   const theme = data?.theme as ThemePreference | undefined;
+  const savedPalette = isThemePalette(data?.palette) ? data.palette : undefined;
   useEffect(() => {
     if (theme && pending === 0 && theme !== preference) setPreference(theme);
   }, [theme, pending, preference, setPreference]);
+  useEffect(() => {
+    if (savedPalette && pending === 0 && savedPalette !== palette) setPalette(savedPalette);
+  }, [savedPalette, pending, palette, setPalette]);
 }
