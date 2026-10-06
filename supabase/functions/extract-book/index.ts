@@ -13,7 +13,7 @@ Deno.serve((req) =>
             .from('ai_usage')
             .select('id', { count: 'exact', head: true })
             .eq('user_id', user)
-            .eq('kind', 'cover') // chat messages have their own limit
+            .eq('kind', 'cover')
             .gte('created_at', since);
           return count ?? 0;
         },

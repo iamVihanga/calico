@@ -142,17 +142,17 @@ Matches `site/privacy.html`. Everything below is **collected** (sent off the dev
 the providers (Supabase, Google Gemini, Open Library/Google Books, TMDB, Sentry) process data on
 Calico's behalf, which Play doesn't count as sharing.
 
-| Play data type                                                                         | Collected | Required? | Purposes                                       |
-| -------------------------------------------------------------------------------------- | --------- | --------- | ---------------------------------------------- |
-| Personal info → Name                                                                   | Yes       | Required  | App functionality, Account management          |
-| Personal info → Email address                                                          | Yes       | Required  | App functionality, Account management          |
-| Personal info → User IDs                                                               | Yes       | Required  | Account management, Analytics (crash grouping) |
-| Personal info → Other info (lender/friend names on loans)                              | Yes       | Optional  | App functionality                              |
-| Photos and videos → Photos                                                             | Yes       | Optional  | App functionality                              |
-| App activity → Other user-generated content (library, notes, ratings, Ask Pinki chats) | Yes       | Required  | App functionality                              |
-| App activity → App interactions (when episodes are marked watched)                     | Yes       | Required  | App functionality, Personalization             |
-| App info and performance → Crash logs                                                  | Yes       | Required  | Analytics (app stability)                      |
-| App info and performance → Diagnostics                                                 | Yes       | Required  | Analytics (performance traces, 10% sample)     |
+| Play data type                                                        | Collected | Required? | Purposes                                       |
+| --------------------------------------------------------------------- | --------- | --------- | ---------------------------------------------- |
+| Personal info → Name                                                  | Yes       | Required  | App functionality, Account management          |
+| Personal info → Email address                                         | Yes       | Required  | App functionality, Account management          |
+| Personal info → User IDs                                              | Yes       | Required  | Account management, Analytics (crash grouping) |
+| Personal info → Other info (lender/friend names on loans)             | Yes       | Optional  | App functionality                              |
+| Photos and videos → Photos                                            | Yes       | Optional  | App functionality                              |
+| App activity → Other user-generated content (library, notes, ratings) | Yes       | Required  | App functionality                              |
+| App activity → App interactions (when episodes are marked watched)    | Yes       | Required  | App functionality, Personalization             |
+| App info and performance → Crash logs                                 | Yes       | Required  | Analytics (app stability)                      |
+| App info and performance → Diagnostics                                | Yes       | Required  | Analytics (performance traces, 10% sample)     |
 
 - Not collected: location, contacts, messages, audio, files, calendar, financial info, health, web
   history, installed apps, device or other IDs (confirm this on a real Sentry event: if it shows a

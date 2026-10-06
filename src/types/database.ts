@@ -341,44 +341,6 @@ export type Database = {
           },
         ];
       };
-      media_chat_messages: {
-        Row: {
-          content: string;
-          created_at: string;
-          id: string;
-          item_id: string;
-          language: string;
-          role: string;
-          user_id: string;
-        };
-        Insert: {
-          content: string;
-          created_at?: string;
-          id?: string;
-          item_id: string;
-          language: string;
-          role: string;
-          user_id?: string;
-        };
-        Update: {
-          content?: string;
-          created_at?: string;
-          id?: string;
-          item_id?: string;
-          language?: string;
-          role?: string;
-          user_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: 'media_chat_messages_item_id_user_id_fkey';
-            columns: ['item_id', 'user_id'];
-            isOneToOne: false;
-            referencedRelation: 'items';
-            referencedColumns: ['id', 'user_id'];
-          },
-        ];
-      };
       movies: {
         Row: {
           genres: string[];

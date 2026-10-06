@@ -11,9 +11,9 @@ type TabBarProps = Parameters<NonNullable<ComponentProps<typeof Tabs>['tabBar']>
 
 const items: TabItem<TabId>[] = [
   { id: 'index', label: copy.tabs.home, icon: 'home' },
-  { id: 'library', label: copy.tabs.library, icon: 'grid_view' },
-  { id: 'wishlist', label: copy.tabs.wishlist, icon: 'star' },
-  { id: 'collections', label: copy.tabs.collections, icon: 'category' },
+  { id: 'library', label: copy.tabs.library, icon: 'shelves' },
+  { id: 'wishlist', label: copy.tabs.wishlist, icon: 'shopping_bag' },
+  { id: 'collections', label: copy.tabs.collections, icon: 'grid_view' },
 ];
 
 function AppTabBar({ state, navigation }: TabBarProps) {

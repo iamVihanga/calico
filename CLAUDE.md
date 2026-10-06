@@ -92,11 +92,8 @@ Expo-specific guidance: @AGENTS.md
   `defaultOpenSeason`); rows open the `episode` sheet, the right-hand circle ticks. Episode overviews live in
   `tmdb_episodes.overview` ('' = TMDB has none, null = cached before the column; the `season` action refetches).
   Keep `useShowMarker` callbacks stable and pass per-season `seenSig` so ticks re-render one season only.
-- Ask Pinki (`app/(app)/chat/[itemId].tsx`, `src/features/media/chat`): the `media-chat` edge function reads the title
-  and the last 20 turns as the user (RLS), calls Gemini via `_shared/gemini.ts`, saves both turns to
-  `media_chat_messages`. English/Sinhala, spoiler-safe unless "Spoilers OK" (shows: up to the furthest watched
-  episode). `ai_usage.kind` splits the limits: covers 30/day, chat 50/day. Any Gemini call goes through
-  `_shared/gemini.ts` (logs Gemini's error, schema fallback).
+- Gemini reads covers only (`extract-book`, 30/day in `ai_usage`, kind 'cover'); any Gemini call goes through
+  `_shared/gemini.ts` (logs Gemini's error, schema fallback). Ask Pinki (the per-title chat) was removed.
 - Router tests: never call `findBy*` inside `act()` (it waits forever); find first, then act. Await every
   `fireEvent.press(…)`: an un-awaited press overlaps `act` and the next test in the file renders nothing.
 - Anything that lists "whatever it is" (Wishlist, collections, search) uses `useLibraryItems()`

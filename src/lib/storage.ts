@@ -10,8 +10,6 @@ export const storageKeys = {
   remindersAsked: 'reminders-asked',
   recentTmdb: 'recent-tmdb-searches',
   recentSearches: 'recent-searches',
-  /** { [itemId]: { language, spoilers } } for the AI chat about each title. */
-  chatPrefs: 'chat-prefs',
   /** What the home-screen widgets show (`WidgetSnapshot`), so they can draw while the app is closed. */
   widgets: 'widgets',
   /** The one-time "Want a nudge?" card was answered. */

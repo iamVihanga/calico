@@ -1,4 +1,4 @@
-// One way to call Gemini for every edge function (extract-book, media-chat).
+// One way to call Gemini from the edge functions (extract-book reads covers with it).
 
 /** Google's alias for the current Flash model; the GEMINI_MODEL secret overrides it. */
 export const DEFAULT_MODEL = 'gemini-flash-latest';
