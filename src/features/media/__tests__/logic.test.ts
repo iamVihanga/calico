@@ -1,6 +1,7 @@
-import type { Episode } from '../types';
+import type { Episode, Show, ShowProgress } from '../types';
 import {
   airedIn,
+  countdown,
   epKey,
   finishedShow,
   fmtRuntime,
@@ -9,6 +10,7 @@ import {
   progressOf,
   defaultOpenSeason,
   seasonsOf,
+  upcomingShows,
 } from '../logic';
 
 const ep = (season: number, episode: number, name: string, airDate: string | null): Episode => ({
@@ -134,5 +136,39 @@ describe('defaultOpenSeason', () => {
     expect(defaultOpenSeason(seasons, [], null)).toBe(1);
     expect(defaultOpenSeason(seasons, [{ season: 0, episode: 1, watchedAt: '2026-09-30T00:00:00Z' }], null)).toBe(1);
     expect(defaultOpenSeason([], [], null)).toBeNull();
+  });
+});
+
+describe('upcoming (Home: caught-up shows)', () => {
+  const show = (id: string, over: Partial<Show> = {}) =>
+    ({ id, title: id, status: 'watching', nextAirDate: null, tmdbStatus: 'Returning Series', ...over }) as Show;
+  const row = (itemId: string, caughtUp = true) =>
+    ({ itemId, next: caughtUp ? null : { season: 1, episode: 2, name: null, stillPath: null } }) as ShowProgress;
+
+  it('dated soonest first (then by title), undated after; ended, on hold, behind and not watching left out', () => {
+    const shows = [
+      show('Later', { nextAirDate: '2026-11-02' }),
+      show('Beta', { nextAirDate: '2026-10-10' }),
+      show('Alpha', { nextAirDate: '2026-10-10' }),
+      show('Waiting'),
+      show('Ended', { tmdbStatus: 'Ended' }),
+      show('Held', { nextAirDate: '2026-10-08', onHold: true }),
+      show('Behind', { nextAirDate: '2026-10-08' }),
+      show('Wanted', { status: 'watchlist', nextAirDate: '2026-10-08' }),
+    ];
+    const progress = shows.map((s) => row(s.id, s.id !== 'Behind'));
+    const { dated, undated } = upcomingShows(shows, progress);
+    expect(dated.map((s) => s.id)).toEqual(['Alpha', 'Beta', 'Later']);
+    expect(undated.map((s) => s.id)).toEqual(['Waiting']);
+  });
+
+  it('countdown', () => {
+    const today = '2026-10-06';
+    expect(countdown('2026-10-05', today)).toBe('Out now');
+    expect(countdown('2026-10-06', today)).toBe('Today');
+    expect(countdown('2026-10-07', today)).toBe('Tomorrow');
+    expect(countdown('2026-10-11', today)).toBe('In 5 days');
+    expect(countdown('2026-10-27', today)).toBe('In 3 weeks');
+    expect(countdown('2027-01-06', today)).toBe('In 3 months');
   });
 });

@@ -36,7 +36,7 @@ export function nudgeCandidates(
   return shows.flatMap((s) => {
     const n = next.get(s.id);
     const ticks = byShow.get(s.id) ?? [];
-    const habit = s.status === 'watching' && n ? habitOf(ticks, now) : null;
+    const habit = s.status === 'watching' && !s.onHold && n ? habitOf(ticks, now) : null;
     if (!n || !habit) return [];
     return [
       {

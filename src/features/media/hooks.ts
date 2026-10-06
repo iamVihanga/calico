@@ -115,7 +115,11 @@ function applyWatches(qc: QueryClient, itemId: string, season: number, episodes:
   });
   if (watched) {
     patchShow(qc, itemId, (s) =>
-      s.status === 'watchlist' ? { status: 'watching', startedAt: s.startedAt ?? colomboToday() } : {},
+      s.status === 'watchlist'
+        ? { status: 'watching', startedAt: s.startedAt ?? colomboToday(), onHold: false }
+        : s.onHold
+          ? { onHold: false } // watching again: back in Continue watching (SQL `mark_episodes`)
+          : {},
     );
   }
   const show = qc.getQueryData<Show[]>(SHOWS)?.find((s) => s.id === itemId);
@@ -355,6 +359,25 @@ export function useSetMediaStatus() {
       });
       patchMovie(qc, v.itemId, (m) => patch(m) as Partial<Movie>);
       patchShow(qc, v.itemId, (x) => patch(x) as Partial<Show>);
+      return s;
+    },
+    onError: (_e, _v, ctx) => {
+      restoreSnap(qc, ctx);
+      failed();
+    },
+    onSettled: (_d, _e, v) => settleMedia(qc, v.itemId),
+  });
+}
+
+/** Put a show on hold or bring it back; it stays Watching (and doesn't count as an update). */
+export function useSetOnHold() {
+  const qc = useQueryClient();
+  return useMutation<void, Error, api.OnHoldVars, Snap>({
+    mutationKey: mk.mediaOnHold,
+    scope: MEDIA_SCOPE,
+    onMutate: async (v) => {
+      const s = await snap(qc);
+      qc.setQueryData<Show[]>(SHOWS, (l) => l?.map((x) => (x.id === v.itemId ? { ...x, onHold: v.on } : x)));
       return s;
     },
     onError: (_e, _v, ctx) => {

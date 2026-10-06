@@ -125,6 +125,21 @@ describe('buildSnapshot', () => {
     });
   });
 
+  it('next episode: a show put on hold is skipped', () => {
+    const s = buildSnapshot(
+      {
+        ...base,
+        shows: [{ ...show('held', 'watching'), onHold: true }, show('hotd', 'watching')],
+        progress: [
+          progress('held', { season: 1, episode: 2, name: 'Two', stillPath: null }),
+          progress('hotd', { season: 2, episode: 6, name: 'Smallfolk', stillPath: null }),
+        ],
+      },
+      today,
+    );
+    expect(s.next?.showId).toBe('hotd');
+  });
+
   it('due soon: the first borrowed book due (overdue first)', () => {
     const loan = (dueOn: string) => ({
       id: `l-${dueOn}`,

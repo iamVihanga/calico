@@ -58,6 +58,8 @@ export type Show = MediaBase & {
   nextSeason: number | null;
   nextEpisode: number | null;
   lastSyncedAt: string | null;
+  /** Paused by the user: left out of Home's Continue watching, the widget and nudges. Missing = false. */
+  onHold?: boolean;
 };
 
 export type Media = Movie | Show;

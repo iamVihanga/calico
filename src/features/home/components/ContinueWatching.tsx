@@ -7,12 +7,12 @@ import { Press } from '@/components/ds/Press';
 import { Txt } from '@/components/ds/Txt';
 import { habitOf, inHabitWindow, orderWatching, sessionsByShow } from '@/features/media/habits';
 import { useProgress, useShowProgress, useShows, useWatchSessions } from '@/features/media/hooks';
-import { epCode } from '@/features/media/logic';
+import { countdown, epCode, upcomingShows } from '@/features/media/logic';
 import type { Show, ShowProgress } from '@/features/media/types';
 import { useShowMarker } from '@/features/media/useShowMarker';
 import { copy } from '@/i18n/en';
 import { openSheet } from '@/lib/stores/sheet';
-import { colomboToday, fmtDay } from '@/lib/dates';
+import { colomboToday } from '@/lib/dates';
 import { useHourNow } from '@/lib/useHourNow';
 import { alpha, layout, motion, palette, radius, shadow, size, tracking, useTheme } from '@/theme';
 
@@ -147,41 +147,73 @@ function WatchCard({ show, row }: { show: Show; row: ShowProgress }) {
 }
 
 /**
- * Home "Continue watching": a card per Watching show with a next episode, then a line for each
- * Watching show you're caught up on (prototype homeV). Hidden when there's nothing to watch.
+ * Home "Continue watching": a card per Watching show with a next episode (shows on hold left out),
+ * then a link to what's coming up for shows you're caught up on. "On hold · N" on the title row opens
+ * the shows put on hold. Hidden when there's nothing to show.
  */
 export function ContinueWatching() {
+  const { t } = useTheme();
   const shows = useShows().data ?? [];
   const rows = useShowProgress().data ?? [];
   const today = colomboToday();
   const byId = new Map(rows.map((r) => [r.itemId, r]));
   const watching = shows.filter((s) => s.status === 'watching' && byId.has(s.id));
+  const held = watching.filter((s) => s.onHold).length;
   const sessions = useWatchSessions().data ?? [];
   const now = useHourNow();
   // What you usually watch around this time comes first (habits from your episode ticks).
   const withNext = orderWatching(
-    watching.filter((s) => byId.get(s.id)!.next),
+    watching.filter((s) => !s.onHold && byId.get(s.id)!.next),
     sessions,
     now,
   );
-  const caughtUp = watching.filter((s) => !byId.get(s.id)!.next);
-  if (watching.length === 0) return null;
+  const { dated, undated } = upcomingShows(shows, rows);
+  if (withNext.length + dated.length + undated.length + held === 0) return null;
   const first = withNext[0];
   const habit = first ? habitOf(sessionsByShow(sessions).get(first.id) ?? [], now) : null;
   const usual =
     first && habit && inHabitWindow(habit, now) ? copy.habits.usual(first.title, copy.habits.time(habit.hour)) : null;
+  const soonest = dated[0];
 
   return (
     <View style={{ paddingBottom: 26 }} testID="continue-watching">
-      <Txt
-        family="display"
-        weight={700}
-        size={22}
-        accessibilityRole="header"
-        style={{ paddingHorizontal: layout.gutterScreen, paddingBottom: 12, letterSpacing: -0.02 * 22 }}
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          gap: 12,
+          paddingHorizontal: layout.gutterScreen,
+          paddingBottom: 12,
+        }}
       >
-        {copy.shows.continueWatching}
-      </Txt>
+        <Txt
+          family="display"
+          weight={700}
+          size={22}
+          accessibilityRole="header"
+          style={{ flex: 1, letterSpacing: -0.02 * 22 }}
+        >
+          {copy.shows.continueWatching}
+        </Txt>
+        {held > 0 && (
+          <Press
+            accessibilityRole="button"
+            accessibilityLabel={copy.onHold.linkA11y(held)}
+            onPress={() => openSheet('onHold')}
+            style={{
+              paddingVertical: 4,
+              paddingHorizontal: 10,
+              borderRadius: radius.pill,
+              backgroundColor: t.surfaceSunk,
+            }}
+            testID="watching-on-hold"
+          >
+            <Txt family="ui" weight={700} size="3xs" color="textSecondary">
+              {copy.onHold.link(held)}
+            </Txt>
+          </Press>
+        )}
+      </View>
       {usual && (
         <Txt
           family="hand"
@@ -198,11 +230,39 @@ export function ContinueWatching() {
         {withNext.map((s) => (
           <WatchCard key={s.id} show={s} row={byId.get(s.id)!} />
         ))}
-        {caughtUp.map((s) => (
-          <Txt key={s.id} family="ui" size="2xs" color="textMuted" style={{ paddingHorizontal: 4 }}>
-            {copy.shows.caughtUpLine(s.title, s.nextAirDate && s.nextAirDate >= today ? fmtDay(s.nextAirDate) : null)}
-          </Txt>
-        ))}
+        {dated.length + undated.length > 0 && (
+          <Press
+            accessibilityRole="button"
+            accessibilityHint={copy.upcoming.linkA11y}
+            onPress={() => openSheet('upcoming')}
+            scaleTo={0.98}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 12,
+              paddingVertical: 12,
+              paddingHorizontal: 14,
+              borderRadius: radius.lg,
+              borderWidth: 1,
+              borderStyle: 'dashed',
+              borderColor: t.borderStrong,
+            }}
+            testID="watching-upcoming"
+          >
+            <Icon name="calendar_today" size={20} color="textAccent" />
+            <View style={{ flex: 1, minWidth: 0 }}>
+              <Txt family="ui" weight={700} size={14}>
+                {copy.upcoming.link(dated.length, undated.length)}
+              </Txt>
+              {soonest && (
+                <Txt family="ui" size="2xs" color="textMuted" numberOfLines={1}>
+                  {copy.upcoming.linkNext(soonest.title, countdown(soonest.nextAirDate!, today))}
+                </Txt>
+              )}
+            </View>
+            <Icon name="arrow_forward" size={20} color="textMuted" />
+          </Press>
+        )}
       </View>
     </View>
   );

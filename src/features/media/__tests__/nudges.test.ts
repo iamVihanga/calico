@@ -83,6 +83,13 @@ describe('watch-time nudges', () => {
     ]);
   });
 
+  it('nothing for a show on hold', async () => {
+    seed(true);
+    queryClient.setQueryData(qk.items('show', 'all'), [{ ...show, onHold: true }]);
+    expect(await syncWatchNudges(monday('12:00'))).toBe(0);
+    expect(N.scheduleNotificationAsync).not.toHaveBeenCalled();
+  });
+
   it('nothing without notification permission', async () => {
     seed(true);
     N.getPermissionsAsync.mockResolvedValue({ granted: false });

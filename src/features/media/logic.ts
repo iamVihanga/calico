@@ -1,9 +1,9 @@
 import { ENDED } from '@shared/tmdb.ts';
 
 import { copy } from '@/i18n/en';
-import type { LocalDate } from '@/lib/dates';
+import { daysBetween, type LocalDate } from '@/lib/dates';
 
-import type { Episode, EpisodeRef, MovieStatus, ShowStatus } from './types';
+import type { Episode, EpisodeRef, MovieStatus, Show, ShowProgress, ShowStatus } from './types';
 import { DEFAULT_DIR, type LibrarySort, type SortDir, type Sortable, sortItems } from '@/features/library/sort';
 
 /** TMDB statuses of shows that won't get new episodes. */
@@ -148,4 +148,35 @@ export function defaultOpenSeason(
   if (latest) return latest.season;
   if (next && shown.has(next.season)) return next.season;
   return seasons[0]?.n ?? null;
+}
+
+/**
+ * Watching shows you're caught up on (Home's Upcoming sheet), on-hold ones left out. `dated`: the next
+ * episode has an air date (soonest first; one already out but not in the episode cache yet comes first);
+ * `undated`: still airing but nothing announced. Ended/canceled shows are in neither.
+ */
+export function upcomingShows(shows: Show[], progress: ShowProgress[]): { dated: Show[]; undated: Show[] } {
+  const byId = new Map(progress.map((p) => [p.itemId, p]));
+  const caughtUp = shows.filter((s) => {
+    const p = byId.get(s.id);
+    return s.status === 'watching' && !s.onHold && p !== undefined && p.next === null;
+  });
+  const dated = caughtUp
+    .filter((s) => !!s.nextAirDate)
+    .sort((a, b) => a.nextAirDate!.localeCompare(b.nextAirDate!) || a.title.localeCompare(b.title));
+  const undated = caughtUp
+    .filter((s) => !s.nextAirDate && !(s.tmdbStatus && ENDED_STATUS.includes(s.tmdbStatus)))
+    .sort((a, b) => a.title.localeCompare(b.title));
+  return { dated, undated };
+}
+
+/** "Today", "Tomorrow", "In 5 days", "In 3 weeks", "In 2 months" ("Out now" once the day has passed). */
+export function countdown(date: LocalDate, today: LocalDate): string {
+  const d = daysBetween(today, date);
+  if (d < 0) return copy.upcoming.outNow;
+  if (d === 0) return copy.upcoming.today;
+  if (d === 1) return copy.upcoming.tomorrow;
+  if (d < 14) return copy.upcoming.inDays(d);
+  if (d < 60) return copy.upcoming.inWeeks(Math.round(d / 7));
+  return copy.upcoming.inMonths(Math.round(d / 30));
 }

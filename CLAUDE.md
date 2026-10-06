@@ -82,6 +82,12 @@ Expo-specific guidance: @AGENTS.md
   (`orderWatching`, clock from `useHourNow`). Nudges (`nudges.ts`, opt-in via `profiles.watch_nudges`, offered once
   by `NudgeOfferCard`, Settings toggle): at most one a day, 10 min before the strongest habit, `habit:{date}`
   identifiers diffed like loan reminders, own channel, permission only through the notif sheet (`notifNudges`).
+- Home Continue watching: cards for shows with a next episode; caught-up shows sit behind the Upcoming link
+  (`upcoming` sheet, `upcomingShows`/`countdown` in `features/media/logic.ts`: dated soonest first, then "No date
+  yet", ended shows left out). "On hold" (`shows.on_hold`, `set_show_on_hold`, `useSetOnHold`): put on/back from the
+  episode sheet opened from Home, listed in the `onHold` sheet ("On hold · N" on the title row). Held shows stay
+  Watching but are left out of the cards, Upcoming, the Next episode widget, nudges and habit ordering; any watched
+  tick clears it (`mark_episodes`, mirrored in `applyWatches`, toast from `useShowMarker`).
 - Show detail seasons are an accordion (`SeasonBlock`, one open; default = latest watched episode's season,
   `defaultOpenSeason`); rows open the `episode` sheet, the right-hand circle ticks. Episode overviews live in
   `tmdb_episodes.overview` ('' = TMDB has none, null = cached before the column; the `season` action refetches).
@@ -91,7 +97,8 @@ Expo-specific guidance: @AGENTS.md
   `media_chat_messages`. English/Sinhala, spoiler-safe unless "Spoilers OK" (shows: up to the furthest watched
   episode). `ai_usage.kind` splits the limits: covers 30/day, chat 50/day. Any Gemini call goes through
   `_shared/gemini.ts` (logs Gemini's error, schema fallback).
-- Router tests: never call `findBy*` inside `act()` (it waits forever); find first, then act.
+- Router tests: never call `findBy*` inside `act()` (it waits forever); find first, then act. Await every
+  `fireEvent.press(…)`: an un-awaited press overlaps `act` and the next test in the file renders nothing.
 - Anything that lists "whatever it is" (Wishlist, collections, search) uses `useLibraryItems()`
   (`src/features/library/items.ts`) and `ItemCover`. Wishlist moves compute from the query cache at call time
   (`keyForMove` on the current order), never from a render-time index.

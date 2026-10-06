@@ -33,6 +33,7 @@ import {
   WatchAgainSheetBody,
 } from '@/features/media/sheets/MediaSheets';
 import { EpisodeSheetBody } from '@/features/media/sheets/EpisodeSheet';
+import { OnHoldSheetBody, UpcomingSheetBody } from '@/features/media/sheets/WatchingSheets';
 import { copy } from '@/i18n/en';
 import { type SheetName, useSheetStore } from '@/lib/stores/sheet';
 
@@ -127,6 +128,22 @@ export function SheetHost() {
             onClose={closer('episode')}
           />
         )}
+      </Sheet>
+      <Sheet
+        open={sheet?.name === 'upcoming'}
+        onClose={closer('upcoming')}
+        title={copy.upcoming.title}
+        testID="sheet-upcoming"
+      >
+        {sheet?.name === 'upcoming' && <UpcomingSheetBody onClose={closer('upcoming')} />}
+      </Sheet>
+      <Sheet
+        open={sheet?.name === 'onHold'}
+        onClose={closer('onHold')}
+        title={copy.onHold.title}
+        testID="sheet-on-hold"
+      >
+        {sheet?.name === 'onHold' && <OnHoldSheetBody onClose={closer('onHold')} />}
       </Sheet>
       <Sheet open={sheet?.name === 'mediaOverflow'} onClose={closer('mediaOverflow')} testID="sheet-media-overflow">
         {sheet?.name === 'mediaOverflow' && (

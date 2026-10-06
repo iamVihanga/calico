@@ -73,6 +73,7 @@ export function toShow(r: ShowRow): Show {
     nextSeason: s?.next_season ?? null,
     nextEpisode: s?.next_episode ?? null,
     lastSyncedAt: s?.last_synced_at ?? null,
+    onHold: s?.on_hold ?? false,
   };
 }
 
@@ -350,6 +351,13 @@ export async function markShowWatched(v: ShowWatchedVars): Promise<void> {
     ...(v.forceWatched ? { p_force_watched: true } : {}),
     ...dated(v),
   });
+  if (error) throw error;
+}
+
+export type OnHoldVars = { itemId: string; on: boolean };
+/** "Put on hold" / "Back to Continue watching" (`set_show_on_hold`). Ticking an episode also brings it back. */
+export async function setShowOnHold(v: OnHoldVars): Promise<void> {
+  const { error } = await supabase.rpc('set_show_on_hold', { p_item: v.itemId, p_on: v.on });
   if (error) throw error;
 }
 

@@ -36,6 +36,7 @@ export const mk = {
   mediaMarkSeason: ['media', 'markSeason'] as const,
   mediaMarkShow: ['media', 'markShow'] as const,
   mediaStatus: ['media', 'status'] as const,
+  mediaOnHold: ['media', 'onHold'] as const,
   collectionCreate: ['collections', 'create'] as const,
   // The Wishlist order (the keys keep their Up next values, so paused offline writes still resume).
   wishlistMove: ['upNext', 'move'] as const,
@@ -119,6 +120,10 @@ export function registerMutations(qc: QueryClient) {
   qc.setMutationDefaults(mk.mediaStatus, {
     scope: MEDIA_SCOPE,
     mutationFn: (v: media.MediaStatusVars) => media.setItemStatus(v),
+  });
+  qc.setMutationDefaults(mk.mediaOnHold, {
+    scope: MEDIA_SCOPE,
+    mutationFn: (v: media.OnHoldVars) => media.setShowOnHold(v),
   });
   qc.setMutationDefaults(mk.wishlistMove, {
     scope: WISHLIST_SCOPE,

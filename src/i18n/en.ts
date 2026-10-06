@@ -147,6 +147,42 @@ export const en = {
     },
     usual: (title: string, time: string) => `your usual ${time} ${title}`,
   },
+  upcoming: {
+    title: 'Coming up',
+    /** The link under Continue watching. */
+    link: (dated: number, undated: number) =>
+      dated > 0
+        ? `${dated} coming up`
+        : undated === 1
+          ? '1 show waiting for a date'
+          : `${undated} shows waiting for a date`,
+    linkNext: (title: string, when: string) => `Next: ${title}, ${when.toLowerCase()}`,
+    linkA11y: 'Opens the upcoming episodes',
+    noDate: 'No date yet',
+    notAnnounced: 'Next episode not announced',
+    today: 'Today',
+    tomorrow: 'Tomorrow',
+    outNow: 'Out now',
+    inDays: (n: number) => `In ${n} days`,
+    inWeeks: (n: number) => `In ${n} weeks`,
+    inMonths: (n: number) => (n === 1 ? 'In a month' : `In ${n} months`),
+    rowA11y: (title: string, code: string | null, when: string) =>
+      code ? `${title}, ${code}, ${when}` : `${title}, ${when}`,
+  },
+  onHold: {
+    /** Right of the Continue watching title. */
+    link: (n: number) => `On hold · ${n}`,
+    linkA11y: (n: number) => (n === 1 ? '1 show on hold' : `${n} shows on hold`),
+    title: 'On hold',
+    hint: 'Still Watching in your Library. Tick an episode and it comes back on its own.',
+    put: 'Put on hold',
+    back: 'Back to Continue watching',
+    backShort: 'Back',
+    backA11y: (title: string) => `Bring ${title} back to Continue watching`,
+    putDone: (title: string) => `Put ${title} on hold`,
+    backDone: (title: string) => `${title} is back in Continue watching`,
+    caughtUp: 'All caught up',
+  },
   finished: {
     /** "Read 3 Mar 2024" / "Read in March 2024" / "Read in 2024" / "Read a while ago". */
     read: (text: string | null, exactDay: boolean) =>
@@ -594,8 +630,6 @@ export const en = {
     seasonA11y: (label: string, seen: number, total: number) => `${label}, ${seen} of ${total} watched`,
     continueWatching: 'Continue watching',
     tickHint: "tap the tick when you're done",
-    caughtUpLine: (title: string, day: string | null) =>
-      day ? `${title} — caught up. Next episode ${day}.` : `${title} — caught up. Next episode date not announced.`,
     progress: (w: number, t: number) => `${w} of ${t}`,
   },
   ruler: {

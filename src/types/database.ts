@@ -578,6 +578,7 @@ export type Database = {
           next_episode: number | null;
           next_season: number | null;
           number_of_seasons: number | null;
+          on_hold: boolean;
           overview: string | null;
           tmdb_id: number;
           tmdb_status: string | null;
@@ -592,6 +593,7 @@ export type Database = {
           next_episode?: number | null;
           next_season?: number | null;
           number_of_seasons?: number | null;
+          on_hold?: boolean;
           overview?: string | null;
           tmdb_id: number;
           tmdb_status?: string | null;
@@ -606,6 +608,7 @@ export type Database = {
           next_episode?: number | null;
           next_season?: number | null;
           number_of_seasons?: number | null;
+          on_hold?: boolean;
           overview?: string | null;
           tmdb_id?: number;
           tmdb_status?: string | null;
@@ -865,6 +868,10 @@ export type Database = {
       };
       set_loan_borrowed_on: {
         Args: { p_loan: string; p_on: string };
+        Returns: undefined;
+      };
+      set_show_on_hold: {
+        Args: { p_item: string; p_on: boolean };
         Returns: undefined;
       };
       show_progress: {

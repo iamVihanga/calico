@@ -7,9 +7,10 @@ import { Button } from '@/components/ds/Button';
 import { Txt } from '@/components/ds/Txt';
 import { copy } from '@/i18n/en';
 import { colomboToday, fmtDay } from '@/lib/dates';
+import { toast } from '@/lib/stores/toast';
 import { radius, useTheme } from '@/theme';
 
-import { useProgress, useShow } from '../hooks';
+import { useProgress, useSetOnHold, useShow } from '../hooks';
 import { epKey } from '../logic';
 import { useShowMarker } from '../useShowMarker';
 
@@ -49,6 +50,7 @@ function EpisodeDetail({
 }) {
   const { t } = useTheme();
   const marker = useShowMarker(show);
+  const setOnHold = useSetOnHold().mutate;
   const e = progress.episodes.find((x) => x.season === season && x.episode === episode);
   if (!e) return null;
   const today = colomboToday();
@@ -124,6 +126,27 @@ function EpisodeDetail({
           }}
         >
           {copy.episodeSheet.goToShow}
+        </Button>
+      )}
+      {showLink && show.status === 'watching' && (
+        <Button
+          variant="ghost"
+          block
+          testID="episode-on-hold"
+          onPress={() => {
+            const on = !show.onHold;
+            onClose();
+            setOnHold({ itemId: show.id, on });
+            toast({
+              message: on ? copy.onHold.putDone(show.title) : copy.onHold.backDone(show.title),
+              action: {
+                label: copy.common.undo,
+                onPress: () => setOnHold({ itemId: show.id, on: !on }),
+              },
+            });
+          }}
+        >
+          {show.onHold ? copy.onHold.back : copy.onHold.put}
         </Button>
       )}
     </View>

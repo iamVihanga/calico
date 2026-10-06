@@ -41,6 +41,13 @@ export function useShowMarker(show: Pick<Show, 'id' | 'tmdbId' | 'title' | 'tmdb
     });
   }, [qc, tmdbId, id, title, tmdbStatus, specials, watched, setStatus]);
 
+  /** Ticking an on-hold show brings it back (SQL `mark_episodes`): call before the mark, says so after it. */
+  const wasOnHold = useCallback(() => !!qc.getQueryData<Show[]>(SHOWS)?.find((s) => s.id === id)?.onHold, [qc, id]);
+  const announceBack = useCallback(
+    () => useToastStore.getState().enqueue({ message: copy.onHold.backDone(title) }),
+    [title],
+  );
+
   const undo = useCallback(
     (s: number, episodes: number[], was: boolean) => ({
       label: copy.common.undo,
@@ -56,6 +63,7 @@ export function useShowMarker(show: Pick<Show, 'id' | 'tmdbId' | 'title' | 'tmdb
   const toggle = useCallback(
     (e: Pick<Episode, 'season' | 'episode'>, { announce = false } = {}) => {
       const was = watched().has(epKey(e.season, e.episode));
+      const held = !was && wasOnHold();
       markEpisodes({
         itemId: id,
         season: e.season,
@@ -71,9 +79,10 @@ export function useShowMarker(show: Pick<Show, 'id' | 'tmdbId' | 'title' | 'tmdb
           action: undo(e.season, [e.episode], was),
         });
       }
+      if (held) announceBack();
       if (!was) maybeFinished();
     },
-    [id, watched, markEpisodes, undo, maybeFinished],
+    [id, watched, wasOnHold, markEpisodes, undo, announceBack, maybeFinished],
   );
 
   /** Every aired episode of a season (like SQL `mark_season`); `when` = "a while ago", maybe dated. */
@@ -82,12 +91,14 @@ export function useShowMarker(show: Pick<Show, 'id' | 'tmdbId' | 'title' | 'tmdb
       const have = watched();
       const fresh = airedIn(s, colomboToday()).filter((n) => !have.has(epKey(s.n, n)));
       if (!fresh.length) return [];
+      const held = wasOnHold();
       markSeason({ itemId: id, season: s.n, episodes: fresh, ...when });
       toast({ message: copy.shows.seasonMarked(copy.shows.season(s.n)), action: undo(s.n, fresh, false) });
+      if (held) announceBack();
       maybeFinished();
       return fresh;
     },
-    [id, watched, markSeason, undo, maybeFinished],
+    [id, watched, wasOnHold, markSeason, undo, announceBack, maybeFinished],
   );
 
   /** Every watched episode of a season back to unwatched, in one write, with Undo. */

@@ -56,7 +56,7 @@ export function buildSnapshot(
   const book = books.find((b) => b.status === 'reading');
   const byId = new Map(progress.map((p) => [p.itemId, p]));
   const [show] = orderWatching(
-    shows.filter((s) => s.status === 'watching' && byId.get(s.id)?.next),
+    shows.filter((s) => s.status === 'watching' && !s.onHold && byId.get(s.id)?.next),
     sessions,
     now,
   );
